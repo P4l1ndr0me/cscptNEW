@@ -1,39 +1,52 @@
 package core;
 
 import world.World;
-import static com.raylib.Colors.RAYWHITE;
+import entities.Player;
 import static com.raylib.Raylib.*;
 
 public class GameState {
 
     private Camera camera;
     private World world;
-    float playerX = World.worldWidth / 2;
-    float playerY = World.worldHeight / 2;
+    private Player player;
+
+    private final float HALF_WIDTH = GetScreenWidth() / 2;
+    private final float HALF_HEIGHT = GetScreenHeight() / 2;
+
+    float playerWorldX = World.worldWidth / 2;
+    float playerWorldY = World.worldHeight / 2;
+
+    Texture playerSprite = new Texture();
 
     public GameState() {
         world = new World();
-        camera = new Camera(playerX, playerY);
+        playerSprite = LoadTexture("src/main/Resources/Sprite1/spriteSheet.png");
+        player = new Player(playerSprite, 3, 3, HALF_WIDTH, HALF_HEIGHT, 150f);
+        camera = new Camera(playerWorldX, playerWorldY);
     }
 
     public void update(float dt) {
-        float speed = 300f*dt;
+        float speed = 350f;
         if (IsKeyDown(KEY_W)) {
-            playerY -= speed;
-            camera.followTarget(playerX, playerY);
+            playerWorldY -= speed * dt;
+            camera.followTarget(playerWorldX, playerWorldY);
         }
         if (IsKeyDown(KEY_S)) {
-            playerY += speed;
-            camera.followTarget(playerX, playerY);
+            playerWorldY += speed * dt;
+            camera.followTarget(playerWorldX, playerWorldY);
         }
         if (IsKeyDown(KEY_A)) {
-            playerX -= speed;
-            camera.followTarget(playerX, playerY);
+            playerWorldX -= speed * dt;
+            camera.followTarget(playerWorldX, playerWorldY);
         }
         if (IsKeyDown(KEY_D)) {
-            playerX += speed;
-            camera.followTarget(playerX, playerY);
+            playerWorldX += speed * dt;
+            camera.followTarget(playerWorldX, playerWorldY);
         }
+
+        // clamping
+        playerWorldX = Math.max(HALF_WIDTH, Math.min(World.worldWidth - HALF_WIDTH, playerWorldX));
+        playerWorldY = Math.max(HALF_HEIGHT, Math.min(World.worldHeight - HALF_HEIGHT, playerWorldY));
     }
 
     public void draw() {

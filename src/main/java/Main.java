@@ -21,6 +21,7 @@ public class Main {
             BeginDrawing();
             ClearBackground(DARKGREEN);
             gameState.draw();
+            DrawCircle(screen_width/2, screen_height/2, 20, WHITE); // testing
             EndDrawing();
         }
         CloseWindow();

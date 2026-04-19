@@ -4,8 +4,8 @@ import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 
 public class World {
-    public static final int worldWidth = 1000;
-    public static final int worldHeight = 1000;
+    public static final int worldWidth = 2000;
+    public static final int worldHeight = 2000;
     public static final int tileSize = 50;
 
     public void drawGrid() {
