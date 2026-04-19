@@ -1,20 +1,44 @@
 package core;
 
+import world.World;
 import static com.raylib.Colors.RAYWHITE;
 import static com.raylib.Raylib.*;
 
 public class GameState {
-    public GameState() {
 
+    private Camera camera;
+    private World world;
+    float playerX = World.worldWidth / 2;
+    float playerY = World.worldHeight / 2;
+
+    public GameState() {
+        world = new World();
+        camera = new Camera(playerX, playerY);
     }
 
     public void update(float dt) {
-
+        float speed = 300f*dt;
+        if (IsKeyDown(KEY_W)) {
+            playerY -= speed;
+            camera.followTarget(playerX, playerY);
+        }
+        if (IsKeyDown(KEY_S)) {
+            playerY += speed;
+            camera.followTarget(playerX, playerY);
+        }
+        if (IsKeyDown(KEY_A)) {
+            playerX -= speed;
+            camera.followTarget(playerX, playerY);
+        }
+        if (IsKeyDown(KEY_D)) {
+            playerX += speed;
+            camera.followTarget(playerX, playerY);
+        }
     }
 
     public void draw() {
-        int length = MeasureText("Game loop running!", 24);
-        DrawText("Game loop running!", GetScreenWidth()/2-length/2, GetScreenHeight()/2 - 12, 24, RAYWHITE);
-        DrawFPS(16, 16);
+        camera.beginDraw();
+            world.drawGrid();
+        camera.endDraw();
     }
 }

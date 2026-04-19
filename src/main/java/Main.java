@@ -4,7 +4,7 @@ import static com.raylib.Colors.*;
 import static com.raylib.Raylib.*;
 
 public class Main {
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         int screen_width = 1280;
         int screen_height = 720;
 
@@ -19,7 +19,7 @@ public class Main {
             gameState.update(dt);
 
             BeginDrawing();
-            ClearBackground(BLACK);
+            ClearBackground(DARKGREEN);
             gameState.draw();
             EndDrawing();
         }
