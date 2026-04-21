@@ -13,6 +13,14 @@ public class World {
 
     public void drawWorld() {
         DrawTextureEx(background, newVector2(0, 0), 0, (float) worldWidth /background.width(), WHITE);
+
+        // Draw grid
+        for (int x = 0; x <= worldWidth; x += tileSize) {
+            DrawLine(x, 0, x, worldHeight, LIGHTGRAY);
+        }
+        for (int y = 0; y <= worldHeight; y += tileSize) {
+            DrawLine(0, y, worldWidth, y, LIGHTGRAY);
+        }
     }
 
     public void unload() {

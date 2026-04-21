@@ -11,15 +11,17 @@ public class GameState {
 
     private Camera camera;
     private Player player;
-    private World world = new World();
+    private World world;
 
     Texture skin;
 
     public GameState() {
         // load textures
         skin = LoadTexture("src/main/assets/images/player1.png");
+
         camera = new Camera(newVector2(World.worldWidth / 2, World.worldHeight / 2));
         player = new Player(newVector2(World.worldWidth / 2, World.worldHeight / 2), 2.0f, 150.0f, skin);
+        world = new World();
     }
 
     public void update() {
