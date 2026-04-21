@@ -11,14 +11,13 @@ public class GameState {
 
     private Camera camera;
     private Player player;
+    private World world = new World();
 
-    Texture skin, background;
+    Texture skin;
 
     public GameState() {
         // load textures
         skin = LoadTexture("src/main/assets/images/player1.png");
-        background = LoadTexture("src/main/assets/images/background.png");
-
         camera = new Camera(newVector2(World.worldWidth / 2, World.worldHeight / 2));
         player = new Player(newVector2(World.worldWidth / 2, World.worldHeight / 2), 2.0f, 150.0f, skin);
     }
@@ -31,13 +30,13 @@ public class GameState {
 
     public void draw() {
         camera.beginDraw();
-            DrawTextureEx(background, newVector2(0, 0), 0, World.worldWidth/background.width(), WHITE);
+            world.drawWorld();
             player.draw();
         camera.endDraw();
     }
 
     public void unload() {
         UnloadTexture(skin);
-        UnloadTexture(background);
+        world.unload();
     }
 }
