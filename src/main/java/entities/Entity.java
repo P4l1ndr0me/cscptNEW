@@ -30,18 +30,30 @@ public class Entity {
     public void update (float dt) {
         float halfWidth = (texture.width() * scale) / 2;
         float halfHeight = (texture.height() * scale) / 2;
-        if (IsKeyDown(KEY_W)) {
-            position.y(position.y() - speed * dt);
+
+        float moveX = (IsKeyDown(KEY_D) ? 1.0f : 0.0f) - (IsKeyDown(KEY_A) ? 1.0f : 0.0f);
+        float moveY = (IsKeyDown(KEY_S) ? 1.0f : 0.0f) - (IsKeyDown(KEY_W) ? 1.0f : 0.0f);
+        Vector2 moveDir = newVector2(moveX, moveY);
+
+        // make sure going diagonally doesn't increase speed
+        if (Vector2Length(moveDir) > 0) {
+            moveDir = Vector2Normalize(moveDir);
         }
-        if (IsKeyDown(KEY_S)) {
-            position.y(position.y() + speed * dt);
-        }
-        if (IsKeyDown(KEY_A)) {
-            position.x(position.x() - speed * dt);
-        }
-        if (IsKeyDown(KEY_D)) {
-            position.x(position.x() + speed * dt);
-        }
+
+        position.x(position.x() + speed * moveDir.x() *dt);
+        position.y(position.y() + speed * moveDir.y() * dt);
+//        if (IsKeyDown(KEY_W)) {
+//            position.y(position.y() - speed * dt);
+//        }
+//        if (IsKeyDown(KEY_S)) {
+//            position.y(position.y() + speed * dt);
+//        }
+//        if (IsKeyDown(KEY_A)) {
+//            position.x(position.x() - speed * dt);
+//        }
+//        if (IsKeyDown(KEY_D)) {
+//            position.x(position.x() + speed * dt);
+//        }
 
         // Make sure player does not go out of bounds
         if (position.x() < halfWidth) {
