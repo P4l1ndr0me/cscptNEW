@@ -17,10 +17,10 @@ public class GameState {
 
     public GameState() {
         // load textures
-        skin = LoadTexture("src/main/assets/images/player1.png");
+        skin = LoadTexture("src/main/assets/images/proportionalSprite1.png");
 
         camera = new Camera(newVector2(World.worldWidth / 2, World.worldHeight / 2));
-        player = new Player(newVector2(World.worldWidth / 2, World.worldHeight / 2), 2.0f, 150.0f, skin);
+        player = new Player(newVector2(World.worldWidth / 2, World.worldHeight / 2), 4.0f, 150.0f, skin, 3, 3);
         world = new World();
     }
 
@@ -33,7 +33,7 @@ public class GameState {
     public void draw() {
         camera.beginDraw();
             world.drawWorld();
-            player.draw();
+            player.drawWalk();
         camera.endDraw();
     }
 
