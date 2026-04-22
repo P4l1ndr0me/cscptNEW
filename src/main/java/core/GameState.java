@@ -12,14 +12,10 @@ public class GameState {
     private Player player;
     private World world;
 
-    Texture skin;
-
     public GameState() {
-        // load textures
-        skin = LoadTexture("src/main/assets/images/proportionalSprite1.png");
 
         camera = new Camera(newVector2(World.worldWidth / 2, World.worldHeight / 2));
-        player = new Player(newVector2(World.worldWidth / 2, World.worldHeight / 2), 2.0f, 300.0f, skin, 3, 3);
+        player = new Player(newVector2(World.worldWidth / 2, World.worldHeight / 2), 2.0f, 300.0f, 3, 3);
         world = new World();
     }
 
@@ -37,7 +33,7 @@ public class GameState {
     }
 
     public void unload() {
-        UnloadTexture(skin);
+        player.unload();
         world.unload();
     }
 }
