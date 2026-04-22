@@ -50,8 +50,8 @@ public class Entity {
         Rectangle dest = new Rectangle()
                 .x(position.x() - (frameWidth * scale) / 2)
                 .y(position.y() - (frameHeight * scale) / 2)
-                .width(frameWidth * 2)
-                .height(frameHeight * 2);
+                .width(frameWidth * scale)
+                .height(frameHeight * scale);
 
         Vector2 origin = new Vector2().x(0).y(0);
 
@@ -61,30 +61,41 @@ public class Entity {
 
     public void update (float dt) {
         boolean moving = false;
-        float halfWidth = (texture.width() * scale) / 2;
-        float halfHeight = (texture.height() * scale) / 2;
+        float moveX = 0, moveY = 0;
+
         if (IsKeyDown(KEY_W)) {
-            position.y(position.y() - speed * dt);
-            moving = true;
-            currentRow = 0;
+            moveY -= 1;
         }
         if (IsKeyDown(KEY_S)) {
-            position.y(position.y() + speed * dt);
-            currentRow = 2;
-            moving = true;
+            moveY += 1;
         }
         if (IsKeyDown(KEY_A)) {
-            position.x(position.x() - speed * dt);
-            currentRow = 2;
-            moving = true;
+            moveX -= 1;
         }
         if (IsKeyDown(KEY_D)) {
-            position.x(position.x() + speed * dt);
-            currentRow = 1;
+            moveX += 1;
+        }
+
+        if (moveY < 0) currentRow = 0;       // up
+        else if (moveY > 0) currentRow = 2;  // down
+        else if (moveX < 0) currentRow = 2;  // left
+        else if (moveX > 0) currentRow = 1;  // right
+
+
+        //make sure going diagonally doesn't increase speed
+        Vector2 moveDir = newVector2(moveX, moveY);
+        if (Vector2Length(moveDir) != 0) {
+            moveDir = Vector2Normalize(moveDir);
             moving = true;
         }
 
+        position.x(position.x() + speed * moveDir.x() *dt);
+        position.y(position.y() + speed * moveDir.y() * dt);
+
         // Make sure player does not go out of bounds
+        float halfWidth = (texture.width() / (float) frames) * scale / 2;
+        float halfHeight = (texture.height() / (float) rows) * scale / 2;
+
         if (position.x() < halfWidth) {
             position.x(halfWidth);
         }

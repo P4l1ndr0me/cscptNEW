@@ -24,6 +24,7 @@ public class Main {
             // draw
             BeginDrawing();
                 ClearBackground(GRAY);
+
                 gameState.draw();
             EndDrawing();
         }
