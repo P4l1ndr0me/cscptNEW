@@ -9,7 +9,7 @@ public class Camera {
     public Camera(Vector2 startPosition) {
         camera2D = new Camera2D();
         camera2D.zoom(1.0f);
-        camera2D.offset(newVector2(Main.screen_width / 2, Main.screen_height / 2));
+        camera2D.offset(newVector2(Main.screen_width / 2f, Main.screen_height / 2f));
         camera2D.target(startPosition);
     }
 

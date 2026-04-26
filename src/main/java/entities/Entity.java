@@ -1,8 +1,5 @@
 package entities;
 
-import com.raylib.Raylib;
-import world.World;
-
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 import static com.raylib.Helpers.newVector2;

@@ -1,6 +1,5 @@
 package core;
 
-import static com.raylib.Colors.*;
 import static com.raylib.Raylib.*;
 
 public class Main {
@@ -24,10 +23,10 @@ public class Main {
 
             // draw
             BeginDrawing();
-            ClearBackground(GRAY);
             gameState.draw();
             EndDrawing();
         }
+
         gameState.unload();
         CloseWindow();
     }
