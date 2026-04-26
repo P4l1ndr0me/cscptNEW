@@ -1,13 +1,14 @@
-import core.GameState;
+package core;
 
 import static com.raylib.Colors.*;
 import static com.raylib.Raylib.*;
 
 public class Main {
+    // default screen dimensions
+    public static final int screen_width = 1280;
+    public static final int screen_height = 720;
+
     public static void main(String[] args) {
-        // default screen dimensions
-        int screen_width = 1280;
-        int screen_height = 720;
 
         // initialize window and set fps
         InitWindow(screen_width, screen_height, "zombs.io");
@@ -16,15 +17,15 @@ public class Main {
         // Create new instance
         GameState gameState = new GameState();
 
-        while(!WindowShouldClose()) {
+        while (!WindowShouldClose()) {
 
             // update
             gameState.update();
 
             // draw
             BeginDrawing();
-                ClearBackground(GRAY);
-                gameState.draw();
+            ClearBackground(GRAY);
+            gameState.draw();
             EndDrawing();
         }
         gameState.unload();
