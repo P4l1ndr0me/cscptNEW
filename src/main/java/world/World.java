@@ -3,6 +3,7 @@ package world;
 import static com.raylib.Helpers.newVector2;
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
+import core.Camera;
 
 public class World {
     public static final int worldWidth = 2048;
@@ -10,9 +11,8 @@ public class World {
     public static final int tileSize = 32;
 
     // Generate random stone positions
-    int numStone = 10;
+    int numStone = 12;
     Vector2[] stonePosition = new Vector2[numStone];
-
 
     final private Texture background = LoadTexture("src/main/assets/images/bg.png");
     final private Texture stone = LoadTexture("src/main/assets/images/stone.png");
@@ -31,16 +31,24 @@ public class World {
                 float x, y;
 
                 // Chance that it generates next to the previous one
-                if (i > 0 && Math.random() < 0.2) {
+                if (Math.random() < 0.05) {
                     // generate coordinates
                     int dir = (int) (Math.random() * 4);
                     x = stonePosition[i - 1].x();
                     y = stonePosition[i - 1].y();
                     switch (dir) {
-                        case 0: x += tileSize; break; // Right
-                        case 1: x -= tileSize; break; // Left
-                        case 2: y += tileSize; break; // Down
-                        case 3: y -= tileSize; break; // Up
+                        case 0:
+                            x += tileSize;
+                            break; // Right
+                        case 1:
+                            x -= tileSize;
+                            break; // Left
+                        case 2:
+                            y += tileSize;
+                            break; // Down
+                        case 3:
+                            y -= tileSize;
+                            break; // Up
                     }
                 } else {
                     x = (float) (Math.random() * (worldWidth - stoneWidth));
@@ -66,20 +74,27 @@ public class World {
         DrawTextureEx(background, newVector2(0, 0), 0, (float) worldWidth / background.width(), WHITE);
     }
 
-    public void drawGrid(Vector2 position) {
-        float leftX = Math.max(0, position.x() - GetScreenWidth() / 2f);
-        float rightX = Math.min(worldWidth, position.x() + GetScreenWidth() / 2f);
-        float topY = Math.max(0, position.y() - GetScreenHeight() / 2f);
-        float bottomY = Math.min(worldHeight, position.y() + GetScreenHeight() / 2f);
+    public void drawGrid() {
+        Vector2 topLeft = GetScreenToWorld2D(newVector2(0, 0), Camera.camera);
+        Vector2 bottomRight = GetScreenToWorld2D(newVector2(GetScreenWidth(), GetScreenHeight()), Camera.camera);
 
-        float leftXAligned = (float) Math.floor(leftX / tileSize) * tileSize;
-        float topYAligned = (float) Math.floor(topY / tileSize) * tileSize;
+        float left = Math.max(0, topLeft.x());
+        float right = Math.min(worldWidth, bottomRight.x());
+        float top = Math.max(0, topLeft.y());
+        float bottom = Math.min(worldHeight, bottomRight.y());
 
-        for (float x = leftXAligned; x <= rightX; x += tileSize) {
-            DrawLineEx(newVector2(x, topY), newVector2(x, bottomY), 1f, BLACK);
+        int leftXAligned = (int) Math.floor(left / tileSize) * tileSize;
+        int rightXAligned = (int) Math.ceil(right / tileSize) * tileSize;
+        int topYAligned = (int) Math.floor(top / tileSize) * tileSize;
+        int bottomYAligned = (int) Math.ceil(bottom / tileSize) * tileSize;
+
+        float thickness = 1.0f / Camera.camera.zoom();
+
+        for (int x = leftXAligned; x <= rightXAligned; x += tileSize) {
+            DrawLineEx(newVector2(x, topYAligned), newVector2(x, bottomYAligned), thickness, BLACK);
         }
-        for (float y = topYAligned; y <= bottomY; y += tileSize) {
-            DrawLineEx(newVector2(leftX, y), newVector2(rightX, y), 1f, BLACK);
+        for (int y = topYAligned; y <= bottomYAligned; y += tileSize) {
+            DrawLineEx(newVector2(leftXAligned, y), newVector2(rightXAligned, y), thickness, BLACK);
         }
     }
 
@@ -89,6 +104,7 @@ public class World {
         }
 
     }
+
     public void unload() {
         UnloadTexture(background);
         UnloadTexture(stone);
