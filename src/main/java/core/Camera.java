@@ -4,15 +4,12 @@ import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.newVector2;
 
 public class Camera {
-    private static final float SCREEN_WIDTH = 1280f;
-    private static final float SCREEN_HEIGHT = 720f;
-
     private final Camera2D camera2D;
 
     public Camera(Vector2 startPosition) {
         camera2D = new Camera2D();
         camera2D.zoom(1.0f);
-        camera2D.offset(newVector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2));
+        camera2D.offset(newVector2(Main.screen_width / 2f, Main.screen_height / 2f));
         camera2D.target(startPosition);
     }
 

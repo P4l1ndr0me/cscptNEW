@@ -9,14 +9,14 @@ import static com.raylib.Raylib.*;
 
 public class Player extends Entity {
 
-    private static final Texture skin = LoadTexture("src/main/assets/images/proportionalSprite1.png");
+    private static final Texture skin = LoadTexture("src/main/assets/images/player.png");
 
     public Player(Vector2 position, float scale, float speed, int rows, int frames) {
         super(position, scale, speed, skin, rows, frames);
     }
 
     // draw walking animations for player sprite assuming 3x3 sprite
-    public void drawWalk(){
+    public void drawWalk() {
         float frameWidth = (float) texture.width() / frames;
         float frameHeight = (float) texture.height() / rows;
         Raylib.Rectangle source = new Raylib.Rectangle()
@@ -36,7 +36,7 @@ public class Player extends Entity {
         DrawTexturePro(texture, source, dest, origin, 0.0f, WHITE);
     }
 
-    public void update (float dt) {
+    public void update(float dt) {
         boolean moving = false;
         float moveX = 0, moveY = 0;
 
@@ -69,7 +69,7 @@ public class Player extends Entity {
             moving = true;
         }
 
-        position.x(position.x() + speed * moveDir.x() *dt);
+        position.x(position.x() + speed * moveDir.x() * dt);
         position.y(position.y() + speed * moveDir.y() * dt);
 
         // Make sure player does not go out of bounds
