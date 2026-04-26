@@ -4,16 +4,10 @@ import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.newVector2;
 
 public class Camera {
-    private final Camera2D camera2D;
+    public static Camera2D camera = new Camera2D();
+    static float zoom = 1.0f;
 
-    public Camera(Vector2 startPosition) {
-        camera2D = new Camera2D();
-        camera2D.zoom(1.0f);
-        camera2D.offset(newVector2(Main.screen_width / 2f, Main.screen_height / 2f));
-        camera2D.target(startPosition);
-    }
-
-    public void followTarget(Vector2 targetPosition) {
+    public static void update(Vector2 position) {
         // lerp camera for smooth effect (in progress)
 //        float lerpFactor = 0.1f;
 //
@@ -21,14 +15,16 @@ public class Camera {
 //        camera2D.target().y(camera2D.target().y() + (targetPosition.y() - camera2D.target().y()) * lerpFactor
 //        );
 
-        camera2D.target(targetPosition);
-    }
+        camera.offset(newVector2(Main.screen_width / 2f, Main.screen_height / 2f));
 
-    public void beginDraw() {
-        BeginMode2D(camera2D);
-    }
+        camera.target(position);
 
-    public void endDraw() {
-        EndMode2D();
+        float wheel = GetMouseWheelMove();
+        if (wheel != 0) {
+            zoom += wheel * 0.02f;
+            if (zoom < 0.5f) zoom = 0.5f; // clamp min
+            if (zoom > 2.0f) zoom = 2.0f; // clamp max
+        }
+        camera.zoom(zoom);
     }
 }

@@ -9,12 +9,10 @@ import static com.raylib.Colors.*;
 
 public class GameState {
 
-    final private Camera camera;
     final private Player player;
     final private World world;
 
     public GameState() {
-        camera = new Camera(newVector2(World.worldWidth / 2f, World.worldHeight / 2f));
         player = new Player(newVector2(World.worldWidth / 2f, World.worldHeight / 2f), 2.0f, 600.0f, 3, 3);
         world = new World();
     }
@@ -22,26 +20,27 @@ public class GameState {
     public void update() {
         float dt = GetFrameTime(); // delta time
         player.update(dt);
-        camera.followTarget(player.getPosition());
+        Camera.update(player.getPosition());
     }
 
     public void draw() {
         ClearBackground(GRAY);
 
-        camera.beginDraw();
+        BeginMode2D(Camera.camera);
 
         // draw background
         world.drawBg();
 
         // draw grid lines
-        world.drawGrid(player.getPosition());
+        world.drawGrid();
 
         // draw pregenerated stone
         world.drawStone();
 
         // draw player
         player.drawWalk();
-        camera.endDraw();
+
+        EndMode2D();
 
         // misc
         DrawText(GetFPS() + " FPS", 10, 690, 20, RED);

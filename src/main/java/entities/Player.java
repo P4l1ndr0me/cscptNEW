@@ -17,8 +17,8 @@ public class Player extends Entity {
 
     // draw walking animations for player sprite assuming 3x3 sprite
     public void drawWalk() {
-        float frameWidth = (float) texture.width() / frames;
-        float frameHeight = (float) texture.height() / rows;
+        int frameWidth = texture.width() / frames;
+        int frameHeight = texture.height() / rows;
         Raylib.Rectangle source = new Raylib.Rectangle()
                 .x(currentFrame * frameWidth)
                 .y(currentRow * frameHeight)
@@ -40,6 +40,7 @@ public class Player extends Entity {
         boolean moving = false;
         float moveX = 0, moveY = 0;
 
+        // Movement input
         if (IsKeyDown(KEY_W)) {
             moveY -= 1;
         }
@@ -53,6 +54,7 @@ public class Player extends Entity {
             moveX += 1;
         }
 
+        // Set row of sprite sheet based on direction
         if (moveY < 0) currentRow = 0;  // up
         if (moveY > 0) currentRow = 1;  // down
         if (moveX < 0) currentRow = 2;  // left
@@ -91,14 +93,9 @@ public class Player extends Entity {
 
         if (moving) {
             frameTimer += dt;
-
             if (frameTimer >= frameSpeed) {
                 frameTimer = 0;
-                currentFrame++;
-
-                if (currentFrame >= frames) {
-                    currentFrame = 0;
-                }
+                currentFrame = (currentFrame + 1) % frames;
             }
         } else {
             currentFrame = 0;
