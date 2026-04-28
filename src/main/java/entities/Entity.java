@@ -37,8 +37,4 @@ public class Entity {
     public Vector2 getPosition() {
         return position;
     }
-
-    public void unload() {
-
-    }
 }

@@ -1,5 +1,7 @@
 package world;
 
+import core.TextureManager;
+
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
@@ -14,9 +16,9 @@ public class World {
     int numStone = 12;
     Vector2[] stonePosition = new Vector2[numStone];
 
-    // Load textures (in future will make texture manager)
-    final private Texture background = LoadTexture("src/main/assets/images/bgNEW.png");
-    final private Texture stone = LoadTexture("src/main/assets/images/stone.png");
+    // Textures
+    final private Texture background = TextureManager.getTexture("background");
+    final private Texture stone = TextureManager.getTexture("stone");
 
     public World() {
         // Generate random stone around map
@@ -72,8 +74,17 @@ public class World {
         }
     }
 
-    public void drawBg() {
+    public void draw() {
+        // Draw background
         DrawTextureEx(background, newVector2(0, 0), 0, (float) worldWidth / background.width(), WHITE);
+
+        // Draw grid
+        for (int x = 0; x <= worldWidth; x += tileSize) {
+            DrawLine(x, 0, x, worldHeight, BLACK);
+        }
+        for (int y = 0; y <= worldHeight; y += tileSize) {
+            DrawLine(0, y, worldWidth, y, BLACK);
+        }
     }
 
     public void drawGrid() {
@@ -100,13 +111,6 @@ public class World {
 //            //DrawLineEx(newVector2(leftXAligned, y), newVector2(rightXAligned, y), thickness, BLACK);
 //            DrawLineV(newVector2(leftXAligned, y), newVector2(rightXAligned, y), BLACK);
 //        }
-
-        for (int x = 0; x <= worldWidth; x += tileSize) {
-            DrawLine(x, 0, x, worldHeight, BLACK);
-        }
-        for (int y = 0; y <= worldHeight; y += tileSize) {
-            DrawLine(0, y, worldWidth, y, BLACK);
-        }
     }
 
     public void drawStone() {
@@ -114,10 +118,5 @@ public class World {
             DrawTextureEx(stone, position, 0, 2.5f, WHITE);
         }
 
-    }
-
-    public void unload() {
-        UnloadTexture(background);
-        UnloadTexture(stone);
     }
 }
