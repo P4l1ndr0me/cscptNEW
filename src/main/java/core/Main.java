@@ -33,7 +33,7 @@ public class Main {
         }
 
         // unload textures
-        gameState.unload();
+        TextureManager.unloadAll();
         CloseWindow();
     }
 }

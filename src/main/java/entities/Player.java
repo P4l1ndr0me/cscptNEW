@@ -1,6 +1,6 @@
 package entities;
 
-import com.raylib.Raylib.*;
+import core.TextureManager;
 import world.World;
 
 import static com.raylib.Raylib.*;
@@ -9,10 +9,8 @@ import static com.raylib.Colors.*;
 
 public class Player extends Entity {
 
-    private static final Texture skin = LoadTexture("src/main/assets/images/player.png");
-
     public Player(Vector2 position, float scale, float speed, int rows, int frames) {
-        super(position, scale, speed, skin, rows, frames);
+        super(position, scale, speed, TextureManager.getTexture("player"), rows, frames);
     }
 
     // draw walking animations for player sprite assuming 3x3 sprite
@@ -100,9 +98,5 @@ public class Player extends Entity {
         } else {
             currentFrame = 0;
         }
-    }
-
-    public void unload() {
-        UnloadTexture(skin);
     }
 }
