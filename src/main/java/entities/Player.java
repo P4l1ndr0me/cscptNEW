@@ -1,11 +1,11 @@
 package entities;
 
-import com.raylib.Raylib;
+import com.raylib.Raylib.*;
 import world.World;
 
-import static com.raylib.Colors.WHITE;
-import static com.raylib.Helpers.newVector2;
 import static com.raylib.Raylib.*;
+import static com.raylib.Helpers.*;
+import static com.raylib.Colors.*;
 
 public class Player extends Entity {
 
@@ -19,7 +19,7 @@ public class Player extends Entity {
     public void drawWalk() {
         int frameWidth = texture.width() / frames;
         int frameHeight = texture.height() / rows;
-        Raylib.Rectangle source = new Raylib.Rectangle()
+        Rectangle source = new Rectangle()
                 .x(currentFrame * frameWidth)
                 .y(currentRow * frameHeight)
                 .width(frameWidth)

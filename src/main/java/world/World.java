@@ -1,11 +1,11 @@
 package world;
 
-import static com.raylib.Helpers.newVector2;
 import static com.raylib.Raylib.*;
+import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
-import core.Camera;
 
 public class World {
+    // constants
     public static final int worldWidth = 2048;
     public static final int worldHeight = 2048;
     public static final int tileSize = 32;
@@ -14,10 +14,12 @@ public class World {
     int numStone = 12;
     Vector2[] stonePosition = new Vector2[numStone];
 
-    final private Texture background = LoadTexture("src/main/assets/images/bg.png");
+    // Load textures (in future will make texture manager)
+    final private Texture background = LoadTexture("src/main/assets/images/bgNEW.png");
     final private Texture stone = LoadTexture("src/main/assets/images/stone.png");
 
     public World() {
+        // Generate random stone around map
         float stoneScale = 2.5f;
         float stoneWidth = stone.width() * stoneScale;
         float stoneHeight = stone.height() * stoneScale;
@@ -30,7 +32,7 @@ public class World {
             while (!validPosition) {
                 float x, y;
 
-                // Chance that it generates next to the previous one
+                // Chance that it generates next to the previous one (5%)
                 if (Math.random() < 0.05) {
                     // generate coordinates
                     int dir = (int) (Math.random() * 4);
@@ -50,7 +52,7 @@ public class World {
                             y -= tileSize;
                             break; // Up
                     }
-                } else {
+                } else { // Generate random coordinate
                     x = (float) (Math.random() * (worldWidth - stoneWidth));
                     y = (float) (Math.random() * (worldHeight - stoneHeight));
                 }
@@ -75,26 +77,35 @@ public class World {
     }
 
     public void drawGrid() {
-        Vector2 topLeft = GetScreenToWorld2D(newVector2(0, 0), Camera.camera);
-        Vector2 bottomRight = GetScreenToWorld2D(newVector2(GetScreenWidth(), GetScreenHeight()), Camera.camera);
+//        Vector2 topLeft = GetScreenToWorld2D(newVector2(0, 0), Camera.camera);
+//        Vector2 bottomRight = GetScreenToWorld2D(newVector2(GetScreenWidth(), GetScreenHeight()), Camera.camera);
+//
+//        float left = Math.max(0, topLeft.x());
+//        float right = Math.min(worldWidth, bottomRight.x());
+//        float top = Math.max(0, topLeft.y());
+//        float bottom = Math.min(worldHeight, bottomRight.y());
+//
+//        int leftXAligned = (int) Math.floor(left / tileSize) * tileSize;
+//        int rightXAligned = (int) Math.ceil(right / tileSize) * tileSize;
+//        int topYAligned = (int) Math.floor(top / tileSize) * tileSize;
+//        int bottomYAligned = (int) Math.ceil(bottom / tileSize) * tileSize;
+//
+//        //float thickness = 1.0f / Camera.camera.zoom();
+//
+//        for (int x = leftXAligned; x <= rightXAligned; x += tileSize) {
+//            //DrawLineEx(newVector2(x, topYAligned), newVector2(x, bottomYAligned), thickness, BLACK);
+//            DrawLineV(newVector2(x, topYAligned), newVector2(x, bottomYAligned), BLACK);
+//        }
+//        for (int y = topYAligned; y <= bottomYAligned; y += tileSize) {
+//            //DrawLineEx(newVector2(leftXAligned, y), newVector2(rightXAligned, y), thickness, BLACK);
+//            DrawLineV(newVector2(leftXAligned, y), newVector2(rightXAligned, y), BLACK);
+//        }
 
-        float left = Math.max(0, topLeft.x());
-        float right = Math.min(worldWidth, bottomRight.x());
-        float top = Math.max(0, topLeft.y());
-        float bottom = Math.min(worldHeight, bottomRight.y());
-
-        int leftXAligned = (int) Math.floor(left / tileSize) * tileSize;
-        int rightXAligned = (int) Math.ceil(right / tileSize) * tileSize;
-        int topYAligned = (int) Math.floor(top / tileSize) * tileSize;
-        int bottomYAligned = (int) Math.ceil(bottom / tileSize) * tileSize;
-
-        float thickness = 1.0f / Camera.camera.zoom();
-
-        for (int x = leftXAligned; x <= rightXAligned; x += tileSize) {
-            DrawLineEx(newVector2(x, topYAligned), newVector2(x, bottomYAligned), thickness, BLACK);
+        for (int x = 0; x <= worldWidth; x += tileSize) {
+            DrawLine(x, 0, x, worldHeight, BLACK);
         }
-        for (int y = topYAligned; y <= bottomYAligned; y += tileSize) {
-            DrawLineEx(newVector2(leftXAligned, y), newVector2(rightXAligned, y), thickness, BLACK);
+        for (int y = 0; y <= worldHeight; y += tileSize) {
+            DrawLine(0, y, worldWidth, y, BLACK);
         }
     }
 

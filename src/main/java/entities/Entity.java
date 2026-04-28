@@ -1,8 +1,8 @@
 package entities;
 
 import static com.raylib.Raylib.*;
+import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
-import static com.raylib.Helpers.newVector2;
 
 public class Entity {
     Vector2 position;
