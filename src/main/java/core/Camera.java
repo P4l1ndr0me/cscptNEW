@@ -1,11 +1,12 @@
 package core;
 
 import static com.raylib.Raylib.*;
-import static com.raylib.Helpers.newVector2;
+import static com.raylib.Helpers.*;
+import static com.raylib.Colors.*;
 
 public class Camera {
     public static Camera2D camera = new Camera2D();
-    static float zoom = 1.0f;
+    static float zoom = 1.5f;
 
     public static void update(Vector2 position) {
         // lerp camera for smooth effect (in progress)
@@ -21,8 +22,8 @@ public class Camera {
 
         float wheel = GetMouseWheelMove();
         if (wheel != 0) {
-            zoom += wheel * 0.02f;
-            if (zoom < 0.5f) zoom = 0.5f; // clamp min
+            zoom += wheel * 0.04f;
+            if (zoom < 1.25f) zoom = 1.25f; // clamp min
             if (zoom > 2.0f) zoom = 2.0f; // clamp max
         }
         camera.zoom(zoom);
