@@ -9,11 +9,13 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // initialize window and set fps
+        // initialize and maximize window
         SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-        InitWindow(screen_width, screen_height, "zombs.io");
+        InitWindow(0, 0, "zombs.io");
         MaximizeWindow();
         ClearWindowState(FLAG_WINDOW_RESIZABLE);
+
+        // set fps
         SetTargetFPS(60);
 
         // Create new instance
@@ -30,6 +32,7 @@ public class Main {
             EndDrawing();
         }
 
+        // unload textures
         gameState.unload();
         CloseWindow();
     }

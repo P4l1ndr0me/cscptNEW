@@ -15,8 +15,6 @@ public class GameState {
     final private InputHandler playerInput;
     final private BuildMenu buildMenu;
 
-    Vector2 mouse;
-
     public GameState() {
         player = new Player(newVector2(World.worldWidth / 2f, World.worldHeight / 2f),
                 2.0f,
@@ -29,11 +27,13 @@ public class GameState {
     }
 
     public void update() {
-        mouse = GetMousePosition();
         float dt = GetFrameTime(); // delta time
+
+        // update
         player.update(dt);
         Camera.update(player.getPosition());
-        buildMenu.getClickedBuilding(mouse);
+        buildMenu.getClickedBuilding();
+        buildMenu.update();
     }
 
     public void draw() {
@@ -50,14 +50,22 @@ public class GameState {
         // draw pregenerated stone
         world.drawStone();
 
+        // draw preview
+        buildMenu.drawPreview();
+
+        // draw entities
+        EntityManager.DrawEntities();
+
         // draw player
         player.drawWalk();
 
         EndMode2D();
 
+        // draw UI & HUD
+        buildMenu.drawUI();
+
         // misc
-        playerInput.drawMouseCoord(mouse);
-        buildMenu.draw();
+        playerInput.drawMouseCoord();
         DrawText(Math.floor(player.getPosition().x()) + ", " + Math.floor(player.getPosition().y()),
                 10,
                 10,

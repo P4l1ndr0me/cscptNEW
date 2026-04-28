@@ -2,7 +2,6 @@ package core;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
-import static com.raylib.Colors.*;
 
 public class Camera {
     public static Camera2D camera = new Camera2D();

@@ -5,6 +5,7 @@ import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
 
 public class World {
+    // constants
     public static final int worldWidth = 2048;
     public static final int worldHeight = 2048;
     public static final int tileSize = 32;
@@ -13,10 +14,12 @@ public class World {
     int numStone = 12;
     Vector2[] stonePosition = new Vector2[numStone];
 
+    // Load textures (in future will make texture manager)
     final private Texture background = LoadTexture("src/main/assets/images/bgNEW.png");
     final private Texture stone = LoadTexture("src/main/assets/images/stone.png");
 
     public World() {
+        // Generate random stone around map
         float stoneScale = 2.5f;
         float stoneWidth = stone.width() * stoneScale;
         float stoneHeight = stone.height() * stoneScale;
@@ -29,7 +32,7 @@ public class World {
             while (!validPosition) {
                 float x, y;
 
-                // Chance that it generates next to the previous one
+                // Chance that it generates next to the previous one (5%)
                 if (Math.random() < 0.05) {
                     // generate coordinates
                     int dir = (int) (Math.random() * 4);
@@ -49,7 +52,7 @@ public class World {
                             y -= tileSize;
                             break; // Up
                     }
-                } else {
+                } else { // Generate random coordinate
                     x = (float) (Math.random() * (worldWidth - stoneWidth));
                     y = (float) (Math.random() * (worldHeight - stoneHeight));
                 }
