@@ -19,7 +19,7 @@ public class GameState {
 
     public GameState() {
         // Load all textures
-        TextureManager.loadTexture("player", "src/main/assets/images/player.png");
+        TextureManager.loadTexture("player", "src/main/assets/images/playerSpriteNEW.png");
         TextureManager.loadTexture("background", "src/main/assets/images/bgNew.png");
         TextureManager.loadTexture("stone", "src/main/assets/images/stone.png");
 
@@ -59,11 +59,11 @@ public class GameState {
         // draw pregenerated stone
         world.drawStone();
 
-        // draw building preview
-        buildSystem.drawPreview();
-
         // draw entities
         EntityManager.DrawEntities();
+
+        // draw building preview
+        buildSystem.draw();
 
         // draw player
         player.drawWalk();

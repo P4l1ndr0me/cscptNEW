@@ -12,11 +12,6 @@ public class Entity {
     int rows;
     int frames;
 
-    int currentFrame;
-    int currentRow;
-    float frameTimer;
-    float frameSpeed = 0.12f;
-
     public Entity(Vector2 position, float scale, float speed, Texture texture, int rows, int frames) {
         this.position = position;
         this.scale = scale;

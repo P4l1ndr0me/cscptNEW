@@ -5,7 +5,7 @@ import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
 
 public class Building {
-    Vector2 position;
+    public Vector2 position;
     int type;
 
     public Building(Vector2 position, int type) {
