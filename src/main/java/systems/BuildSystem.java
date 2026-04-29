@@ -14,7 +14,7 @@ public class BuildSystem {
     // Tracking selected building
     private int selectedBuilding = -1;
     private boolean isPlacing = false;
-    private float snappedX, snappedY;
+    private int snappedX, snappedY;
     private Rectangle previewRec;
     private boolean validPlacement;
 
@@ -85,8 +85,8 @@ public class BuildSystem {
         mouse = GetScreenToWorld2D(mouse, Camera.camera);
 
         // snap mouse pos so player can only place on tiles
-        snappedX = (float) Math.floor(mouse.x() / World.tileSize) * World.tileSize;
-        snappedY = (float) Math.floor(mouse.y() / World.tileSize) * World.tileSize;
+        snappedX = (int) Math.floor(mouse.x() / World.tileSize) * World.tileSize;
+        snappedY = (int) Math.floor(mouse.y() / World.tileSize) * World.tileSize;
 
         // update previewRec
         previewRec = newRectangle(snappedX, snappedY, 64, 64);

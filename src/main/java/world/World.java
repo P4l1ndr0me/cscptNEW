@@ -80,37 +80,11 @@ public class World {
 
         // Draw grid
         for (int x = 0; x <= worldWidth; x += tileSize) {
-            DrawLine(x, 0, x, worldHeight, BLACK);
+            DrawLine(x, 0, x, worldHeight, newColor(12, 12, 12,255));
         }
         for (int y = 0; y <= worldHeight; y += tileSize) {
-            DrawLine(0, y, worldWidth, y, BLACK);
+            DrawLine(0, y, worldWidth, y, newColor(12, 12, 12,255));
         }
-    }
-
-    public void drawGrid() {
-//        Vector2 topLeft = GetScreenToWorld2D(newVector2(0, 0), Camera.camera);
-//        Vector2 bottomRight = GetScreenToWorld2D(newVector2(GetScreenWidth(), GetScreenHeight()), Camera.camera);
-//
-//        float left = Math.max(0, topLeft.x());
-//        float right = Math.min(worldWidth, bottomRight.x());
-//        float top = Math.max(0, topLeft.y());
-//        float bottom = Math.min(worldHeight, bottomRight.y());
-//
-//        int leftXAligned = (int) Math.floor(left / tileSize) * tileSize;
-//        int rightXAligned = (int) Math.ceil(right / tileSize) * tileSize;
-//        int topYAligned = (int) Math.floor(top / tileSize) * tileSize;
-//        int bottomYAligned = (int) Math.ceil(bottom / tileSize) * tileSize;
-//
-//        //float thickness = 1.0f / Camera.camera.zoom();
-//
-//        for (int x = leftXAligned; x <= rightXAligned; x += tileSize) {
-//            //DrawLineEx(newVector2(x, topYAligned), newVector2(x, bottomYAligned), thickness, BLACK);
-//            DrawLineV(newVector2(x, topYAligned), newVector2(x, bottomYAligned), BLACK);
-//        }
-//        for (int y = topYAligned; y <= bottomYAligned; y += tileSize) {
-//            //DrawLineEx(newVector2(leftXAligned, y), newVector2(rightXAligned, y), thickness, BLACK);
-//            DrawLineV(newVector2(leftXAligned, y), newVector2(rightXAligned, y), BLACK);
-//        }
     }
 
     public void drawStone() {

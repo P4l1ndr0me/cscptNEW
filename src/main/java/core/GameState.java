@@ -11,6 +11,8 @@ import static com.raylib.Colors.*;
 
 public class GameState {
 
+    RenderTexture target;
+
     final private Player player;
     final private World world;
     final private InputHandler playerInput;
@@ -18,6 +20,9 @@ public class GameState {
     final private BuildSystem buildSystem;
 
     public GameState() {
+        target = LoadRenderTexture(Main.screen_width, Main.screen_height);
+        SetTextureFilter(target.texture(), TEXTURE_FILTER_BILINEAR);
+
         // Load all textures
         TextureManager.loadTexture("player", "src/main/assets/images/playerSpriteNEW.png");
         TextureManager.loadTexture("background", "src/main/assets/images/bgNew.png");
@@ -36,6 +41,7 @@ public class GameState {
         playerInput = new InputHandler();
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
+        Camera.init();
     }
 
     public void update() {
@@ -44,41 +50,48 @@ public class GameState {
         // update
         player.update(dt);
         Camera.update(player.getPosition());
-        buildSystem.getClickedBuilding();
         buildSystem.update();
     }
 
     public void draw() {
-        ClearBackground(GRAY);
+        BeginTextureMode(target);
+            ClearBackground(GRAY);
 
-        BeginMode2D(Camera.camera);
+            BeginMode2D(Camera.camera);
 
-        // draw background and grid lines
-        world.draw();
+            // draw background and grid lines
+            world.draw();
 
-        // draw pregenerated stone
-        world.drawStone();
+            // draw pregenerated stone
+            world.drawStone();
 
-        // draw entities
-        EntityManager.DrawEntities();
+            // draw entities
+            EntityManager.DrawEntities();
 
-        // draw building preview
-        buildSystem.draw();
+            // draw building preview
+            buildSystem.draw();
 
-        // draw player
-        player.drawWalk();
+            // draw player
+            player.drawWalk();
 
-        EndMode2D();
+            EndMode2D();
 
-        // draw UI & HUD
-        buildMenu.drawUI();
+            // draw UI & HUD
+            buildMenu.drawUI();
 
-        // misc
-        playerInput.drawMouseCoord();
-        DrawText(Math.floor(player.getPosition().x()) + ", " + Math.floor(player.getPosition().y()),
-                10,
-                10,
-                20,
-                BLUE);
+            // misc
+            playerInput.drawMouseCoord();
+            DrawText(Math.floor(player.getPosition().x()) + ", " + Math.floor(player.getPosition().y()),
+                    10,
+                    10,
+                    20,
+                    BLUE);
+        EndTextureMode();
+        BeginDrawing();
+            ClearBackground(GRAY);
+            Rectangle source = newRectangle(0, 0, (float)target.texture().width(), (float)-target.texture().height());
+            Rectangle dest = newRectangle(0, 0, Main.screen_width, Main.screen_height);
+            DrawTexturePro(target.texture(), source, dest, newVector2(0, 0), 0.0f, WHITE);
+        EndDrawing();
     }
 }
