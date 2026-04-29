@@ -8,6 +8,10 @@ import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
 
 public class Player extends Entity {
+    int currentFrame;
+    int currentRow;
+    float frameTimer;
+    float frameSpeed = 0.15f;
 
     public Player(Vector2 position, float scale, float speed, int rows, int frames) {
         super(position, scale, speed, TextureManager.getTexture("player"), rows, frames);

@@ -1,5 +1,6 @@
 package ui;
 
+import core.Main;
 import core.TextureManager;
 
 import static com.raylib.Raylib.*;
@@ -11,7 +12,7 @@ public class BuildMenu {
     // Build menu data
     private final Color menuFill = newColor(203, 203, 203, 100);
     private static final int menuX = 500;
-    private static final int menuY = GetScreenHeight() - 70;
+    private static final int menuY = Main.screen_height - 70;
     private static final int menuHeight = 50;
     public static final Rectangle menuRect = newRectangle(menuX, menuY, GetScreenWidth() - 2 * menuX, menuHeight);
 
