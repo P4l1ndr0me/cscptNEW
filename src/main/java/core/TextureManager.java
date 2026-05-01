@@ -7,9 +7,7 @@ public class TextureManager {
     private static HashMap<String, Texture> textures = new HashMap<>();
 
     public static void loadTexture(String key, String path) {
-        Texture tex = LoadTexture(path);
-        SetTextureFilter(tex, TEXTURE_FILTER_POINT);
-        textures.putIfAbsent(key, tex);
+        textures.putIfAbsent(key, LoadTexture(path));
     }
 
     public static Texture getTexture(String key) {

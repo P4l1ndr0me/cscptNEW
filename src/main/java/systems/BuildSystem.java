@@ -101,8 +101,8 @@ public class BuildSystem {
                     newVector2(snappedX, snappedY),
                     selectedBuilding
             ));
-            isPlacing = false;
-            selectedBuilding = -1;
+//            isPlacing = false;
+//            selectedBuilding = -1;
         }
     }
 }

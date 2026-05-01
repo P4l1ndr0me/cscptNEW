@@ -8,13 +8,8 @@ import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
 
 public class Player extends Entity {
-    int currentFrame;
-    int currentRow;
-    float frameTimer;
-    float frameSpeed = 0.15f;
-
-    public Player(Vector2 position, float scale, float speed, int rows, int frames) {
-        super(position, scale, speed, TextureManager.getTexture("player"), rows, frames);
+    public Player() {
+        super(newVector2(World.worldWidth / 2f, World.worldHeight / 2f), 2.0f, 220.0f, TextureManager.getTexture("player"), 3, 3);
     }
 
     // draw walking animations for player sprite assuming 3x3 sprite
@@ -73,8 +68,11 @@ public class Player extends Entity {
             moving = true;
         }
 
-        position.x(position.x() + speed * moveDir.x() * dt);
-        position.y(position.y() + speed * moveDir.y() * dt);
+        position.x(Math.round(position.x() + speed * moveDir.x() * dt));
+        position.y(Math.round(position.y() + speed * moveDir.y() * dt));
+
+//        position.x(position.x() + speed * moveDir.x() * dt);
+//        position.y(position.y() + speed * moveDir.y() * dt);
 
         // Make sure player does not go out of bounds
         float halfWidth = (texture.width() / (float) frames) * scale / 2;
