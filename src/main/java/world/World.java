@@ -80,16 +80,19 @@ public class World {
 
         // Draw grid
         for (int x = 0; x <= worldWidth; x += tileSize) {
-            DrawLine(x, 0, x, worldHeight, newColor(12, 12, 12,255));
+//            DrawLine(x, 0, x, worldHeight, BLACK);
+            DrawLineV(newVector2(x, 0), newVector2(x, worldHeight), BLACK);
         }
         for (int y = 0; y <= worldHeight; y += tileSize) {
-            DrawLine(0, y, worldWidth, y, newColor(12, 12, 12,255));
+//            DrawLine(0, y, worldWidth, y, BLACK);
+            DrawLineV(newVector2(0, y), newVector2(worldWidth, y), BLACK);
+
         }
     }
 
     public void drawStone() {
         for (Vector2 position : stonePosition) {
-            DrawTextureEx(stone, position, 0, 2.5f, WHITE);
+            DrawTextureEx(stone, newVector2(Math.round(position.x()), Math.round(position.y())), 0, 2.5f, WHITE);
         }
 
     }

@@ -20,8 +20,7 @@ public class GameState {
     final private BuildSystem buildSystem;
 
     public GameState() {
-        target = LoadRenderTexture(Main.screen_width, Main.screen_height);
-        SetTextureFilter(target.texture(), TEXTURE_FILTER_BILINEAR);
+        target = LoadRenderTexture(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
 
         // Load all textures
         TextureManager.loadTexture("player", "src/main/assets/images/playerSpriteNEW.png");
@@ -32,15 +31,14 @@ public class GameState {
         TextureManager.loadTexture("building2", "src/main/assets/images/buildings/building2.png");
         TextureManager.loadTexture("building3", "src/main/assets/images/buildings/building3.png");
 
-        player = new Player(newVector2(World.worldWidth / 2f, World.worldHeight / 2f),
-                2.0f,
-                200.0f,
-                3,
-                3);
+        // create new instances
+        player = new Player();
         world = new World();
         playerInput = new InputHandler();
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
+
+        // initialize camera
         Camera.init();
     }
 
@@ -81,16 +79,23 @@ public class GameState {
 
             // misc
             playerInput.drawMouseCoord();
-            DrawText(Math.floor(player.getPosition().x()) + ", " + Math.floor(player.getPosition().y()),
+            DrawText("X: " + (int) Math.floor(player.getPosition().x()),
                     10,
                     10,
                     20,
                     BLUE);
+            DrawText("Y: " + (int) Math.floor(player.getPosition().y()),
+                    10,
+                    30,
+                    20,
+                    BLUE);
+
         EndTextureMode();
+
         BeginDrawing();
             ClearBackground(GRAY);
             Rectangle source = newRectangle(0, 0, (float)target.texture().width(), (float)-target.texture().height());
-            Rectangle dest = newRectangle(0, 0, Main.screen_width, Main.screen_height);
+            Rectangle dest = newRectangle(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
             DrawTexturePro(target.texture(), source, dest, newVector2(0, 0), 0.0f, WHITE);
         EndDrawing();
     }
