@@ -9,7 +9,7 @@ import static com.raylib.Colors.*;
 
 public class Player extends Entity {
     public Player() {
-        super(newVector2(World.worldWidth / 2f, World.worldHeight / 2f), 2.0f, 220.0f, TextureManager.getTexture("player"), 3, 3);
+        super(newVector2(World.worldWidth / 2f, World.worldHeight / 2f), 2.0f, 250.0f, TextureManager.getTexture("player"), 3, 3);
     }
 
     // draw walking animations for player sprite assuming 3x3 sprite
@@ -23,8 +23,8 @@ public class Player extends Entity {
                 .height(frameHeight);
 
         Rectangle dest = new Rectangle()
-                .x(position.x() - (frameWidth * scale) / 2)
-                .y(position.y() - (frameHeight * scale) / 2)
+                .x((int) (position.x() - (frameWidth * scale) / 2))
+                .y((int) (position.y() - (frameHeight * scale) / 2))
                 .width(frameWidth * scale)
                 .height(frameHeight * scale);
 
