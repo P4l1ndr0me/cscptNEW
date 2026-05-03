@@ -1,8 +1,8 @@
 package ui;
 
+import buildings.Building;
 import core.Main;
 import core.TextureManager;
-import systems.BuildSystem;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
@@ -11,13 +11,13 @@ import static com.raylib.Colors.*;
 public class BuildMenu {
 
     // Build menu data
-    private final Color menuFill = newColor(203, 203, 203, 100);
+    private static final Color menuFill = newColor(203, 203, 203, 100);
     private static final float menuX = 0.3f * Main.SCREEN_WIDTH;
     private static final int menuY = Main.SCREEN_HEIGHT - 70;
     private static final int menuHeight = 50;
     public static final Rectangle menuRect = newRectangle(menuX, menuY, Main.SCREEN_WIDTH - 2 * menuX, menuHeight);
     private static final int HUDBuildingSize = 32;
-    private final float HUDScale = (float) HUDBuildingSize / BuildSystem.BUILDING_SIZE;
+    private static final float HUDScale = (float) HUDBuildingSize / Building.size;
 
     public static Texture[] buildingTextures = {
             TextureManager.getTexture("building1"),

@@ -8,8 +8,12 @@ import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
 
 public class Player extends Entity {
+    public static Rectangle playerRec;
+    public static int numStone = 200;
+
     public Player() {
         super(newVector2(World.worldWidth / 2f, World.worldHeight / 2f), 2.0f, 250.0f, TextureManager.getTexture("player"), 3, 3);
+        playerRec = newRectangle(0, 0, (float) texture.width() / frames, (float) texture.height() / rows);
     }
 
     // draw walking animations for player sprite assuming 3x3 sprite
@@ -90,6 +94,10 @@ public class Player extends Entity {
         if (position.y() > World.worldHeight - halfHeight) {
             position.y(World.worldHeight - halfHeight);
         }
+
+        // update playerRec
+        playerRec.x(position.x());
+        playerRec.y(position.y());
 
         if (moving) {
             frameTimer += dt;
