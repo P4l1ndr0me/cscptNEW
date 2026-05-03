@@ -1,6 +1,8 @@
 package core;
 
 import systems.BuildSystem;
+import ui.HUD;
+import world.ResourceNode;
 import world.World;
 import entities.*;
 import ui.BuildMenu;
@@ -12,8 +14,8 @@ public class GameState {
     final private Player player;
     final private World world;
     final private InputHandler playerInput;
-    final private BuildMenu buildMenu;
     final private BuildSystem buildSystem;
+    final private BuildMenu buildMenu;
 
     public GameState() {
         // Load all textures
@@ -31,6 +33,7 @@ public class GameState {
         playerInput = new InputHandler();
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
+        ResourceNode resourceNode = new ResourceNode();
 
         // initialize camera
         Camera.init();
@@ -67,6 +70,7 @@ public class GameState {
 
         // draw UI & HUD
         buildMenu.drawUI();
+        HUD.drawUI();
 
         // misc
         playerInput.drawMouseCoord();

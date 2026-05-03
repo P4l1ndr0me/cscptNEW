@@ -5,14 +5,15 @@ import static com.raylib.Colors.*;
 
 public class Building {
     public Vector2 position; // top left corner, not center
-    public int type;
+    public BuildingType type;
+    public static int size = 64;
 
-    public Building(Vector2 position, int type) {
+    public Building(Vector2 position, BuildingType type) {
         this.position = position;
         this.type = type;
     }
 
-    public void draw(Texture[] textures) {
-        DrawTextureEx(textures[type], position, 0, 1.0f, WHITE);
+    public void draw() {
+        DrawTextureEx(type.texture, position, 0, 1.0f, WHITE);
     }
 }
