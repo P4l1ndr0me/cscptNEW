@@ -4,10 +4,13 @@ import systems.BuildSystem;
 import world.World;
 import entities.*;
 import ui.BuildMenu;
+import core.EntityManager;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
+import static world.World.worldHeight;
+import static world.World.worldWidth;
 
 public class GameState {
 
@@ -23,13 +26,15 @@ public class GameState {
         target = LoadRenderTexture(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
 
         // Load all textures
-        TextureManager.loadTexture("player", "src/main/assets/images/playerSpriteNEW.png");
-        TextureManager.loadTexture("background", "src/main/assets/images/bgNew.png");
-        TextureManager.loadTexture("stone", "src/main/assets/images/stone.png");
+        TextureManager.loadTexture("player", "src/main/assets/images/sprites/playerSpriteNEW.png");
+        TextureManager.loadTexture("background", "src/main/assets/images/land/bgNew.png");
+        TextureManager.loadTexture("stone", "src/main/assets/images/land/stone.png");
 
         TextureManager.loadTexture("building1", "src/main/assets/images/buildings/building1.png");
         TextureManager.loadTexture("building2", "src/main/assets/images/buildings/building2.png");
         TextureManager.loadTexture("building3", "src/main/assets/images/buildings/building3.png");
+
+        TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");
 
         // create new instances
         player = new Player();
@@ -37,6 +42,17 @@ public class GameState {
         playerInput = new InputHandler();
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
+
+        int[] pos = getSpawnPosition();
+        EntityManager.spawnDemZombies(
+                pos[0], pos[1],
+                2.0f,
+                75.0f,
+                TextureManager.getTexture("enemy1"),
+                3,
+                3,
+                10
+                );
 
         // initialize camera
         Camera.init();
@@ -47,6 +63,7 @@ public class GameState {
 
         // update
         player.update(dt);
+
         Camera.update(player.getPosition());
         buildSystem.update();
     }
@@ -98,5 +115,20 @@ public class GameState {
             Rectangle dest = newRectangle(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
             DrawTexturePro(target.texture(), source, dest, newVector2(0, 0), 0.0f, WHITE);
         EndDrawing();
+    }
+
+    public int[] getSpawnPosition() {
+        int playerX = worldWidth / 2;
+        int playerY = worldHeight / 2;
+        int safeRadius = 500;
+
+        double angle = Math.random() * 2 * Math.PI;
+        double maxDist = Math.min(worldWidth, worldHeight) / 2.0;
+        double distance = safeRadius + Math.random() * (maxDist - safeRadius);
+
+        int x = (int)(playerX + distance * Math.cos(angle));
+        int y = (int)(playerY + distance * Math.sin(angle));
+
+        return new int[]{x, y};
     }
 }
