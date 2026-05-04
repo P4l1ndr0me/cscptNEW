@@ -28,11 +28,8 @@ public class EntityManager {
         }
     }
 
-    public static void spawnDemZombies(float x, float y, float scale, float spd, Texture texture, int row, int col, int times){
-
-        for (int i =0;i<times;i++){
-            Enemy enemy = new Enemy(newVector2(x, y), scale, spd, texture, row, col);
-            spawnedEnemies.add(enemy);
-        }
+    public static void spawnDemZombies(float x, float y, float scale, float spd, Texture texture, int row, int col){
+        Enemy enemy = new Enemy(newVector2(x, y), scale, spd, texture, row, col);
+        spawnedEnemies.add(enemy);
     }
 }

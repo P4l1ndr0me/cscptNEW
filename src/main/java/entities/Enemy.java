@@ -2,11 +2,14 @@ package entities;
 
 import com.raylib.Raylib;
 import world.World;
+import buildings.Building;
+import core.EntityManager;
 
 import static com.raylib.Colors.WHITE;
 import static com.raylib.Helpers.newVector2;
 import static com.raylib.Raylib.*;
 import static com.raylib.Raylib.Vector2Normalize;
+
 
 public class Enemy extends Entity{
     public Enemy(Raylib.Vector2 position, float scale, float speed, Raylib.Texture texture, int rows, int frames) {
@@ -40,24 +43,36 @@ public class Enemy extends Entity{
     public void update(float dt) {
         boolean moving = false;
         float moveX = 0, moveY = 0;
-        boolean onsetX = false;
-        boolean onsetY = false;
+        onsetX = false;
+        onsetY = false;
 
-        if (position.x() < World.worldWidth / 2f +1  && position.x() > World.worldWidth / 2f-1 ) onsetX = true;
-        if (position.y() < World.worldHeight / 2f +1 && position.y() > World.worldHeight / 2f -1) onsetY = true;
+        float[] target = determineClosestBuilding(position.x(), position.y());
+
+        if (target == null) {
+            // No buildings to target, maybe wander randomly
+            return;
+        }
+
+        float randomOffsetX = (float) (Math.random() * 100 - 50); // -50 to +50 pixels
+        float randomOffsetY = (float) (Math.random() * 100 - 50);
+        float targetX = target[0] + randomOffsetX;
+        float targetY = target[1] + randomOffsetY;
+
+        if (position.x() < targetX +1  && position.x() > targetX -1 ) onsetX = true;
+        if (position.y() < targetY +1 && position.y() > targetY -1) onsetY = true;
 
 
         // Movement input
-        if (position.y() > World.worldHeight / 2f && onsetY == false) {
+        if (position.y() > targetY && !onsetY) {
             moveY -= 1;
         }
-        if (position.y() < World.worldHeight / 2f && onsetY == false ) {
+        if (position.y() < targetY && !onsetY) {
             moveY += 1;
         }
-        if (position.x() > World.worldWidth / 2f && onsetX == false) {
+        if (position.x() > targetX && !onsetX) {
             moveX -= 1;
         }
-        if (position.x() < World.worldWidth / 2f && onsetX == false) {
+        if (position.x() < targetX && !onsetX) {
             moveX += 1;
         }
 
@@ -107,5 +122,33 @@ public class Enemy extends Entity{
         } else {
             currentFrame = 0;
         }
+    }
+
+    public float[] determineClosestBuilding(float curx, float cury){
+
+
+        Building closestBuilding = null;
+        float closestDistance = Float.MAX_VALUE;
+
+        for (Building building: EntityManager.placedBuildings){
+            float buildingX = building.position.x();
+            float buildingY = building.position.y();
+
+            // Calculate distance between enemy and building
+            float dx = buildingX - curx;
+            float dy = buildingY - cury;
+            float distance = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestBuilding = building;
+            }
+        }
+        // Return the position of the closest building, or null if no buildings exist
+        if (closestBuilding != null) {
+            return new float[]{ closestBuilding.position.x(), closestBuilding.position.y()};
+        }
+
+        return null; // No buildings found
     }
 }

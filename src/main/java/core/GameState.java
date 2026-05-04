@@ -9,6 +9,7 @@ import core.EntityManager;
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
+import static core.EntityManager.spawnedEnemies;
 import static world.World.worldHeight;
 import static world.World.worldWidth;
 
@@ -43,16 +44,18 @@ public class GameState {
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
 
-        int[] pos = getSpawnPosition();
-        EntityManager.spawnDemZombies(
-                pos[0], pos[1],
-                2.0f,
-                75.0f,
-                TextureManager.getTexture("enemy1"),
-                3,
-                3,
-                10
-                );
+        for(int i =0;i<100;i++){
+            int[] pos = getSpawnPosition();
+            EntityManager.spawnDemZombies
+                    (pos[0],
+                            pos[1],
+                            2.0f,
+                            50.0f,
+                            TextureManager.getTexture("enemy1"),
+                            3,
+                            3);
+
+        }
 
         // initialize camera
         Camera.init();
@@ -63,7 +66,9 @@ public class GameState {
 
         // update
         player.update(dt);
-
+        for (int i =0;i<spawnedEnemies.size();i++){
+            spawnedEnemies.get(i).update(dt);
+        }
         Camera.update(player.getPosition());
         buildSystem.update();
     }
@@ -128,6 +133,10 @@ public class GameState {
 
         int x = (int)(playerX + distance * Math.cos(angle));
         int y = (int)(playerY + distance * Math.sin(angle));
+
+        // clamp to map bounds
+        x = Math.max(0, Math.min(worldWidth - 1, x));
+        y = Math.max(0, Math.min(worldHeight - 1, y));
 
         return new int[]{x, y};
     }
