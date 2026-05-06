@@ -15,15 +15,15 @@ import static buildings.Building.size;
 
 public class BuildSystem {
     BuildingType[] buildingType = {
-            new BuildingType(buildingTextures[0], 20),
-            new BuildingType(buildingTextures[1], 30),
-            new BuildingType(buildingTextures[2], 40)
+            new BuildingType(buildingTextures[0], 20), // building 1
+            new BuildingType(buildingTextures[1], 30), // building 2
+            new BuildingType(buildingTextures[2], 40) // building 3
     };
 
     // Tracking selected building
     private BuildingType selectedBuilding = null;
     private int snappedX, snappedY;
-    final private Rectangle previewRec = newRectangle(0, 0, size, size);
+    private Rectangle previewRec;
     private boolean validPlacement;
 
     // Grid occupancy system
@@ -31,37 +31,39 @@ public class BuildSystem {
     private final int rows = World.worldHeight / World.tileSize;
     private final boolean[][] occupiedTiles = new boolean[cols][rows];
     private int tileX, tileY;
-    private final int buildingTile = size / World.tileSize; // each building is 64x64, and each tile is 32x32, so it's a factor of 2
+    private final int buildingTileSize = size / World.tileSize; // each building is 64x64, and each tile is 32x32, so it's a factor of 2
 
     public boolean checkValidPlacement() {
+        // Check if player has selected a building
         if (selectedBuilding == null) return false;
 
-        // Check if user has enough material
+        // Check if player has enough material
         if (Player.numStone < selectedBuilding.cost) return false;
 
-        // Check if within world boundaries
-        if (!(snappedX >= 0 && snappedX <= World.worldWidth - size && snappedY >= 0 && snappedY <= World.worldHeight - size)) return false;
+        // Check if placement is within world boundaries
+        if (!(snappedX >= 0 && snappedX <= World.worldWidth - size && snappedY >= 0 && snappedY <= World.worldHeight - size))
+            return false;
 
-        // Check if clicking on build HUD
+        // Check if player is clicking on build HUD
         if (CheckCollisionPointRec(GetMousePosition(), BuildMenu.menuRect)) return false;
 
-        // Check if overlapping with already placed building
-        for (int x = tileX; x < tileX + buildingTile; x++) {
-            for (int y = tileY; y < tileY + buildingTile; y++) {
+        // Check if placement overlaps with occupied tiles
+        for (int x = tileX; x < tileX + buildingTileSize; x++) {
+            for (int y = tileY; y < tileY + buildingTileSize; y++) {
                 if (occupiedTiles[x][y]) {
                     return false;
                 }
             }
         }
 
-        // Check if overlapping with stone
+        // Check if placement overlaps with stone
         for (Rectangle stoneRect : EntityManager.stoneRects) {
             if (CheckCollisionRecs(previewRec, stoneRect)) {
                 return false;
             }
         }
 
-        // Check if overlapping with player
+        // Check if placement overlaps with player
         if (CheckCollisionRecs(previewRec, Player.playerRec)) return false;
 
         // if all checks pass, return true
@@ -81,6 +83,7 @@ public class BuildSystem {
     }
 
     public void getClickedBuilding() {
+        // Check if player uses the build HUD
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             for (int i = 0; i < BuildMenu.buildingPositions.length; i++) {
                 if (CheckCollisionPointRec(GetMousePosition(), BuildMenu.buildingPositions[i])) {
@@ -89,39 +92,39 @@ public class BuildSystem {
             }
         }
 
-        // check if user uses any keybinds
+        // Check if player uses any keybinds
         keyBinds();
 
-        // cancel placing if user clicks rmb
+        // Cancel placing if player clicks rmb
         if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
             selectedBuilding = null;
         }
     }
 
     public void occupyTiles() {
-        for (int x = tileX; x < tileX + buildingTile; x++) {
-            for (int y = tileY; y < tileY + buildingTile; y++) {
+        // Update grid of occupied tiles after player places a new building
+        for (int x = tileX; x < tileX + buildingTileSize; x++) {
+            for (int y = tileY; y < tileY + buildingTileSize; y++) {
                 occupiedTiles[x][y] = true;
             }
         }
     }
 
     public void getPreviewPosition() {
-        // get mouse position (world, not screen)
+        // Get player mouse position
         Vector2 mouse = GetMousePosition();
         mouse = GetScreenToWorld2D(mouse, Camera.camera);
 
-        // snap mouse pos so player can only place on tiles
+        // Snap mouse position
         snappedX = (int) Math.floor(mouse.x() / World.tileSize) * World.tileSize;
         snappedY = (int) Math.floor(mouse.y() / World.tileSize) * World.tileSize;
 
-        // update tile xy
+        // Update x & y position of current tile
         tileX = snappedX / World.tileSize;
         tileY = snappedY / World.tileSize;
 
-        // update preview rectangle
-        previewRec.x(snappedX);
-        previewRec.y(snappedY);
+        // Update preview rectangle
+        previewRec = newRectangle(snappedX, snappedY, size, size);
     }
 
     public void update() {
@@ -129,10 +132,10 @@ public class BuildSystem {
 
         getPreviewPosition();
 
-        // check if building can be placed
+        // Check if building can be placed
         validPlacement = checkValidPlacement();
 
-        // check if user fits all requirements to place a building
+        // Check if player fits all requirements to place a building
         if (selectedBuilding != null && IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && validPlacement) {
             // add building to arraylist
             EntityManager.placedBuildings.add(new Building(newVector2(snappedX, snappedY), selectedBuilding));
@@ -142,12 +145,13 @@ public class BuildSystem {
     }
 
     public void drawPreview() {
-        // show red tint if not valid placement (e.x. overlapping with already placed building)
+        // Show red tint if not valid placement (e.x. overlapping with already placed building)
+        // Otherwise, show default white tint
         Color previewColor = validPlacement
-                ? newColor(255,255,255,150)
-                : newColor(255,0,0,150);
+                ? newColor(255, 255, 255, 150)
+                : newColor(255, 0, 0, 150);
 
-        // Draw preview
+        // Draw building preview
         if (selectedBuilding != null) {
             DrawTextureEx(
                     selectedBuilding.texture,

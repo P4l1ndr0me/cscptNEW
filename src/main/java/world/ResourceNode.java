@@ -10,7 +10,7 @@ import static com.raylib.Helpers.*;
 public class ResourceNode {
     public static float stoneScale = 1.5f;
 
-    public ResourceNode() {
+    public static void init() {
         // Generate random stone around map
         Texture stone = TextureManager.getTexture("stone");
 
@@ -28,23 +28,23 @@ public class ResourceNode {
 
                 // Chance that it generates next to the previous one (5%)
                 if (i > 0 && Math.random() < 0.05) {
-                    // generate coordinates
+                    // Generate coordinates
                     int dir = (int) (Math.random() * 4);
                     x = EntityManager.stoneRects.get(i - 1).x();
                     y = EntityManager.stoneRects.get(i - 1).y();
-                    switch (dir) {
+                    switch (dir) { // Randomly shift position
                         case 0:
                             x += World.tileSize;
-                            break; // Right
+                            break;
                         case 1:
                             x -= World.tileSize;
-                            break; // Left
+                            break;
                         case 2:
                             y += World.tileSize;
-                            break; // Down
+                            break;
                         case 3:
                             y -= World.tileSize;
-                            break; // Up
+                            break;
                     }
                 }
                 else { // Generate random coordinate aligned with tiles

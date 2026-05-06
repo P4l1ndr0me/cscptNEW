@@ -12,8 +12,6 @@ import static com.raylib.Colors.*;
 
 public class GameState {
     final private Player player;
-    final private World world;
-    final private InputHandler playerInput;
     final private BuildSystem buildSystem;
     final private BuildMenu buildMenu;
 
@@ -27,22 +25,20 @@ public class GameState {
         TextureManager.loadTexture("building2", "src/main/assets/images/buildings/building2.png");
         TextureManager.loadTexture("building3", "src/main/assets/images/buildings/building3.png");
 
-        // create new instances
+        // Create new instances
         player = new Player();
-        world = new World();
-        playerInput = new InputHandler();
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
-        ResourceNode resourceNode = new ResourceNode();
 
-        // initialize camera
+        // Initialize camera and resource node
         Camera.init();
+        ResourceNode.init();
     }
 
     public void update() {
         float dt = GetFrameTime(); // delta time
 
-        // update
+        // Update
         player.update(dt);
         Camera.update(player.getPosition());
         buildSystem.update();
@@ -54,26 +50,32 @@ public class GameState {
 
         BeginMode2D(Camera.camera);
 
-        // draw background and grid lines
-        world.draw();
+        // Draw background and grid lines
+        World.draw();
 
-        // draw entities
+        // Draw entities
         EntityManager.DrawEntities();
 
-        // draw player
+        // Draw player
         player.drawWalk();
 
-        // draw building preview
+        // Draw building preview
         buildSystem.drawPreview();
 
         EndMode2D();
 
-        // draw UI & HUD
+        // Draw UI & HUD
         buildMenu.drawUI();
-        HUD.drawUI();
+        HUD.drawHUD();
 
-        // misc
-        playerInput.drawMouseCoord();
+        // Misc
+
+        // Draw mouse position
+        Vector2 mousePos = GetMousePosition();
+        GetMousePosition().close();
+        DrawText("Mouse XY: " + (int) mousePos.x() + ", " + (int) mousePos.y(), 5, Main.SCREEN_HEIGHT - 25, 20, BLUE);
+
+        // Draw player position
         DrawText("X: " + (int) Math.floor(player.getPosition().x()),
                 5,
                 5,
@@ -84,7 +86,10 @@ public class GameState {
                 25,
                 20,
                 BLUE);
+
+        // Draw fps
         DrawFPS(Main.SCREEN_WIDTH - 75, 5);
+
         EndDrawing();
     }
 }

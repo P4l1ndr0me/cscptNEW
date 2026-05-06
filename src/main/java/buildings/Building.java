@@ -4,9 +4,9 @@ import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 
 public class Building {
-    public Vector2 position; // top left corner, not center
+    public Vector2 position; // Stores top left corner position, not center
     public BuildingType type;
-    public static int size = 64;
+    public static int size = 64; // size of every building (64 pixels x 64 pixels)
 
     public Building(Vector2 position, BuildingType type) {
         this.position = position;
