@@ -17,10 +17,15 @@ public class GameState {
 
     public GameState() {
         // Load all textures
-        TextureManager.loadTexture("player", "src/main/assets/images/playerSpriteNEW.png");
-        TextureManager.loadTexture("background", "src/main/assets/images/bgNew.png");
-        TextureManager.loadTexture("stone", "src/main/assets/images/stoneNEW.png");
 
+        // Map-related
+        TextureManager.loadTexture("background", "src/main/assets/images/map/bg.png");
+        TextureManager.loadTexture("stone", "src/main/assets/images/map/stone.png");
+
+        // Player-related
+        TextureManager.loadTexture("player", "src/main/assets/images/player/defaultWalking.png");
+        
+        // Building-related
         TextureManager.loadTexture("building1", "src/main/assets/images/buildings/building1.png");
         TextureManager.loadTexture("building2", "src/main/assets/images/buildings/building2.png");
         TextureManager.loadTexture("building3", "src/main/assets/images/buildings/building3.png");
@@ -62,6 +67,12 @@ public class GameState {
         // Draw building preview
         buildSystem.drawPreview();
 
+        // Hitboxes (debugging)
+        for (Rectangle stoneRect : EntityManager.stoneRects) {
+            DrawRectangleLinesEx(stoneRect, 1.0f, RED);
+        }
+        DrawRectangleLinesEx(Player.playerRec, 1.0f, RED);
+        DrawRectangleLinesEx(Player.miningRec, 1.0f, RED);
         EndMode2D();
 
         // Draw UI & HUD
