@@ -23,9 +23,8 @@ public class GameState {
         TextureManager.loadTexture("stone", "src/main/assets/images/map/stone.png");
 
         // Player-related
-        TextureManager.loadTexture("player", "src/main/assets/images/player/defaultWALKING.png");
-        TextureManager.loadTexture("rightMine1", "src/main/assets/images/player/rightMine1.png");
-        TextureManager.loadTexture("rightMine2", "src/main/assets/images/player/rightMine2.png");
+        TextureManager.loadTexture("mining", "src/main/assets/images/player/mining.png");
+        TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/playerSpriteNEW.png");
 
         // Building-related
         TextureManager.loadTexture("building1", "src/main/assets/images/buildings/building1.png");

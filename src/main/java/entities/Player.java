@@ -32,6 +32,7 @@ public class Player extends Entity {
     private int miningFrame = 0;
     private float miningAnimTimer = 0f;
     private final float miningFrameSpeed = 0.12f;
+    private int row;
 
 
     public Player() {
@@ -39,7 +40,7 @@ public class Player extends Entity {
                 newVector2(World.worldWidth / 2f, World.worldHeight / 2f),
                 2.0f,
                 250.0f,
-                TextureManager.getTexture("player"),
+                TextureManager.getTexture("playerNEW"),
                 3,
                 3);
 
@@ -123,10 +124,12 @@ public class Player extends Entity {
 //        if (moveY > 0) currentRow = 1;  // moving down
         if (moveDir.x() < 0) {
             currentRow = 2;  // moving left
+            row = 1;
             lookX = -1;
         }
         if (moveDir.x() > 0) {
             currentRow = 1;  // moving right
+            row = 0;
             lookX = 1;
         }
     }
@@ -240,19 +243,30 @@ public class Player extends Entity {
     }
 
     private void drawMiningAnimation() {
-        Texture current;
-        if (miningFrame == 0) {
-            current = TextureManager.getTexture("rightMine1");
-        } else {
-            current = TextureManager.getTexture("rightMine2");
-        }
+        Texture mining = TextureManager.getTexture("mining");
+        int numRows = 2;
+        int numFrames = 2;
 
-        DrawTextureEx(
-                current,
-                newVector2(position.x() - halfWidth, position.y() - halfHeight),
-                0.0f,
-                scale,
-                WHITE
-        );
+        int frameWidth = mining.width() / numFrames;
+        int frameHeight = mining.height() / numRows;
+
+        Rectangle source = new Rectangle()
+                .x(miningFrame * frameWidth)
+                .y(row * frameHeight)
+                .width(frameWidth)
+                .height(frameHeight);
+
+        float halfW = (mining.width() / numFrames) * scale / 2;
+        float halfH = (mining.height() / numRows) * scale / 2;
+
+        Rectangle dest = new Rectangle()
+                .x((int) (position.x() - halfW + (lookX == 1 ? 6 : -6))) // add/subtract 6 for pickaxe offset
+                .y((int) (position.y() - halfH))
+                .width(halfW * 2)
+                .height(halfH * 2);
+
+        Vector2 origin = newVector2(0, 0);
+
+        DrawTexturePro(mining, source, dest, origin, 0.0f, WHITE);
     }
 }
