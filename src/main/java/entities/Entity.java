@@ -26,14 +26,6 @@ public class Entity {
         this.frames = frames;
     }
 
-    public void draw() {
-        float width = texture.width() * scale;
-        float height = texture.height() * scale;
-        Vector2 drawPos = newVector2(position.x() - (width / 2), position.y() - (height / 2));
-
-        DrawTextureEx(texture, drawPos, rotation, scale, WHITE);
-    }
-
     public Vector2 getPosition() {
         return position;
     }

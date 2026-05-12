@@ -20,10 +20,15 @@ public class Player extends Entity {
     // Mining
     private boolean isMining = false;
     private float miningTimer = 0f;
-    private final float miningCooldown = 0.2f;
+    private final float miningCooldown = 0.5f;
     private final int miningAmount = 20;
-    private final float miningRange = 60f;
     public static Rectangle miningRec;
+
+    // Mining animation
+    private int miningFrame = 0;
+    private float miningAnimTimer = 0f;
+    private final float miningFrameSpeed = 0.12f;
+
 
     public Player() {
         super(newVector2(World.worldWidth / 2f, World.worldHeight / 2f), 2.0f, 250.0f, TextureManager.getTexture("player"), 3, 3);
@@ -33,37 +38,54 @@ public class Player extends Entity {
 
         playerRec = newRectangle(position.x() - halfWidth, position.y() - halfHeight, halfWidth * 2, halfHeight * 2);
         miningRec = newRectangle(
-                position.x() - miningRange / 2,
-                position.y() - miningRange / 2,
-                miningRange,
-                miningRange
+                position.x() + 10,
+                position.y() - 30 / 2f,
+                25,
+                30
         );
     }
 
     // draw walking animations for player
-    public void drawWalk() {
-        int frameWidth = texture.width() / frames;
-        int frameHeight = texture.height() / rows;
-        Rectangle source = new Rectangle()
-                .x(currentFrame * frameWidth)
-                .y(currentRow * frameHeight)
-                .width(frameWidth)
-                .height(frameHeight);
+    public void draw() {
+        if (!isMining) {
+            int frameWidth = texture.width() / frames;
+            int frameHeight = texture.height() / rows;
+            Rectangle source = new Rectangle()
+                    .x(currentFrame * frameWidth)
+                    .y(currentRow * frameHeight)
+                    .width(frameWidth)
+                    .height(frameHeight);
 
-        Rectangle dest = new Rectangle()
-                .x((int) (position.x() - (frameWidth * scale) / 2))
-                .y((int) (position.y() - (frameHeight * scale) / 2))
-                .width(frameWidth * scale)
-                .height(frameHeight * scale);
+            Rectangle dest = new Rectangle()
+                    .x((int) (position.x() - halfWidth))
+                    .y((int) (position.y() - halfHeight))
+                    .width(halfWidth * 2)
+                    .height(halfHeight * 2);
 
-        Vector2 origin = new Vector2().x(0).y(0);
+            Vector2 origin = new Vector2().x(0).y(0);
 
-        DrawTexturePro(texture, source, dest, origin, 0.0f, WHITE);
+            DrawTexturePro(texture, source, dest, origin, 0.0f, WHITE);
+        }
+        else {
+            Texture current;
+            if (miningFrame == 0) {
+                current = TextureManager.getTexture("rightMine1");
+            } else {
+                current = TextureManager.getTexture("rightMine2");
+            }
+
+            DrawTextureEx(
+                    current,
+                    newVector2(position.x() - halfWidth, position.y() - halfHeight),
+                    0.0f,
+                    scale,
+                    WHITE
+            );
+        }
     }
 
     public void boundaryClamp() {
         // Make sure player does not go out of bounds
-
         if (position.x() < halfWidth) {
             position.x(halfWidth);
         }
@@ -103,7 +125,12 @@ public class Player extends Entity {
         }
     }
 
-    public void updateFrame(float dt) {
+    public void updateMiningRect() {
+        miningRec.x(position.x() + 10);
+        miningRec.y(position.y() - 30 / 2f);
+    }
+
+    public void updatePlayerAnimation(float dt) {
         if (isMoving) {
             frameTimer += dt;
             if (frameTimer >= frameSpeed) {
@@ -113,6 +140,21 @@ public class Player extends Entity {
         }
         else {
             currentFrame = 0;
+            frameTimer = 0;
+        }
+    }
+
+    public void updateMiningAnimation(float dt) {
+        if (isMining) {
+            miningAnimTimer += dt;
+
+            if (miningAnimTimer >= miningFrameSpeed) {
+                miningAnimTimer = 0f;
+                miningFrame = (miningFrame + 1) % 2;
+            }
+        } else {
+            miningFrame = 0;
+            miningAnimTimer = 0f;
         }
     }
 
@@ -161,15 +203,13 @@ public class Player extends Entity {
         playerRec.y(position.y() - halfHeight);
 
         // update miningRec
-        miningRec.x((position.x() - miningRange / 2));
-        miningRec.y((position.y() - miningRange / 2));
-
+        updateMiningRect();
 
         boundaryClamp();
 
-        updateFrame(dt);
+        updatePlayerAnimation(dt);
 
-        // testing
         mine(dt);
+        updateMiningAnimation(dt);
     }
 }
