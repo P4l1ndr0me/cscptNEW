@@ -11,6 +11,7 @@ public class Camera {
         Camera.camera.offset(newVector2(Main.SCREEN_WIDTH / 2f, Main.SCREEN_HEIGHT / 2f));
         Camera.camera.zoom(zoom);
     }
+
     public static void update(Vector2 position) {
         camera.target(position);
     }

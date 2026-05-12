@@ -13,11 +13,12 @@ public class World {
     public static final int tileSize = 32;
 
     // Textures
-    final private Texture background = TextureManager.getTexture("background");
+    private static final Texture background = TextureManager.getTexture("background");
+    private static final float scale = (float) worldWidth / background.width();
 
-    public void draw() {
+    public static void draw() {
         // Draw background
-        DrawTextureEx(background, newVector2(0, 0), 0, (float) worldWidth / background.width(), WHITE);
+        DrawTextureEx(background, newVector2(0, 0), 0, scale, WHITE);
 
         // Draw grid lines
         for (int x = 0; x <= worldWidth; x += tileSize) {

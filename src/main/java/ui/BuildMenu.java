@@ -9,13 +9,12 @@ import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
 
 public class BuildMenu {
-
     // Build menu data
-    private static final Color menuFill = newColor(203, 203, 203, 100);
+    public static final Color menuFill = newColor(203, 203, 203, 100);
     private static final float menuX = 0.3f * Main.SCREEN_WIDTH;
     private static final int menuY = Main.SCREEN_HEIGHT - 70;
     private static final int menuHeight = 50;
-    public static final Rectangle menuRect = newRectangle(menuX, menuY, Main.SCREEN_WIDTH - 2 * menuX, menuHeight);
+    public static final Rectangle menuRect = newRectangle(menuX, menuY, 0.4f * Main.SCREEN_WIDTH, menuHeight);
     private static final int HUDBuildingSize = 32;
     private static final float HUDScale = (float) HUDBuildingSize / Building.size;
 
