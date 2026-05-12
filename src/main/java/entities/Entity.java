@@ -1,8 +1,6 @@
 package entities;
 
 import static com.raylib.Raylib.*;
-import static com.raylib.Helpers.*;
-import static com.raylib.Colors.*;
 
 public class Entity {
     Vector2 position;
@@ -15,7 +13,7 @@ public class Entity {
     int currentFrame;
     int currentRow;
     float frameTimer;
-    float frameSpeed = 0.15f;
+    float frameSpeed;
 
     public Entity(Vector2 position, float scale, float speed, Texture texture, int rows, int frames) {
         this.position = position;
