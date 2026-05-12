@@ -6,14 +6,22 @@ import world.ResourceNode;
 import world.World;
 import entities.*;
 import ui.BuildMenu;
+import core.EntityManager;
+
+import java.util.ArrayList;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
+import static core.EntityManager.spawnedEnemies;
+import static world.World.worldHeight;
+import static world.World.worldWidth;
 
 public class GameState {
     final private Player player;
     final private BuildSystem buildSystem;
     final private BuildMenu buildMenu;
+
+    public static ArrayList<int[]> zombieSpawnPoint = new ArrayList<>();
 
     public GameState() {
         // Load all textures
@@ -31,12 +39,42 @@ public class GameState {
         TextureManager.loadTexture("building2", "src/main/assets/images/buildings/building2.png");
         TextureManager.loadTexture("building3", "src/main/assets/images/buildings/building3.png");
 
-        // Create new instances
+        TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");
+        TextureManager.loadTexture("enemy2", "src/main/assets/images/sprites/redZombie.png");
+
+        // create new instances
         player = new Player();
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
 
-        // Initialize camera and resource node
+        for(int i =0;i<10;i++){
+            int[] pos = getSpawnPosition();
+            EntityManager.spawnZombie
+                    (pos[0],
+                            pos[1],
+                            2.0f,
+                            50.0f,
+                            TextureManager.getTexture("enemy1"),
+                            3,
+                            3);
+        }
+
+        for (int i =0;i<3;i++){
+
+            int[] pos = getSpawnPosition();
+
+            EntityManager.spawnZombie
+                    (pos[0],
+                            pos[1],
+                            2.0f,
+                            75.0f,
+                            TextureManager.getTexture("enemy2"),
+                            3,
+                            3);
+        }
+
+
+        // initialize camera
         Camera.init();
         ResourceNode.init();
     }
@@ -46,6 +84,9 @@ public class GameState {
 
         // Update
         player.update(dt);
+        for (int i =0;i<spawnedEnemies.size();i++){
+            spawnedEnemies.get(i).update(dt);
+        }
         Camera.update(player.getPosition());
         buildSystem.update();
     }
@@ -103,5 +144,25 @@ public class GameState {
         DrawFPS(Main.SCREEN_WIDTH - 75, 5);
 
         EndDrawing();
+    }
+
+    public int[] getSpawnPosition() {
+        int playerX = worldWidth / 2;
+        int playerY = worldHeight / 2;
+        int safeRadius = 500;
+
+        double angle = Math.random() * 2 * Math.PI;
+        double maxDist = Math.min(worldWidth, worldHeight) / 2.0;
+        double distance = safeRadius + Math.random() * (maxDist - safeRadius);
+
+        int x = (int)(playerX + distance * Math.cos(angle));
+        int y = (int)(playerY + distance * Math.sin(angle));
+
+        // clamp to map bounds
+        x = Math.max(0, Math.min(worldWidth - 1, x));
+        y = Math.max(0, Math.min(worldHeight - 1, y));
+        zombieSpawnPoint.add(new int[] {x, y});
+
+        return new int[]{x, y};
     }
 }
