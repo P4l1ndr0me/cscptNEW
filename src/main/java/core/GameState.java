@@ -6,6 +6,8 @@ import entities.*;
 import ui.BuildMenu;
 import core.EntityManager;
 
+import java.util.ArrayList;
+
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
@@ -23,6 +25,8 @@ public class GameState {
     final private BuildMenu buildMenu;
     final private BuildSystem buildSystem;
 
+    public static ArrayList<int[]> zombieSpawnPoint = new ArrayList<>();
+
     public GameState() {
         target = LoadRenderTexture(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
 
@@ -36,6 +40,7 @@ public class GameState {
         TextureManager.loadTexture("building3", "src/main/assets/images/buildings/building3.png");
 
         TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");
+        TextureManager.loadTexture("enemy2", "src/main/assets/images/sprites/redZombie.png");
 
         // create new instances
         player = new Player();
@@ -44,9 +49,9 @@ public class GameState {
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
 
-        for(int i =0;i<100;i++){
+        for(int i =0;i<10;i++){
             int[] pos = getSpawnPosition();
-            EntityManager.spawnDemZombies
+            EntityManager.spawnZombie
                     (pos[0],
                             pos[1],
                             2.0f,
@@ -54,8 +59,22 @@ public class GameState {
                             TextureManager.getTexture("enemy1"),
                             3,
                             3);
-
         }
+
+        for (int i =0;i<3;i++){
+
+            int[] pos = getSpawnPosition();
+
+            EntityManager.spawnZombie
+                    (pos[0],
+                            pos[1],
+                            2.0f,
+                            75.0f,
+                            TextureManager.getTexture("enemy2"),
+                            3,
+                            3);
+        }
+
 
         // initialize camera
         Camera.init();
@@ -137,6 +156,7 @@ public class GameState {
         // clamp to map bounds
         x = Math.max(0, Math.min(worldWidth - 1, x));
         y = Math.max(0, Math.min(worldHeight - 1, y));
+        zombieSpawnPoint.add(new int[] {x, y});
 
         return new int[]{x, y};
     }

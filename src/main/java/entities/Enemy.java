@@ -53,38 +53,38 @@ public class Enemy extends Entity{
             return;
         }
 
-        float randomOffsetX = (float) (Math.random() * 100 - 50); // -50 to +50 pixels
-        float randomOffsetY = (float) (Math.random() * 100 - 50);
-        float targetX = target[0] + randomOffsetX;
-        float targetY = target[1] + randomOffsetY;
+//        float randomOffsetX = (float) (Math.random() * 100 - 50); // -50 to +50 pixels
+//        float randomOffsetY = (float) (Math.random() * 100 - 50);
+//        float targetX = target[0] + randomOffsetX;
+//        float targetY = target[1] + randomOffsetY;
 
-        if (position.x() < targetX +1  && position.x() > targetX -1 ) onsetX = true;
-        if (position.y() < targetY +1 && position.y() > targetY -1) onsetY = true;
+        if (position.x() < target[0] +1  && position.x() > target[0] -1 ) onsetX = true;
+        if (position.y() < target[1] +1 && position.y() > target[1] -1) onsetY = true;
 
 
         // Movement input
-        if (position.y() > targetY && !onsetY) {
+        if (position.y() > target[1] && !onsetY) {
             moveY -= 1;
         }
-        if (position.y() < targetY && !onsetY) {
+        if (position.y() < target[1] && !onsetY) {
             moveY += 1;
         }
-        if (position.x() > targetX && !onsetX) {
+        if (position.x() > target[0] && !onsetX) {
             moveX -= 1;
         }
-        if (position.x() < targetX && !onsetX) {
+        if (position.x() < target[0] && !onsetX) {
             moveX += 1;
         }
 
 
         // Set row of sprite sheet based on direction
-        if (moveY < 0) currentRow = 0;  // up
-        if (moveY > 0) currentRow = 0;  // down
-        if (moveX < 0) currentRow = 1;  // left
-        if (moveX > 0) currentRow = 2;  // right
+        if (moveY < 0) currentFrame = 1;  // up
+        if (moveY > 0) currentFrame = 1;  // down
+        if (moveX < 0) currentFrame = 0;  // left
+        if (moveX > 0) currentFrame = 2;  // right
 
         if (moveX == 0 && moveY == 0) {
-            currentRow = 0;
+            currentFrame = 1;
         }
 
         //make sure going diagonally doesn't increase speed
@@ -117,16 +117,14 @@ public class Enemy extends Entity{
             frameTimer += dt;
             if (frameTimer >= slowspd) {
                 frameTimer = 0;
-                currentFrame = (currentFrame + 1) % frames;
+                currentRow = (currentRow + 1) % rows;
             }
         } else {
-            currentFrame = 0;
+            currentRow = 0;
         }
     }
 
     public float[] determineClosestBuilding(float curx, float cury){
-
-
         Building closestBuilding = null;
         float closestDistance = Float.MAX_VALUE;
 
