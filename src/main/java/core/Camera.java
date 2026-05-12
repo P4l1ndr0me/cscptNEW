@@ -5,12 +5,13 @@ import static com.raylib.Helpers.*;
 
 public class Camera {
     public static Camera2D camera = new Camera2D();
-    static float zoom = 2.0f;
+    static float zoom = 1.0f;
 
     public static void init() {
         Camera.camera.offset(newVector2(Main.SCREEN_WIDTH / 2f, Main.SCREEN_HEIGHT / 2f));
         Camera.camera.zoom(zoom);
     }
+
     public static void update(Vector2 position) {
         camera.target(position);
     }

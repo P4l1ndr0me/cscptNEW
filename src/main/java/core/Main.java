@@ -3,16 +3,17 @@ package core;
 import static com.raylib.Raylib.*;
 
 public class Main {
-    // render texture dimensions
+    // Screen dimensions
     public static final int SCREEN_WIDTH = 1600;
     public static final int SCREEN_HEIGHT = 900;
 
     public static void main(String[] args) {
 
-        // initialize and maximize window
+        // Initialize window
+        SetWindowState(FLAG_WINDOW_UNDECORATED);
         InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "zombs.io");
 
-        // set fps
+        // Set target fps
         SetTargetFPS(60);
 
         // Create new instance
@@ -20,14 +21,14 @@ public class Main {
 
         while (!WindowShouldClose()) {
 
-            // update
+            // Update
             gameState.update();
 
-            // draw
+            // Draw
             gameState.draw();
         }
 
-        // unload textures
+        // Unload textures
         TextureManager.unloadAll();
         CloseWindow();
     }

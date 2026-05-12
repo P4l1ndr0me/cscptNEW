@@ -1,5 +1,6 @@
 package ui;
 
+import buildings.Building;
 import core.Main;
 import core.TextureManager;
 
@@ -8,13 +9,14 @@ import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
 
 public class BuildMenu {
-
     // Build menu data
-    private final Color menuFill = newColor(203, 203, 203, 100);
+    public static final Color menuFill = newColor(203, 203, 203, 100);
     private static final float menuX = 0.3f * Main.SCREEN_WIDTH;
     private static final int menuY = Main.SCREEN_HEIGHT - 70;
     private static final int menuHeight = 50;
-    public static final Rectangle menuRect = newRectangle(menuX, menuY, Main.SCREEN_WIDTH - 2 * menuX, menuHeight);
+    public static final Rectangle menuRect = newRectangle(menuX, menuY, 0.4f * Main.SCREEN_WIDTH, menuHeight);
+    private static final int HUDBuildingSize = 32;
+    private static final float HUDScale = (float) HUDBuildingSize / Building.size;
 
     public static Texture[] buildingTextures = {
             TextureManager.getTexture("building1"),
@@ -22,20 +24,18 @@ public class BuildMenu {
             TextureManager.getTexture("building3")};
     public static Rectangle[] buildingPositions = new Rectangle[3];
 
-    private final float HUDscale = 0.5f;
-
     public BuildMenu() {
         // xy position of first building
         float topLeftX = menuX + 9;
-        int topLeftY = (int) (menuY + (menuHeight - buildingTextures[0].height() * HUDscale) / 2f);
+        int topLeftY = (int) (menuY + (menuHeight - buildingTextures[0].height() * HUDScale) / 2f);
 
         // set each building's length, width, and XY position in the HUD
         for (int i = 0; i < buildingPositions.length; i++) {
             buildingPositions[i] = newRectangle(
-                    topLeftX + 60 * i,
+                    topLeftX + 60 * i, // hardcoded for now, will need to change later
                     topLeftY,
-                    buildingTextures[i].width() * HUDscale,
-                    buildingTextures[i].height() * HUDscale);
+                    buildingTextures[i].width() * HUDScale,
+                    buildingTextures[i].height() * HUDScale);
         }
     }
 
@@ -46,7 +46,7 @@ public class BuildMenu {
 
         // Draw building
         for (int i = 0; i < buildingPositions.length; i++) {
-            DrawTextureEx(buildingTextures[i], newVector2(buildingPositions[i].x(), buildingPositions[i].y()), 0.0f, HUDscale, WHITE);
+            DrawTextureEx(buildingTextures[i], newVector2(buildingPositions[i].x(), buildingPositions[i].y()), 0.0f, HUDScale, WHITE);
         }
     }
 }
