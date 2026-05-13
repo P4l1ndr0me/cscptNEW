@@ -17,10 +17,11 @@ public class Player extends Entity {
     private final float halfWidth;
     private final float halfHeight;
     private boolean isMoving = false;
-    private int lookX; // 1 = right, -1 = left
+    private int lookX; // 1 = facing right, -1 = facing left
 
     // Mining
-    private boolean isMining = false;
+    private boolean hasPickaxeEquipped = false; // R to toggle
+    private boolean isAutoMining = false;       // SPACE to toggle
     private float miningTimer = 0f;
     private final float miningCooldown = 0.5f;
     private final int miningAmount = 20;
@@ -28,12 +29,13 @@ public class Player extends Entity {
     private final int miningRecHeight = 30;
 
     // Mining animation
-    private Texture mining;
-    private int miningFrame = 0;
-    private float miningAnimTimer = 0f;
-    private final float miningFrameSpeed = 0.12f;
-    private int row;
-
+    private final Texture mining = TextureManager.getTexture("mining");
+    private int pickaxeFrame = 0;
+    private final int pickaxeRows = 4;
+    private final int pickaxeFrames = 3;
+    private float pickaxeAnimTimer = 0f;
+    private final float pickaxeFrameSpeed = 0.20f;
+    private boolean pickaxeDown = false;
 
     public Player() {
         super(
@@ -45,11 +47,13 @@ public class Player extends Entity {
                 3);
 
         frameSpeed = 0.15f;
+
+        // // player spawns looking to the right (first frame = idle)
         currentRow = 1;
         lookX = 1;
 
-        halfWidth = (texture.width() / (float) frames) * scale / 2;
-        halfHeight = (texture.height() / (float) rows) * scale / 2;
+        halfWidth = ((float) texture.width() / frames) * scale / 2;
+        halfHeight = ((float) texture.height() / rows) * scale / 2;
 
         playerRec = newRectangle(
                 position.x() - halfWidth,
@@ -68,6 +72,8 @@ public class Player extends Entity {
     public void update(float dt) {
         Vector2 moveDir = getMovementInput();
 
+        updateToolInput();
+
         updateDirection(moveDir);
         move(moveDir, dt);
         boundaryClamp();
@@ -75,15 +81,14 @@ public class Player extends Entity {
         updatePlayerRect();
         updateMiningRect();
 
-        updatePlayerAnimation(dt);
         updateMining(dt);
-        updateMiningAnimation(dt);
+        updateAnimation(dt);
     }
 
     // draw walking animations for player
     public void draw() {
-        if (isMining) {
-            drawMiningAnimation();
+        if (hasPickaxeEquipped) {
+            drawPickaxeAnimation();
         } else {
             drawWalkingAnimation();
         }
@@ -124,12 +129,10 @@ public class Player extends Entity {
 //        if (moveY > 0) currentRow = 1;  // moving down
         if (moveDir.x() < 0) {
             currentRow = 2;  // moving left
-            row = 1;
             lookX = -1;
         }
         if (moveDir.x() > 0) {
             currentRow = 1;  // moving right
-            row = 0;
             lookX = 1;
         }
     }
@@ -178,9 +181,13 @@ public class Player extends Entity {
         return false;
     }
 
-    public void updateMining(float dt) {
-        if (IsKeyDown(KEY_SPACE) && isNearStone()) {
-            isMining = true;
+    private void updateMining(float dt) {
+        if (!hasPickaxeEquipped || !isAutoMining) {
+            miningTimer = 0f;
+            return;
+        }
+
+        if (isNearStone()) {
             miningTimer += dt;
 
             if (miningTimer >= miningCooldown) {
@@ -188,13 +195,25 @@ public class Player extends Entity {
                 numStone += miningAmount;
             }
         } else {
-            isMining = false;
             miningTimer = 0f;
         }
     }
 
-    public void updatePlayerAnimation(float dt) {
-        if (isMoving) {
+    private void updateToolInput() {
+        if (IsKeyPressed(KEY_R)) {
+            hasPickaxeEquipped = !hasPickaxeEquipped;
+            isAutoMining = false;
+        }
+
+        if (hasPickaxeEquipped && IsKeyPressed(KEY_SPACE)) {
+            isAutoMining = !isAutoMining;
+        }
+    }
+
+    private void updateAnimation(float dt) {
+        if (!isMoving) frameTimer = 0f;
+
+        if (isMoving && !hasPickaxeEquipped) {
             frameTimer += dt;
 
             if (frameTimer >= frameSpeed) {
@@ -203,21 +222,28 @@ public class Player extends Entity {
             }
         } else {
             currentFrame = 0;
-            frameTimer = 0;
         }
-    }
 
-    public void updateMiningAnimation(float dt) {
-        if (isMining) {
-            miningAnimTimer += dt;
+        if (isMoving && hasPickaxeEquipped) {
+            frameTimer += dt;
 
-            if (miningAnimTimer >= miningFrameSpeed) {
-                miningAnimTimer = 0f;
-                miningFrame = (miningFrame + 1) % 2;
+            if (frameTimer >= frameSpeed) {
+                frameTimer = 0f;
+                pickaxeFrame = (pickaxeFrame + 1) % pickaxeFrames;
             }
         } else {
-            miningFrame = 0;
-            miningAnimTimer = 0f;
+            pickaxeFrame = 0;
+        }
+
+        if (isAutoMining) {
+            pickaxeAnimTimer += dt;
+            if (pickaxeAnimTimer >= pickaxeFrameSpeed) {
+                pickaxeAnimTimer = 0f;
+                pickaxeDown = !pickaxeDown;
+            }
+        } else {
+            pickaxeDown = false; // default to pickaxe in up position
+            pickaxeAnimTimer = 0f;
         }
     }
 
@@ -242,22 +268,26 @@ public class Player extends Entity {
         DrawTexturePro(texture, source, dest, origin, 0.0f, WHITE);
     }
 
-    private void drawMiningAnimation() {
-        Texture mining = TextureManager.getTexture("mining");
-        int numRows = 2;
-        int numFrames = 2;
+    private void drawPickaxeAnimation() {
+        int frameWidth = mining.width() / pickaxeFrames;
+        int frameHeight = mining.height() / pickaxeRows;
 
-        int frameWidth = mining.width() / numFrames;
-        int frameHeight = mining.height() / numRows;
+        int row;
+
+        if (lookX == 1) {
+            row = pickaxeDown ? 1 : 0;
+        } else {
+            row = pickaxeDown ? 3 : 2;
+        }
 
         Rectangle source = new Rectangle()
-                .x(miningFrame * frameWidth)
+                .x(pickaxeFrame * frameWidth)
                 .y(row * frameHeight)
                 .width(frameWidth)
                 .height(frameHeight);
 
-        float halfW = (mining.width() / numFrames) * scale / 2;
-        float halfH = (mining.height() / numRows) * scale / 2;
+        float halfW = ((float) mining.width() / pickaxeFrames) * scale / 2;
+        float halfH = ((float) mining.height() / pickaxeRows) * scale / 2;
 
         Rectangle dest = new Rectangle()
                 .x((int) (position.x() - halfW + (lookX == 1 ? 6 : -6))) // add/subtract 6 for pickaxe offset
