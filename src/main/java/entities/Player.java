@@ -1,8 +1,9 @@
 package entities;
 
+import buildings.Building;
 import core.EntityManager;
 import core.TextureManager;
-import world.World;
+import world.*;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
@@ -18,15 +19,19 @@ public class Player extends Entity {
     private final float halfHeight;
     private boolean isMoving = false;
     private int lookX; // 1 = facing right, -1 = facing left
+    private final float playerHitboxWidth = 24;
+    private final float playerHitboxHeight = 22;
+    private final float playerHitboxOffsetY = 6;
 
     // Mining
     private boolean hasPickaxeEquipped = false; // R to toggle
     private boolean isAutoMining = false;       // SPACE to toggle
     private float miningTimer = 0f;
-    private final float miningCooldown = 0.5f;
+    private final float miningCooldown = 0.8f;
     private final int miningAmount = 20;
     private final int miningRecWidth = 25;
     private final int miningRecHeight = 30;
+    private final int miningRecOffset = 10;
 
     // Mining animation
     private final Texture mining = TextureManager.getTexture("mining");
@@ -36,6 +41,7 @@ public class Player extends Entity {
     private float pickaxeAnimTimer = 0f;
     private final float pickaxeFrameSpeed = 0.20f;
     private boolean pickaxeDown = false;
+    private final float pickaxeOffset = 3 * scale;
 
     public Player() {
         super(
@@ -56,10 +62,10 @@ public class Player extends Entity {
         halfHeight = ((float) texture.height() / rows) * scale / 2;
 
         playerRec = newRectangle(
-                position.x() - halfWidth,
-                position.y() - halfHeight,
-                halfWidth * 2,
-                halfHeight * 2);
+                position.x() - playerHitboxWidth / 2f,
+                position.y() + playerHitboxOffsetY,
+                playerHitboxWidth,
+                playerHitboxHeight);
 
         miningRec = newRectangle(
                 position.x() + 10,
@@ -79,6 +85,7 @@ public class Player extends Entity {
         boundaryClamp();
 
         updatePlayerRect();
+        pushOutOfStones();
         updateMiningRect();
 
         updateMining(dt);
@@ -138,8 +145,71 @@ public class Player extends Entity {
     }
 
     private void move(Vector2 moveDir, float dt) {
-        position.x(Math.round(position.x() + speed * moveDir.x() * dt));
-        position.y(Math.round(position.y() + speed * moveDir.y() * dt));
+        float nextX = position.x() + speed * moveDir.x() * dt;
+        float nextY = position.y();
+
+        Rectangle nextRecX = newRectangle(
+                nextX - playerHitboxWidth / 2f,
+                nextY + playerHitboxOffsetY,
+                playerHitboxWidth,
+                playerHitboxHeight
+        );
+
+        if (!collidesWithBuildings(nextRecX)) {
+            position.x(Math.round(nextX));
+        }
+
+        nextX = position.x();
+        nextY = position.y() + speed * moveDir.y() * dt;
+
+        Rectangle nextRecY = newRectangle(
+                nextX - playerHitboxWidth / 2f,
+                nextY + playerHitboxOffsetY,
+                playerHitboxWidth,
+                playerHitboxHeight
+        );
+
+        if (!collidesWithBuildings(nextRecY)) {
+            position.y(Math.round(nextY));
+        }
+    }
+
+    private boolean collidesWithBuildings(Rectangle rect) {
+        for (Building building : EntityManager.placedBuildings) {
+            Rectangle buildingRect = newRectangle(
+                    building.position.x(),
+                    building.position.y(),
+                    Building.size,
+                    Building.size
+            );
+            if (CheckCollisionRecs(rect, buildingRect)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void pushOutOfStones() {
+        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
+            float radius = ResourceNode.stoneRadius;
+
+            float closestX = Math.max(playerRec.x(), Math.min(stoneCenter.x(), playerRec.x() + playerRec.width()));
+            float closestY = Math.max(playerRec.y(), Math.min(stoneCenter.y(), playerRec.y() + playerRec.height()));
+
+            float dx = closestX - stoneCenter.x();
+            float dy = closestY - stoneCenter.y();
+
+            float distance = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 0 && distance < radius) {
+                float overlap = radius - distance;
+
+                position.x(Math.round(position.x() + dx / distance * overlap));
+                position.y(Math.round(position.y() + dy / distance * overlap));
+
+                updatePlayerRect();
+            }
+        }
     }
 
     private void boundaryClamp() {
@@ -159,22 +229,22 @@ public class Player extends Entity {
     }
 
     private void updatePlayerRect() {
-        playerRec.x(position.x() - halfWidth);
-        playerRec.y(position.y() - halfHeight);
+        playerRec.x(position.x() - playerHitboxWidth / 2f);
+        playerRec.y(position.y() + playerHitboxOffsetY);
     }
 
     private void updateMiningRect() {
         if (lookX == 1) { // looking right
-            miningRec.x(position.x() + 10);
+            miningRec.x(position.x() + miningRecOffset);
         } else { // looking left
-            miningRec.x(position.x() - 10 - miningRecWidth);
+            miningRec.x(position.x() - miningRecWidth - miningRecOffset);
         }
         miningRec.y(position.y() - miningRecHeight / 2f);
     }
 
     private boolean isNearStone() {
-        for (Rectangle stoneRect : EntityManager.stoneRects) {
-            if (CheckCollisionRecs(miningRec, stoneRect)) {
+        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
+            if (CheckCollisionCircleRec(stoneCenter, ResourceNode.stoneRadius, miningRec)) {
                 return true;
             }
         }
@@ -213,25 +283,20 @@ public class Player extends Entity {
     private void updateAnimation(float dt) {
         if (!isMoving) frameTimer = 0f;
 
-        if (isMoving && !hasPickaxeEquipped) {
-            frameTimer += dt;
-
-            if (frameTimer >= frameSpeed) {
-                frameTimer = 0;
-                currentFrame = (currentFrame + 1) % frames;
-            }
-        } else {
-            currentFrame = 0;
-        }
-
-        if (isMoving && hasPickaxeEquipped) {
+        if (isMoving) {
             frameTimer += dt;
 
             if (frameTimer >= frameSpeed) {
                 frameTimer = 0f;
-                pickaxeFrame = (pickaxeFrame + 1) % pickaxeFrames;
+
+                if (hasPickaxeEquipped) {
+                    pickaxeFrame = (pickaxeFrame + 1) % pickaxeFrames;
+                } else {
+                    currentFrame = (currentFrame + 1) % frames;
+                }
             }
         } else {
+            currentFrame = 0;
             pickaxeFrame = 0;
         }
 
@@ -290,7 +355,7 @@ public class Player extends Entity {
         float halfH = ((float) mining.height() / pickaxeRows) * scale / 2;
 
         Rectangle dest = new Rectangle()
-                .x((int) (position.x() - halfW + (lookX == 1 ? 6 : -6))) // add/subtract 6 for pickaxe offset
+                .x((int) (position.x() - halfW + (lookX == 1 ? pickaxeOffset : -pickaxeOffset))) // add/subtract pickaxe offset
                 .y((int) (position.y() - halfH))
                 .width(halfW * 2)
                 .height(halfH * 2);

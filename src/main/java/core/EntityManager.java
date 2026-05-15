@@ -13,7 +13,7 @@ import static com.raylib.Raylib.*;
 public class EntityManager {
     public static ArrayList<Enemy> spawnedEnemies = new ArrayList<>();
     public static ArrayList<Building> placedBuildings = new ArrayList<>(); // store info of every placed building
-    public static ArrayList<Rectangle> stoneRects = new ArrayList<>(); // store center pos of every stone
+    public static ArrayList<Vector2> stoneCenters = new ArrayList<>(); // store center pos of every stone
 
     public static void DrawEntities() {
         // Draw buildings
@@ -22,12 +22,12 @@ public class EntityManager {
         }
 
         // Draw stone
-        for (Rectangle stoneRect : stoneRects) {
+        for (Vector2 stoneCenter : stoneCenters) {
             DrawTextureEx(
                     TextureManager.getTexture("stone"),
-                    newVector2(stoneRect.x(), stoneRect.y()),
+                    newVector2(stoneCenter.x() - ResourceNode.stoneRadius, stoneCenter.y() - ResourceNode.stoneRadius),
                     0.0f,
-                    ResourceNode.stoneScale,
+                    1.0f,
                     WHITE
             );
         }

@@ -108,11 +108,12 @@ public class GameState {
         buildSystem.drawPreview();
 
         // Hitboxes (debugging)
-        for (Rectangle stoneRect : EntityManager.stoneRects) {
-            DrawRectangleLinesEx(stoneRect, 1.0f, RED);
+        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
+            DrawCircleLinesV(stoneCenter, ResourceNode.stoneRadius, RED);
         }
         DrawRectangleLinesEx(Player.playerRec, 1.0f, RED);
         DrawRectangleLinesEx(Player.miningRec, 1.0f, RED);
+
         EndMode2D();
 
         // Draw UI & HUD
