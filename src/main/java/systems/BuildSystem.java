@@ -6,7 +6,7 @@ import core.Camera;
 import core.EntityManager;
 import entities.Player;
 import ui.BuildMenu;
-import world.World;
+import world.*;
 
 import static com.raylib.Helpers.*;
 import static com.raylib.Raylib.*;
@@ -57,8 +57,8 @@ public class BuildSystem {
         }
 
         // Check if placement overlaps with stone
-        for (Rectangle stoneRect : EntityManager.stoneRects) {
-            if (CheckCollisionRecs(previewRec, stoneRect)) {
+        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
+            if (CheckCollisionCircleRec(stoneCenter, ResourceNode.stoneRadius, previewRec)) {
                 return false;
             }
         }

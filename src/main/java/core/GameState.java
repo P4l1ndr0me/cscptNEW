@@ -6,7 +6,6 @@ import world.ResourceNode;
 import world.World;
 import entities.*;
 import ui.BuildMenu;
-import core.EntityManager;
 
 import java.util.ArrayList;
 
@@ -31,8 +30,8 @@ public class GameState {
         TextureManager.loadTexture("stone", "src/main/assets/images/map/stone.png");
 
         // Player-related
-        TextureManager.loadTexture("mining", "src/main/assets/images/player/mining.png");
-        TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/playerSpriteNEW.png");
+        TextureManager.loadTexture("mining", "src/main/assets/images/player/mining_sprites.png");
+        TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/player_sprites.png");
 
         // Building-related
         TextureManager.loadTexture("building1", "src/main/assets/images/buildings/building1.png");
@@ -47,7 +46,11 @@ public class GameState {
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
 
-        for(int i =0;i<10;i++){
+        // initialize camera
+        Camera.init();
+        ResourceNode.init();
+
+        for (int i = 0; i < 10; i++) {
             int[] pos = getSpawnPosition();
             EntityManager.spawnZombie
                     (pos[0],
@@ -59,7 +62,7 @@ public class GameState {
                             3);
         }
 
-        for (int i =0;i<3;i++){
+        for (int i = 0; i < 3; i++) {
 
             int[] pos = getSpawnPosition();
 
@@ -72,11 +75,6 @@ public class GameState {
                             3,
                             3);
         }
-
-
-        // initialize camera
-        Camera.init();
-        ResourceNode.init();
     }
 
     public void update() {
@@ -84,8 +82,8 @@ public class GameState {
 
         // Update
         player.update(dt);
-        for (int i =0;i<spawnedEnemies.size();i++){
-            spawnedEnemies.get(i).update(dt);
+        for (Enemy spawnedEnemy : spawnedEnemies) {
+            spawnedEnemy.update(dt);
         }
         Camera.update(player.getPosition());
         buildSystem.update();
@@ -110,11 +108,12 @@ public class GameState {
         buildSystem.drawPreview();
 
         // Hitboxes (debugging)
-        for (Rectangle stoneRect : EntityManager.stoneRects) {
-            DrawRectangleLinesEx(stoneRect, 1.0f, RED);
+        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
+            DrawCircleLinesV(stoneCenter, ResourceNode.stoneRadius, RED);
         }
         DrawRectangleLinesEx(Player.playerRec, 1.0f, RED);
         DrawRectangleLinesEx(Player.miningRec, 1.0f, RED);
+
         EndMode2D();
 
         // Draw UI & HUD
@@ -155,13 +154,13 @@ public class GameState {
         double maxDist = Math.min(worldWidth, worldHeight) / 2.0;
         double distance = safeRadius + Math.random() * (maxDist - safeRadius);
 
-        int x = (int)(playerX + distance * Math.cos(angle));
-        int y = (int)(playerY + distance * Math.sin(angle));
+        int x = (int) (playerX + distance * Math.cos(angle));
+        int y = (int) (playerY + distance * Math.sin(angle));
 
         // clamp to map bounds
         x = Math.max(0, Math.min(worldWidth - 1, x));
         y = Math.max(0, Math.min(worldHeight - 1, y));
-        zombieSpawnPoint.add(new int[] {x, y});
+        zombieSpawnPoint.add(new int[]{x, y});
 
         return new int[]{x, y};
     }
