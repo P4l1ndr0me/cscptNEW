@@ -34,11 +34,11 @@ public class BuildSystem {
     private boolean validPlacement;
 
     // Grid occupancy system
-    private final int cols = World.worldWidth / World.tileSize;
-    private final int rows = World.worldHeight / World.tileSize;
+    private final int cols = World.WORLD_WIDTH / World.TILE_SIZE;
+    private final int rows = World.WORLD_HEIGHT / World.TILE_SIZE;
     private final boolean[][] occupiedTiles = new boolean[cols][rows];
     private int tileX, tileY;
-    private final int buildingTileSize = size / World.tileSize; // each building is 64x64, and each tile is 32x32, so it's a factor of 2
+    private final int buildingTileSize = size / World.TILE_SIZE; // each building is 64x64, and each tile is 32x32, so it's a factor of 2
 
     public boolean checkValidPlacement() {
         // Check if player has selected a building
@@ -53,11 +53,11 @@ public class BuildSystem {
         }
 
         // Check if placement is within world boundaries
-        if (!(snappedX >= 0 && snappedX <= World.worldWidth - size && snappedY >= 0 && snappedY <= World.worldHeight - size))
+        if (!(snappedX >= 0 && snappedX <= World.WORLD_WIDTH - size && snappedY >= 0 && snappedY <= World.WORLD_HEIGHT - size))
             return false;
 
         // Check if player is clicking on build HUD
-        if (CheckCollisionPointRec(GetMousePosition(), BuildMenu.menuRect)) return false;
+        if (CheckCollisionPointRec(GetMousePosition(), BuildMenu.MENU_RECT)) return false;
 
         // Check if placement overlaps with occupied tiles
         for (int x = tileX; x < tileX + buildingTileSize; x++) {
@@ -142,12 +142,12 @@ public class BuildSystem {
         mouse = GetScreenToWorld2D(mouse, Camera.camera);
 
         // Snap mouse position
-        snappedX = (int) Math.floor(mouse.x() / World.tileSize) * World.tileSize;
-        snappedY = (int) Math.floor(mouse.y() / World.tileSize) * World.tileSize;
+        snappedX = (int) Math.floor(mouse.x() / World.TILE_SIZE) * World.TILE_SIZE;
+        snappedY = (int) Math.floor(mouse.y() / World.TILE_SIZE) * World.TILE_SIZE;
 
         // Update x & y position of current tile
-        tileX = snappedX / World.tileSize;
-        tileY = snappedY / World.tileSize;
+        tileX = snappedX / World.TILE_SIZE;
+        tileY = snappedY / World.TILE_SIZE;
 
         // Update preview rectangle
         previewRec = newRectangle(snappedX, snappedY, size, size);
@@ -184,7 +184,6 @@ public class BuildSystem {
     }
 
     public void draw() {
-        // Draw building preview
         // Show red tint if not valid placement (e.x. overlapping with already placed building)
         // Otherwise, show default white tint
         Color previewColor = validPlacement

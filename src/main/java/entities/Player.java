@@ -46,7 +46,7 @@ public class Player extends Entity {
 
     public Player() {
         super(
-                newVector2(World.worldWidth / 2f, World.worldHeight / 2f),
+                newVector2(World.WORLD_WIDTH / 2f, World.WORLD_HEIGHT / 2f),
                 2.0f,
                 250.0f,
                 TextureManager.getTexture("playerNEW"),
@@ -55,7 +55,7 @@ public class Player extends Entity {
 
         frameSpeed = 0.15f;
 
-        // // player spawns looking to the right (first frame = idle)
+        // Player spawns looking to the right (first frame = idle)
         currentRow = 1;
         lookX = 1;
 
@@ -215,11 +215,11 @@ public class Player extends Entity {
         if (position.y() < halfHeight) {
             position.y(halfHeight);
         }
-        if (position.x() > World.worldWidth - halfWidth) {
-            position.x(World.worldWidth - halfWidth);
+        if (position.x() > World.WORLD_WIDTH - halfWidth) {
+            position.x(World.WORLD_WIDTH - halfWidth);
         }
-        if (position.y() > World.worldHeight - halfHeight) {
-            position.y(World.worldHeight - halfHeight);
+        if (position.y() > World.WORLD_HEIGHT - halfHeight) {
+            position.y(World.WORLD_HEIGHT - halfHeight);
         }
     }
 

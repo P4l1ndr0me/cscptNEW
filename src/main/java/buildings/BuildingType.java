@@ -3,10 +3,15 @@ package buildings;
 import static com.raylib.Raylib.*;
 
 public class BuildingType {
+    // BuildingType holds the data for a specific type of building (i.e. arrow tower)
     public String name;
     public Texture texture;
+
+    // Resources needed to place this building
     public int stoneCost;
     public int goldCost;
+
+    // Placement and health data for this type of building
     public int maxPlacements;
     public int maxHealth;
 
