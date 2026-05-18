@@ -34,9 +34,10 @@ public class GameState {
         TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/player_sprites.png");
 
         // Building-related
-        TextureManager.loadTexture("building1", "src/main/assets/images/buildings/building1.png");
-        TextureManager.loadTexture("building2", "src/main/assets/images/buildings/building2.png");
-        TextureManager.loadTexture("building3", "src/main/assets/images/buildings/building3.png");
+        TextureManager.loadTexture("Gold Stash", "src/main/assets/images/buildings/goldstash.png");
+        TextureManager.loadTexture("Gold Mine", "src/main/assets/images/buildings/goldmine.png");
+        TextureManager.loadTexture("Cannon Tower", "src/main/assets/images/buildings/building2.png");
+        TextureManager.loadTexture("Arrow Tower", "src/main/assets/images/buildings/building3.png");
 
         TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");
         TextureManager.loadTexture("enemy2", "src/main/assets/images/sprites/redZombie.png");
@@ -87,6 +88,7 @@ public class GameState {
         }
         Camera.update(player.getPosition());
         buildSystem.update();
+        EntityManager.updateEntities(dt);
     }
 
     public void draw() {
@@ -99,13 +101,13 @@ public class GameState {
         World.draw();
 
         // Draw entities
-        EntityManager.DrawEntities();
+        EntityManager.drawEntities();
 
         // Draw player
         player.draw();
 
         // Draw building preview
-        buildSystem.drawPreview();
+        buildSystem.draw();
 
         // Hitboxes (debugging)
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {

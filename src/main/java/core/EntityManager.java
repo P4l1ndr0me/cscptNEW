@@ -15,7 +15,7 @@ public class EntityManager {
     public static ArrayList<Building> placedBuildings = new ArrayList<>(); // store info of every placed building
     public static ArrayList<Vector2> stoneCenters = new ArrayList<>(); // store center pos of every stone
 
-    public static void DrawEntities() {
+    public static void drawEntities() {
         // Draw buildings
         for (Building building : placedBuildings) {
             building.draw();
@@ -34,6 +34,12 @@ public class EntityManager {
 
         for (Enemy enemy : spawnedEnemies){
             enemy.drawWalk();
+        }
+    }
+
+    public static void updateEntities(float dt) {
+        for (Building building : EntityManager.placedBuildings) {
+            building.update(dt);
         }
     }
 

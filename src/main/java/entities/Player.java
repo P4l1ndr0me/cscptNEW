@@ -12,16 +12,17 @@ import static com.raylib.Colors.*;
 public class Player extends Entity {
     public static Rectangle playerRec;
     public static Rectangle miningRec;
-    public static int numStone = 0;
+    public static int numStone = 1000;
+    public static int numGold = 1000;
 
     // Size & movement
     private final float halfWidth;
     private final float halfHeight;
     private boolean isMoving = false;
     private int lookX; // 1 = facing right, -1 = facing left
-    private final float playerHitboxWidth = 24;
-    private final float playerHitboxHeight = 22;
-    private final float playerHitboxOffsetY = 6;
+    private final float playerHitboxWidth = 20;
+    private final float playerHitboxHeight = 16;
+    private final float playerHitboxOffsetY = 12;
 
     // Mining
     private boolean hasPickaxeEquipped = false; // R to toggle
@@ -176,13 +177,7 @@ public class Player extends Entity {
 
     private boolean collidesWithBuildings(Rectangle rect) {
         for (Building building : EntityManager.placedBuildings) {
-            Rectangle buildingRect = newRectangle(
-                    building.position.x(),
-                    building.position.y(),
-                    Building.size,
-                    Building.size
-            );
-            if (CheckCollisionRecs(rect, buildingRect)) {
+            if (CheckCollisionRecs(rect, building.getRect())) {
                 return true;
             }
         }

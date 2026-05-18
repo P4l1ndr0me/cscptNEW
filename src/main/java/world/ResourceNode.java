@@ -20,7 +20,7 @@ public class ResourceNode {
         Vector2 playerPos = newVector2(World.worldWidth / 2.0f, World.worldHeight / 2.0f);
 
         // Generate random stone positions
-        int numStone = 12;
+        int numStone = 10;
         for (int i = 0; i < numStone; i++) {
             boolean validPosition = false;
             while (!validPosition) {

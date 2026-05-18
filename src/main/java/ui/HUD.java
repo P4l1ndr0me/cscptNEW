@@ -8,6 +8,7 @@ import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
 
 import static entities.Player.numStone;
+import static entities.Player.numGold;
 import static ui.BuildMenu.menuFill;
 
 public class HUD {
@@ -21,5 +22,6 @@ public class HUD {
         DrawRectangleRoundedLinesEx(resourceRect, 0.6f, 0, 2.0f, BLUE);
         DrawRectangleRounded(resourceRect, 0.6f, 0, menuFill);
         DrawText("Stone: " + numStone, menuX + 20, menuY + 20, 20, BLUE);
+        DrawText("Gold: " + numGold, menuX + 20, menuY + 50, 20, BLUE);
     }
 }
