@@ -11,11 +11,12 @@ import static com.raylib.Helpers.newVector2;
 import static com.raylib.Raylib.*;
 
 public class EntityManager {
+    // Stores all active enemies, placed buildings, and stone resource positions
     public static ArrayList<Enemy> spawnedEnemies = new ArrayList<>();
     public static ArrayList<Building> placedBuildings = new ArrayList<>(); // store info of every placed building
     public static ArrayList<Vector2> stoneCenters = new ArrayList<>(); // store center pos of every stone
 
-    public static void DrawEntities() {
+    public static void drawEntities() {
         // Draw buildings
         for (Building building : placedBuildings) {
             building.draw();
@@ -32,8 +33,15 @@ public class EntityManager {
             );
         }
 
+        // Draw enemies
         for (Enemy enemy : spawnedEnemies){
             enemy.drawWalk();
+        }
+    }
+
+    public static void updateEntities(float dt) {
+        for (Building building : EntityManager.placedBuildings) {
+            building.update(dt);
         }
     }
 

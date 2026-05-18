@@ -1,23 +1,30 @@
 package systems;
 
-import buildings.Building;
-import buildings.BuildingType;
+import buildings.*;
 import core.Camera;
 import core.EntityManager;
+import core.TextureManager;
 import entities.Player;
 import ui.BuildMenu;
 import world.*;
 
 import static com.raylib.Helpers.*;
 import static com.raylib.Raylib.*;
-import static ui.BuildMenu.buildingTextures;
 import static buildings.Building.size;
 
 public class BuildSystem {
-    BuildingType[] buildingType = {
-            new BuildingType(buildingTextures[0], 20), // building 1
-            new BuildingType(buildingTextures[1], 30), // building 2
-            new BuildingType(buildingTextures[2], 40) // building 3
+    public static Texture[] buildingTextures = {
+            TextureManager.getTexture("Gold Mine"),
+            TextureManager.getTexture("Cannon Tower"),
+            TextureManager.getTexture("Arrow Tower"),
+            TextureManager.getTexture("Gold Stash")
+    };
+
+    public static BuildingType[] buildingTypes = {
+            new BuildingType("Gold Mine", buildingTextures[0], 50, 0, 8, 200),
+            new BuildingType("Cannon Tower", buildingTextures[1], 75, 40, 10, 150),
+            new BuildingType("Arrow Tower", buildingTextures[2], 60, 30, 10, 100),
+            new BuildingType("Gold Stash", buildingTextures[3], 0,0, 1, 500)
     };
 
     // Tracking selected building
@@ -27,25 +34,30 @@ public class BuildSystem {
     private boolean validPlacement;
 
     // Grid occupancy system
-    private final int cols = World.worldWidth / World.tileSize;
-    private final int rows = World.worldHeight / World.tileSize;
+    private final int cols = World.WORLD_WIDTH / World.TILE_SIZE;
+    private final int rows = World.WORLD_HEIGHT / World.TILE_SIZE;
     private final boolean[][] occupiedTiles = new boolean[cols][rows];
     private int tileX, tileY;
-    private final int buildingTileSize = size / World.tileSize; // each building is 64x64, and each tile is 32x32, so it's a factor of 2
+    private final int buildingTileSize = size / World.TILE_SIZE; // each building is 64x64, and each tile is 32x32, so it's a factor of 2
 
     public boolean checkValidPlacement() {
         // Check if player has selected a building
         if (selectedBuilding == null) return false;
 
         // Check if player has enough material
-        if (Player.numStone < selectedBuilding.cost) return false;
+        if (Player.numStone < selectedBuilding.stoneCost || Player.numGold < selectedBuilding.goldCost) return false;
+
+        // Check if over max # of buildings (i.e. goldstash = 1)
+        if (countPlacedBuildings(selectedBuilding) >= selectedBuilding.maxPlacements) {
+            return false;
+        }
 
         // Check if placement is within world boundaries
-        if (!(snappedX >= 0 && snappedX <= World.worldWidth - size && snappedY >= 0 && snappedY <= World.worldHeight - size))
+        if (!(snappedX >= 0 && snappedX <= World.WORLD_WIDTH - size && snappedY >= 0 && snappedY <= World.WORLD_HEIGHT - size))
             return false;
 
         // Check if player is clicking on build HUD
-        if (CheckCollisionPointRec(GetMousePosition(), BuildMenu.menuRect)) return false;
+        if (CheckCollisionPointRec(GetMousePosition(), BuildMenu.MENU_RECT)) return false;
 
         // Check if placement overlaps with occupied tiles
         for (int x = tileX; x < tileX + buildingTileSize; x++) {
@@ -70,24 +82,38 @@ public class BuildSystem {
         return true;
     }
 
+    private int countPlacedBuildings(BuildingType type) {
+        int count = 0;
+
+        for (Building building : EntityManager.placedBuildings) {
+            if (building.type == type) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public void keyBinds() {
         if (IsKeyPressed(KEY_ONE)) {
-            selectedBuilding = buildingType[0];
+            selectedBuilding = buildingTypes[0];
         }
         if (IsKeyPressed(KEY_TWO)) {
-            selectedBuilding = buildingType[1];
+            selectedBuilding = buildingTypes[1];
         }
         if (IsKeyPressed(KEY_THREE)) {
-            selectedBuilding = buildingType[2];
+            selectedBuilding = buildingTypes[2];
+        }
+        if (IsKeyPressed(KEY_FOUR)) {
+            selectedBuilding = buildingTypes[3];
         }
     }
 
     public void getClickedBuilding() {
         // Check if player uses the build HUD
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            for (int i = 0; i < BuildMenu.buildingPositions.length; i++) {
-                if (CheckCollisionPointRec(GetMousePosition(), BuildMenu.buildingPositions[i])) {
-                    selectedBuilding = buildingType[i];
+            for (int i = 0; i < BuildMenu.menuRects.length; i++) {
+                if (CheckCollisionPointRec(GetMousePosition(), BuildMenu.menuRects[i])) {
+                    selectedBuilding = buildingTypes[i];
                 }
             }
         }
@@ -116,15 +142,25 @@ public class BuildSystem {
         mouse = GetScreenToWorld2D(mouse, Camera.camera);
 
         // Snap mouse position
-        snappedX = (int) Math.floor(mouse.x() / World.tileSize) * World.tileSize;
-        snappedY = (int) Math.floor(mouse.y() / World.tileSize) * World.tileSize;
+        snappedX = (int) Math.floor(mouse.x() / World.TILE_SIZE) * World.TILE_SIZE;
+        snappedY = (int) Math.floor(mouse.y() / World.TILE_SIZE) * World.TILE_SIZE;
 
         // Update x & y position of current tile
-        tileX = snappedX / World.tileSize;
-        tileY = snappedY / World.tileSize;
+        tileX = snappedX / World.TILE_SIZE;
+        tileY = snappedY / World.TILE_SIZE;
 
         // Update preview rectangle
         previewRec = newRectangle(snappedX, snappedY, size, size);
+    }
+
+    private Building createBuilding(Vector2 position, BuildingType type) {
+        if (type.name.equals("Gold Mine")) {
+            return new GoldMine(position, type);
+        }
+        if (type.name.equals("Gold Stash")) {
+            return new GoldStash(position, type);
+        }
+        return new Building(position, type);
     }
 
     public void update() {
@@ -138,13 +174,16 @@ public class BuildSystem {
         // Check if player fits all requirements to place a building
         if (selectedBuilding != null && IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && validPlacement) {
             // add building to arraylist
-            EntityManager.placedBuildings.add(new Building(newVector2(snappedX, snappedY), selectedBuilding));
+            EntityManager.placedBuildings.add(createBuilding(newVector2(snappedX, snappedY), selectedBuilding));
             occupyTiles();
-            Player.numStone -= selectedBuilding.cost;
+
+            // update material
+            Player.numStone -= selectedBuilding.stoneCost;
+            Player.numGold -= selectedBuilding.goldCost;
         }
     }
 
-    public void drawPreview() {
+    public void draw() {
         // Show red tint if not valid placement (e.x. overlapping with already placed building)
         // Otherwise, show default white tint
         Color previewColor = validPlacement

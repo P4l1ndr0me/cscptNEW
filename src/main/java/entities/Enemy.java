@@ -106,11 +106,11 @@ public class Enemy extends Entity{
         if (position.y() < halfHeight) {
             position.y(halfHeight);
         }
-        if (position.x() > World.worldWidth - halfWidth) {
-            position.x(World.worldWidth - halfWidth);
+        if (position.x() > World.WORLD_WIDTH - halfWidth) {
+            position.x(World.WORLD_WIDTH - halfWidth);
         }
-        if (position.y() > World.worldHeight - halfHeight) {
-            position.y(World.worldHeight - halfHeight);
+        if (position.y() > World.WORLD_HEIGHT - halfHeight) {
+            position.y(World.WORLD_HEIGHT - halfHeight);
         }
 
         if (moving) {

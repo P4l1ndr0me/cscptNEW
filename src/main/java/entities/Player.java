@@ -12,16 +12,17 @@ import static com.raylib.Colors.*;
 public class Player extends Entity {
     public static Rectangle playerRec;
     public static Rectangle miningRec;
-    public static int numStone = 0;
+    public static int numStone = 1000;
+    public static int numGold = 1000;
 
     // Size & movement
     private final float halfWidth;
     private final float halfHeight;
     private boolean isMoving = false;
     private int lookX; // 1 = facing right, -1 = facing left
-    private final float playerHitboxWidth = 24;
-    private final float playerHitboxHeight = 22;
-    private final float playerHitboxOffsetY = 6;
+    private final float playerHitboxWidth = 20;
+    private final float playerHitboxHeight = 16;
+    private final float playerHitboxOffsetY = 12;
 
     // Mining
     private boolean hasPickaxeEquipped = false; // R to toggle
@@ -45,7 +46,7 @@ public class Player extends Entity {
 
     public Player() {
         super(
-                newVector2(World.worldWidth / 2f, World.worldHeight / 2f),
+                newVector2(World.WORLD_WIDTH / 2f, World.WORLD_HEIGHT / 2f),
                 2.0f,
                 250.0f,
                 TextureManager.getTexture("playerNEW"),
@@ -54,7 +55,7 @@ public class Player extends Entity {
 
         frameSpeed = 0.15f;
 
-        // // player spawns looking to the right (first frame = idle)
+        // Player spawns looking to the right (first frame = idle)
         currentRow = 1;
         lookX = 1;
 
@@ -176,13 +177,7 @@ public class Player extends Entity {
 
     private boolean collidesWithBuildings(Rectangle rect) {
         for (Building building : EntityManager.placedBuildings) {
-            Rectangle buildingRect = newRectangle(
-                    building.position.x(),
-                    building.position.y(),
-                    Building.size,
-                    Building.size
-            );
-            if (CheckCollisionRecs(rect, buildingRect)) {
+            if (CheckCollisionRecs(rect, building.getRect())) {
                 return true;
             }
         }
@@ -220,11 +215,11 @@ public class Player extends Entity {
         if (position.y() < halfHeight) {
             position.y(halfHeight);
         }
-        if (position.x() > World.worldWidth - halfWidth) {
-            position.x(World.worldWidth - halfWidth);
+        if (position.x() > World.WORLD_WIDTH - halfWidth) {
+            position.x(World.WORLD_WIDTH - halfWidth);
         }
-        if (position.y() > World.worldHeight - halfHeight) {
-            position.y(World.worldHeight - halfHeight);
+        if (position.y() > World.WORLD_HEIGHT - halfHeight) {
+            position.y(World.WORLD_HEIGHT - halfHeight);
         }
     }
 

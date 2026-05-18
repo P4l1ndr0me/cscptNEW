@@ -13,7 +13,7 @@ public class Main {
         SetWindowState(FLAG_WINDOW_UNDECORATED);
         InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "zombs.io");
 
-        // Set target fps
+        // Set target FPS
         SetTargetFPS(60);
 
         // Create new instance

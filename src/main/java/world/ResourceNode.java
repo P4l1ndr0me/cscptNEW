@@ -17,21 +17,21 @@ public class ResourceNode {
         float stoneWidth = stone.width();
         float stoneHeight = stone.height();
 
-        Vector2 playerPos = newVector2(World.worldWidth / 2.0f, World.worldHeight / 2.0f);
+        Vector2 playerPos = newVector2(World.WORLD_WIDTH / 2.0f, World.WORLD_HEIGHT / 2.0f);
 
         // Generate random stone positions
-        int numStone = 12;
+        int numStone = 10;
         for (int i = 0; i < numStone; i++) {
             boolean validPosition = false;
             while (!validPosition) {
                 float x, y;
 
                 // Generate random center coordinate aligned with tiles
-                x = (float) ((int) ((Math.random() * World.worldWidth) / World.tileSize) * World.tileSize - 16);
-                y = (float) (((int) (Math.random() * (World.worldHeight - stoneHeight)) / World.tileSize) * World.tileSize - 16);
+                x = (float) ((int) ((Math.random() * World.WORLD_WIDTH) / World.TILE_SIZE) * World.TILE_SIZE - 16);
+                y = (float) (((int) (Math.random() * (World.WORLD_HEIGHT - stoneHeight)) / World.TILE_SIZE) * World.TILE_SIZE - 16);
 
                 // Check map boundaries
-                if (x < 0 || x > World.worldWidth - stoneWidth || y < 0 || y > World.worldHeight - stoneHeight) {
+                if (x < 0 || x > World.WORLD_WIDTH - stoneWidth || y < 0 || y > World.WORLD_HEIGHT - stoneHeight) {
                     continue;
                 }
 
