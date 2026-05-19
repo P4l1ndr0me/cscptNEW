@@ -23,34 +23,12 @@ public class GameState {
     public static ArrayList<int[]> zombieSpawnPoint = new ArrayList<>();
 
     public GameState() {
-        // Load all textures
-
-        // Map-related
-        TextureManager.loadTexture("background", "src/main/assets/images/map/bg.png");
-        TextureManager.loadTexture("stone", "src/main/assets/images/map/stone.png");
-
-        // Player-related
-        TextureManager.loadTexture("mining", "src/main/assets/images/player/mining_sprites.png");
-        TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/player_sprites.png");
-
-        // Building-related
-        TextureManager.loadTexture("Gold Stash", "src/main/assets/images/buildings/goldstash.png");
-        TextureManager.loadTexture("Gold Mine", "src/main/assets/images/buildings/goldmine.png");
-        TextureManager.loadTexture("Cannon Tower", "src/main/assets/images/buildings/building2.png");
-        TextureManager.loadTexture("Arrow Tower", "src/main/assets/images/buildings/building3.png");
-
-        // Enemy-related
-        TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");
-        TextureManager.loadTexture("enemy2", "src/main/assets/images/sprites/redZombie.png");
+        TextureManager.loadAll();
 
         // Create new instances
         player = new Player();
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
-
-        // Initialize camera
-        Camera.init();
-        ResourceNode.init();
 
         for (int i = 0; i < 10; i++) {
             int[] pos = getSpawnPosition();
@@ -77,6 +55,11 @@ public class GameState {
                             3,
                             3);
         }
+      
+        // initialize camera
+        Camera.init();
+        ResourceNode.init();
+        WeaponManager.init();
     }
 
     public void update() {
@@ -122,6 +105,7 @@ public class GameState {
         // Draw UI & HUD
         buildMenu.drawUI();
         HUD.drawHUD();
+        HUD.updateHUD();
 
         // Misc
 
