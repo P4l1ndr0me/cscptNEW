@@ -6,15 +6,14 @@ import world.ResourceNode;
 import world.World;
 import entities.*;
 import ui.BuildMenu;
-import core.EntityManager;
 
 import java.util.ArrayList;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 import static core.EntityManager.spawnedEnemies;
-import static world.World.worldHeight;
-import static world.World.worldWidth;
+import static world.World.WORLD_HEIGHT;
+import static world.World.WORLD_WIDTH;
 
 public class GameState {
     final private Player player;
@@ -26,12 +25,12 @@ public class GameState {
     public GameState() {
         TextureManager.loadAll();
 
-        // create new instances
+        // Create new instances
         player = new Player();
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
 
-        for(int i =0;i<10;i++){
+        for (int i = 0; i < 10; i++) {
             int[] pos = getSpawnPosition();
             EntityManager.spawnZombie
                     (pos[0],
@@ -43,7 +42,7 @@ public class GameState {
                             3);
         }
 
-        for (int i =0;i<3;i++){
+        for (int i = 0; i < 3; i++) {
 
             int[] pos = getSpawnPosition();
 
@@ -56,8 +55,7 @@ public class GameState {
                             3,
                             3);
         }
-
-
+      
         // initialize camera
         Camera.init();
         ResourceNode.init();
@@ -69,11 +67,12 @@ public class GameState {
 
         // Update
         player.update(dt);
-        for (int i =0;i<spawnedEnemies.size();i++){
-            spawnedEnemies.get(i).update(dt);
+        for (Enemy spawnedEnemy : spawnedEnemies) {
+            spawnedEnemy.update(dt);
         }
         Camera.update(player.getPosition());
         buildSystem.update();
+        EntityManager.updateEntities(dt);
     }
 
     public void draw() {
@@ -86,20 +85,21 @@ public class GameState {
         World.draw();
 
         // Draw entities
-        EntityManager.DrawEntities();
+        EntityManager.drawEntities();
 
         // Draw player
         player.draw();
 
         // Draw building preview
-        buildSystem.drawPreview();
+        buildSystem.draw();
 
         // Hitboxes (debugging)
-        for (Rectangle stoneRect : EntityManager.stoneRects) {
-            DrawRectangleLinesEx(stoneRect, 1.0f, RED);
+        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
+            DrawCircleLinesV(stoneCenter, ResourceNode.stoneRadius, RED);
         }
         DrawRectangleLinesEx(Player.playerRec, 1.0f, RED);
         DrawRectangleLinesEx(Player.miningRec, 1.0f, RED);
+
         EndMode2D();
 
         // Draw UI & HUD
@@ -126,28 +126,28 @@ public class GameState {
                 20,
                 BLUE);
 
-        // Draw fps
+        // Draw FPS
         DrawFPS(Main.SCREEN_WIDTH - 75, 5);
 
         EndDrawing();
     }
 
     public int[] getSpawnPosition() {
-        int playerX = worldWidth / 2;
-        int playerY = worldHeight / 2;
+        int playerX = WORLD_WIDTH / 2;
+        int playerY = WORLD_HEIGHT / 2;
         int safeRadius = 500;
 
         double angle = Math.random() * 2 * Math.PI;
-        double maxDist = Math.min(worldWidth, worldHeight) / 2.0;
+        double maxDist = Math.min(WORLD_WIDTH, WORLD_HEIGHT) / 2.0;
         double distance = safeRadius + Math.random() * (maxDist - safeRadius);
 
-        int x = (int)(playerX + distance * Math.cos(angle));
-        int y = (int)(playerY + distance * Math.sin(angle));
+        int x = (int) (playerX + distance * Math.cos(angle));
+        int y = (int) (playerY + distance * Math.sin(angle));
 
         // clamp to map bounds
-        x = Math.max(0, Math.min(worldWidth - 1, x));
-        y = Math.max(0, Math.min(worldHeight - 1, y));
-        zombieSpawnPoint.add(new int[] {x, y});
+        x = Math.max(0, Math.min(WORLD_WIDTH - 1, x));
+        y = Math.max(0, Math.min(WORLD_HEIGHT - 1, y));
+        zombieSpawnPoint.add(new int[]{x, y});
 
         return new int[]{x, y};
     }

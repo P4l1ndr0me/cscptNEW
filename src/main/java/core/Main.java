@@ -4,8 +4,8 @@ import static com.raylib.Raylib.*;
 
 public class Main {
     // Screen dimensions
-    public static final int SCREEN_WIDTH = 1600;
-    public static final int SCREEN_HEIGHT = 900;
+    public static final int SCREEN_WIDTH = 1280;
+    public static final int SCREEN_HEIGHT = 720;
 
     public static void main(String[] args) {
 
@@ -13,7 +13,7 @@ public class Main {
         SetWindowState(FLAG_WINDOW_UNDECORATED);
         InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "zombs.io");
 
-        // Set target fps
+        // Set target FPS
         SetTargetFPS(60);
 
         // Create new instance

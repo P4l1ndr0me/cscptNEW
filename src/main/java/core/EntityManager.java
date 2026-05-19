@@ -4,41 +4,44 @@ import java.util.ArrayList;
 
 import buildings.Building;
 import entities.Enemy;
-import ui.BuildMenu;
 import world.ResourceNode;
 
-import static com.raylib.Colors.RED;
 import static com.raylib.Colors.WHITE;
 import static com.raylib.Helpers.newVector2;
 import static com.raylib.Raylib.*;
-import static com.raylib.Helpers.*;
-import static com.raylib.Colors.*;
-
 
 public class EntityManager {
-    public static ArrayList<Building> placedBuildings = new ArrayList<>();
+    // Stores all active enemies, placed buildings, and stone resource positions
     public static ArrayList<Enemy> spawnedEnemies = new ArrayList<>();
-    public static ArrayList<Rectangle> stoneRects = new ArrayList<>(); // store center pos of every stone
+    public static ArrayList<Building> placedBuildings = new ArrayList<>(); // store info of every placed building
+    public static ArrayList<Vector2> stoneCenters = new ArrayList<>(); // store center pos of every stone
 
-    public static void DrawEntities() {
+    public static void drawEntities() {
         // Draw buildings
         for (Building building : placedBuildings) {
             building.draw();
         }
 
         // Draw stone
-        for (Rectangle stoneRect : stoneRects) {
+        for (Vector2 stoneCenter : stoneCenters) {
             DrawTextureEx(
                     TextureManager.getTexture("stone"),
-                    newVector2(stoneRect.x(), stoneRect.y()),
+                    newVector2(stoneCenter.x() - ResourceNode.stoneRadius, stoneCenter.y() - ResourceNode.stoneRadius),
                     0.0f,
-                    ResourceNode.stoneScale,
+                    1.0f,
                     WHITE
             );
         }
 
+        // Draw enemies
         for (Enemy enemy : spawnedEnemies){
             enemy.drawWalk();
+        }
+    }
+
+    public static void updateEntities(float dt) {
+        for (Building building : EntityManager.placedBuildings) {
+            building.update(dt);
         }
     }
 

@@ -10,7 +10,8 @@ import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
 
 import static entities.Player.numStone;
-import static ui.BuildMenu.menuFill;
+import static entities.Player.numGold;
+import static ui.BuildMenu.MENU_FILL;
 
 public class HUD {
     private static final int menuX = (int) (0.8 * Main.SCREEN_WIDTH);
@@ -100,7 +101,7 @@ public class HUD {
     public static void drawHUD() {
         // Draw outline and fill of resourceRect
         DrawRectangleRoundedLinesEx(resourceRect, 0.6f, 0, 2.0f, BLUE);
-        DrawRectangleRounded(resourceRect, 0.6f, 0, menuFill);
+        DrawRectangleRounded(resourceRect, 0.6f, 0, MENU_FILL);
         DrawText("Stone: " + numStone, menuX + 20, menuY + 20, 20, BLUE);
 
         // SHOP BUTTON
