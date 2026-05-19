@@ -8,8 +8,8 @@ import static com.raylib.Colors.*;
 
 public class World {
     // constants
-    public static final int WORLD_WIDTH = 2048;
-    public static final int WORLD_HEIGHT = 2048;
+    public static final int WORLD_WIDTH = 4096;
+    public static final int WORLD_HEIGHT = 4096;
     public static final int TILE_SIZE = 32;
 
     // Textures
