@@ -18,8 +18,6 @@ import static com.raylib.Colors.*;
 public class EntityManager {
     public static ArrayList<Building> placedBuildings = new ArrayList<>();
     public static ArrayList<Enemy> spawnedEnemies = new ArrayList<>();
-
-    public static ArrayList<Building> placedBuildings = new ArrayList<>(); // store info of every placed building
     public static ArrayList<Rectangle> stoneRects = new ArrayList<>(); // store center pos of every stone
 
     public static void DrawEntities() {

@@ -24,23 +24,7 @@ public class GameState {
     public static ArrayList<int[]> zombieSpawnPoint = new ArrayList<>();
 
     public GameState() {
-        // Load all textures
-
-        // Map-related
-        TextureManager.loadTexture("background", "src/main/assets/images/map/bg.png");
-        TextureManager.loadTexture("stone", "src/main/assets/images/map/stone.png");
-
-        // Player-related
-        TextureManager.loadTexture("mining", "src/main/assets/images/player/mining.png");
-        TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/playerSpriteNEW.png");
-
-        // Building-related
-        TextureManager.loadTexture("building1", "src/main/assets/images/buildings/building1.png");
-        TextureManager.loadTexture("building2", "src/main/assets/images/buildings/building2.png");
-        TextureManager.loadTexture("building3", "src/main/assets/images/buildings/building3.png");
-
-        TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");
-        TextureManager.loadTexture("enemy2", "src/main/assets/images/sprites/redZombie.png");
+        TextureManager.loadAll();
 
         // create new instances
         player = new Player();
@@ -77,6 +61,7 @@ public class GameState {
         // initialize camera
         Camera.init();
         ResourceNode.init();
+        WeaponManager.init();
     }
 
     public void update() {
@@ -120,6 +105,7 @@ public class GameState {
         // Draw UI & HUD
         buildMenu.drawUI();
         HUD.drawHUD();
+        HUD.updateHUD();
 
         // Misc
 
