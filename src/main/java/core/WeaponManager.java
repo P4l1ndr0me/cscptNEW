@@ -66,7 +66,7 @@ public class WeaponManager {
     public static void unlockNextTier(String weaponType) {
         int currentTier = getCurrentTier(weaponType);
         unlockedWeapons.put(weaponType, currentTier + 1);
-        System.out.println(weaponType + " upgraded to tier " + (currentTier + 1));
+        //System.out.println(weaponType + " upgraded to tier " + (currentTier + 1));
     }
 
     public static boolean isMaxTier(String weaponType) {

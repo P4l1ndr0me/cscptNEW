@@ -29,6 +29,8 @@ public class HUD {
     private static final float shopPanY =
             (Main.SCREEN_HEIGHT - shopPanH) / 2f;
 
+    private static final boolean[] buyButtonClicked = new boolean[3];
+
     // SHOP BUTTON
     private static final Rectangle shopButton =
             newRectangle(menuX + 70, menuY - 70, 140, 50);
@@ -54,6 +56,41 @@ public class HUD {
                     shopPanY + 60,
                     150,
                     40);
+
+    private static final Rectangle pickRect =
+            newRectangle(shopPanX + 50,
+                    shopPanY + 130,
+                    shopPanW - 100,
+                    100);
+
+    private static final Rectangle swordRect =
+            newRectangle(shopPanX + 50,
+                    shopPanY + 260,
+                    shopPanW - 100,
+                    100);
+
+    private static final Rectangle bowRect =
+            newRectangle(shopPanX + 50,
+                    shopPanY + 390,
+                    shopPanW - 100,
+                    100);
+
+    private static final Rectangle buyButton1 =
+            newRectangle(shopPanX + 900,
+                    shopPanY + 155,
+                    100,
+                    50);
+    private static final Rectangle buyButton2 =
+            newRectangle(shopPanX + 900,
+                    shopPanY + 285,
+                    100,
+                    50);
+    private static final Rectangle buyButton3 =
+            newRectangle(shopPanX + 900,
+                    shopPanY + 415,
+                    100,
+                    50);
+
 
     private static boolean shopOpen = false;
     private static float itemScale = 6.0f;
@@ -112,7 +149,6 @@ public class HUD {
 
     public static void updateHUD(){
         Vector2 mouse = GetMousePosition();
-
         // Toggle shop
         if (IsKeyPressed(KEY_B)) {
 
@@ -136,13 +172,117 @@ public class HUD {
     }
 
     public static void displayWeaponsTab(String texture){
+
+        Vector2 mouse = GetMousePosition();
+
+        // pickaxe section
+        DrawRectangleRounded(pickRect,
+                0.2f,
+                0,
+                Fade(GRAY, 0.8f));
+
         DrawTextureEx(
                 TextureManager.getTexture(texture),
-                newVector2(shopPanX + 75.0f, shopPanY + 175.0f),
+                newVector2(shopPanX + 75.0f, shopPanY + 145.0f),
                 0.0f,
                 itemScale,
                 WHITE
         );
+
+        DrawText("Tier: ",
+                (int) (shopPanX + 150),
+                (int) (shopPanY + 165),
+                25,
+                WHITE);
+
+        DrawText("Damage: ",
+                (int) (shopPanX + 280),
+                (int) (shopPanY + 150),
+                20,
+                WHITE);
+
+        DrawText("Harvest: ",
+                (int) (shopPanX + 280),
+                (int) (shopPanY + 190),
+                20,
+                WHITE);
+
+
+
+        DrawRectangleRounded(swordRect,
+                0.2f,
+                0,
+                Fade(GRAY, 0.8f));
+
+        DrawRectangleRounded(bowRect,
+                0.2f,
+                0,
+                Fade(GRAY, 0.8f));
+
+
+        DrawTextureEx(
+                TextureManager.getTexture(texture),
+                newVector2(shopPanX + 75.0f, shopPanY + 275.0f),
+                0.0f,
+                itemScale,
+                WHITE
+        );
+
+        DrawTextureEx(
+                TextureManager.getTexture(texture),
+                newVector2(shopPanX + 75.0f, shopPanY + 405.0f),
+                0.0f,
+                itemScale,
+                WHITE
+        );
+
+        //purchase button
+        Color buy1Color = buyButtonClicked[0]
+                ? newColor(0, 120, 0, 120)
+                : GREEN;
+
+        Color buy2Color = buyButtonClicked[1]
+                ? newColor(0, 120, 0, 120)
+                : GREEN;
+
+        Color buy3Color = buyButtonClicked[2]
+                ? newColor(0, 120, 0, 120)
+                : GREEN;
+
+        DrawRectangleRounded(buyButton1, 0.2f, 0, buy1Color);
+        DrawRectangleRounded(buyButton2, 0.2f, 0, buy2Color);
+        DrawRectangleRounded(buyButton3, 0.2f, 0, buy3Color);
+
+        DrawText("BUY",
+                (int) (shopPanX + 920),
+                (int) (shopPanY + 165),
+                30,
+                BLACK);
+
+
+        DrawText("BUY",
+                (int) (shopPanX + 920),
+                (int) (shopPanY + 295),
+                30,
+                BLACK);
+
+        DrawText("BUY",
+                (int) (shopPanX + 920),
+                (int) (shopPanY + 425),
+                30,
+                BLACK);
+
+        if (CheckCollisionPointRec(mouse, buyButton1) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            buyButtonClicked[0] = true;
+        }
+
+        if (CheckCollisionPointRec(mouse, buyButton2) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            buyButtonClicked[1] = true;
+        }
+
+        if (CheckCollisionPointRec(mouse, buyButton3) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            buyButtonClicked[2] = true;
+        }
 
 
     }
