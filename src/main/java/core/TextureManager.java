@@ -22,35 +22,4 @@ public class TextureManager {
         }
         textures.clear();
     }
-
-    public static void loadAll(){
-        // Load all textures
-
-        // Map-related
-        TextureManager.loadTexture("background", "src/main/assets/images/map/bg.png");
-        TextureManager.loadTexture("stone", "src/main/assets/images/map/stone.png");
-
-        // Player-related
-        TextureManager.loadTexture("mining", "src/main/assets/images/player/mining.png");
-        TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/playerSpriteNEW.png");
-
-        // Building-related
-        TextureManager.loadTexture("building1", "src/main/assets/images/buildings/building1.png");
-        TextureManager.loadTexture("building2", "src/main/assets/images/buildings/building2.png");
-        TextureManager.loadTexture("building3", "src/main/assets/images/buildings/building3.png");
-
-        TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");
-        TextureManager.loadTexture("enemy2", "src/main/assets/images/sprites/redZombie.png");
-
-        //weapons
-        TextureManager.loadTexture("stonepickaxe","src/main/assets/images/items/stonePick.png");
-        TextureManager.loadTexture("ironpickaxe", "src/main/assets/images/items/ironPick.png");
-        TextureManager.loadTexture("diamondpickaxe", "src/main/assets/images/items/diamondPick.png");
-        TextureManager.loadTexture("woodensword","src/main/assets/images/items/woodenSword.png");
-        TextureManager.loadTexture("stonesword", "src/main/assets/images/items/stoneSword.png");
-        TextureManager.loadTexture("diamondsword", "src/main/assets/images/items/diamondSword.png");
-        TextureManager.loadTexture("woodenbow","src/main/assets/images/items/woodenBow.png");
-        TextureManager.loadTexture("crossbow", "src/main/assets/images/items/crossBow.png");
-        TextureManager.loadTexture("stonebow", "src/main/assets/images/items/stoneBow.png");
-    }
 }
