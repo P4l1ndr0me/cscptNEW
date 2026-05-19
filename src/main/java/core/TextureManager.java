@@ -23,7 +23,7 @@ public class TextureManager {
         textures.clear();
     }
 
-    public static void loadAll(){
+    public static void init(){
         // Load all textures
 
         // Map-related
@@ -31,14 +31,16 @@ public class TextureManager {
         TextureManager.loadTexture("stone", "src/main/assets/images/map/stone.png");
 
         // Player-related
-        TextureManager.loadTexture("mining", "src/main/assets/images/player/mining.png");
-        TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/playerSpriteNEW.png");
+        TextureManager.loadTexture("mining", "src/main/assets/images/player/mining_sprites.png");
+        TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/player_sprites.png");
 
         // Building-related
-        TextureManager.loadTexture("building1", "src/main/assets/images/buildings/building1.png");
-        TextureManager.loadTexture("building2", "src/main/assets/images/buildings/building2.png");
-        TextureManager.loadTexture("building3", "src/main/assets/images/buildings/building3.png");
+        TextureManager.loadTexture("Gold Stash", "src/main/assets/images/buildings/goldstash.png");
+        TextureManager.loadTexture("Gold Mine", "src/main/assets/images/buildings/goldmine.png");
+        TextureManager.loadTexture("Cannon Tower", "src/main/assets/images/buildings/building2.png");
+        TextureManager.loadTexture("Arrow Tower", "src/main/assets/images/buildings/building3.png");
 
+        // Enemy-related
         TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");
         TextureManager.loadTexture("enemy2", "src/main/assets/images/sprites/redZombie.png");
 

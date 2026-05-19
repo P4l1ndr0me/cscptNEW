@@ -23,7 +23,7 @@ public class GameState {
     public static ArrayList<int[]> zombieSpawnPoint = new ArrayList<>();
 
     public GameState() {
-        TextureManager.loadAll();
+        TextureManager.init();
 
         // Create new instances
         player = new Player();
@@ -56,7 +56,7 @@ public class GameState {
                             3);
         }
       
-        // initialize camera
+        // initialize
         Camera.init();
         ResourceNode.init();
         WeaponManager.init();

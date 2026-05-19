@@ -103,6 +103,7 @@ public class HUD {
         DrawRectangleRoundedLinesEx(resourceRect, 0.6f, 0, 2.0f, BLUE);
         DrawRectangleRounded(resourceRect, 0.6f, 0, MENU_FILL);
         DrawText("Stone: " + numStone, menuX + 20, menuY + 20, 20, BLUE);
+        DrawText("Gold: " + numGold, menuX + 20, menuY + 50, 20, BLUE);
 
         // SHOP BUTTON
         DrawRectangleRec(shopButton, DARKGRAY);
