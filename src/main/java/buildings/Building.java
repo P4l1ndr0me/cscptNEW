@@ -35,8 +35,4 @@ public class Building {
                 size
         );
     }
-
-    public void takeDamage(int amount) {
-        health -= amount;
-    }
 }

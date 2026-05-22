@@ -14,6 +14,7 @@ public class Player extends Entity {
     public static Rectangle miningRec;
     public static int numStone = 1000;
     public static int numGold = 1000;
+    public static int health = 100;
 
     // Size & movement
     private final float halfWidth;
@@ -276,8 +277,6 @@ public class Player extends Entity {
     }
 
     private void updateAnimation(float dt) {
-        if (!isMoving) frameTimer = 0f;
-
         if (isMoving) {
             frameTimer += dt;
 
@@ -291,6 +290,7 @@ public class Player extends Entity {
                 }
             }
         } else {
+            frameTimer = 0f;
             currentFrame = 0;
             pickaxeFrame = 0;
         }

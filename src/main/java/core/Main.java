@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
 
         // Initialize window
-        SetWindowState(FLAG_WINDOW_UNDECORATED);
+        // SetWindowState(FLAG_WINDOW_UNDECORATED);
         InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "zombs.io");
 
         // Set target FPS

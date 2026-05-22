@@ -15,8 +15,15 @@ import static buildings.Building.size;
 public class BuildSystem {
     public static Texture[] buildingTextures = {
             TextureManager.getTexture("Gold Mine"),
-            TextureManager.getTexture("Cannon Tower"),
-            TextureManager.getTexture("Arrow Tower"),
+            TextureManager.getTexture("Cannon Base"),
+            TextureManager.getTexture("Arrow Base"),
+            TextureManager.getTexture("Gold Stash")
+    };
+
+    public static Texture[] buildingIconTextures = {
+            TextureManager.getTexture("Gold Mine"),
+            TextureManager.getTexture("Cannon Tower Combined"),
+            TextureManager.getTexture("Arrow Base"), // will change to arrow tower combined
             TextureManager.getTexture("Gold Stash")
     };
 
@@ -29,6 +36,7 @@ public class BuildSystem {
 
     // Tracking selected building
     private BuildingType selectedBuilding = null;
+    private int selectedIndex = -1;
     private int snappedX, snappedY;
     private Rectangle previewRec;
     private boolean validPlacement;
@@ -96,15 +104,19 @@ public class BuildSystem {
     public void keyBinds() {
         if (IsKeyPressed(KEY_ONE)) {
             selectedBuilding = buildingTypes[0];
+            selectedIndex = 0;
         }
         if (IsKeyPressed(KEY_TWO)) {
             selectedBuilding = buildingTypes[1];
+            selectedIndex = 1;
         }
         if (IsKeyPressed(KEY_THREE)) {
             selectedBuilding = buildingTypes[2];
+            selectedIndex = 2;
         }
         if (IsKeyPressed(KEY_FOUR)) {
             selectedBuilding = buildingTypes[3];
+            selectedIndex = 3;
         }
     }
 
@@ -114,6 +126,7 @@ public class BuildSystem {
             for (int i = 0; i < BuildMenu.menuRects.length; i++) {
                 if (CheckCollisionPointRec(GetMousePosition(), BuildMenu.menuRects[i])) {
                     selectedBuilding = buildingTypes[i];
+                    selectedIndex = i;
                 }
             }
         }
@@ -124,6 +137,7 @@ public class BuildSystem {
         // Cancel placing if player clicks rmb
         if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
             selectedBuilding = null;
+            selectedIndex = -1;
         }
     }
 
@@ -160,6 +174,10 @@ public class BuildSystem {
         if (type.name.equals("Gold Stash")) {
             return new GoldStash(position, type);
         }
+        if (type.name.equals("Cannon Tower")) {
+            return new CannonTower(position, type);
+        }
+
         return new Building(position, type);
     }
 
@@ -193,7 +211,7 @@ public class BuildSystem {
         // Draw building preview
         if (selectedBuilding != null) {
             DrawTextureEx(
-                    selectedBuilding.texture,
+                    buildingIconTextures[selectedIndex],
                     newVector2(snappedX, snappedY),
                     0,
                     1.0f,
