@@ -3,7 +3,6 @@ package ui;
 
 import core.Main;
 import core.TextureManager;
-import world.World;
 
 import static com.raylib.Colors.*;
 import static com.raylib.Raylib.*;

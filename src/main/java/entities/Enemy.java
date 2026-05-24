@@ -8,7 +8,6 @@ import core.EntityManager;
 import static com.raylib.Colors.WHITE;
 import static com.raylib.Helpers.newVector2;
 import static com.raylib.Raylib.*;
-import static com.raylib.Raylib.Vector2Normalize;
 
 
 public class Enemy extends Entity{

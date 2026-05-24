@@ -2,11 +2,12 @@ package ui;
 
 import buildings.Building;
 import core.Main;
+import systems.BuildSystem;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
-import static systems.BuildSystem.buildingTextures;
+import static systems.BuildSystem.buildingIconTextures;
 
 public class BuildMenu {
     // Build menu data
@@ -16,7 +17,7 @@ public class BuildMenu {
     private static final float MENU_Y = Main.SCREEN_HEIGHT - MENU_HEIGHT - 20;
     public static final Rectangle MENU_RECT = newRectangle(MENU_X, MENU_Y, 0.4f * Main.SCREEN_WIDTH, MENU_HEIGHT);
     private static final int HUD_BUILDING_SIZE = 32;
-    private static final float HUD_SCALE = (float) HUD_BUILDING_SIZE / Building.size;
+    private static final float HUD_SCALE = (float) HUD_BUILDING_SIZE / Building.size; // 0.5
 
     // Stores the clickable rectangle for each building icon in the build menu
     public static Rectangle[] menuRects = new Rectangle[4];
@@ -31,19 +32,23 @@ public class BuildMenu {
             menuRects[i] = newRectangle(
                     topLeftX + 60 * i, // hardcoded for now, will need to change later
                     topLeftY,
-                    buildingTextures[i].width() * HUD_SCALE,
-                    buildingTextures[i].height() * HUD_SCALE);
+                    HUD_BUILDING_SIZE,
+                    HUD_BUILDING_SIZE);
         }
     }
 
-    public void drawUI() {
+    public void draw() {
         // Draw outline and fill of build menu
         DrawRectangleRoundedLinesEx(MENU_RECT, 0.6f, 0, 2.0f, BLUE);
         DrawRectangleRounded(MENU_RECT, 0.6f, 0, MENU_FILL);
 
         // Draw building icons inside the build menu
         for (int i = 0; i < menuRects.length; i++) {
-            DrawTextureEx(buildingTextures[i], newVector2(menuRects[i].x(), menuRects[i].y()), 0.0f, HUD_SCALE, WHITE);
+            Color iconColor = BuildSystem.isIconDisabled(i)
+                    ? GRAY
+                    : WHITE;
+
+            DrawTextureEx(buildingIconTextures[i], newVector2(menuRects[i].x(), menuRects[i].y()), 0.0f, HUD_SCALE, iconColor);
         }
     }
 }
