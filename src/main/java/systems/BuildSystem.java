@@ -8,6 +8,7 @@ import entities.Player;
 import ui.BuildMenu;
 import world.*;
 
+import static com.raylib.Colors.RED;
 import static com.raylib.Helpers.*;
 import static com.raylib.Raylib.*;
 import static buildings.Building.size;
@@ -34,6 +35,11 @@ public class BuildSystem {
             new BuildingType("Gold Stash", buildingTextures[3], 0,0, 1, 500)
     };
 
+    //
+
+    private static final int GOLD_STASH_INDEX = 3;
+    private static final float PLACEMENT_RADIUS = 750f;
+
     // Tracking selected building
     private BuildingType selectedBuilding = null;
     private int selectedIndex = -1;
@@ -42,13 +48,60 @@ public class BuildSystem {
     private boolean validPlacement;
 
     // Grid occupancy system
-    private final int cols = World.WORLD_WIDTH / World.TILE_SIZE;
-    private final int rows = World.WORLD_HEIGHT / World.TILE_SIZE;
-    private final boolean[][] occupiedTiles = new boolean[cols][rows];
+    private final int COLS = World.WORLD_WIDTH / World.TILE_SIZE;
+    private final int ROWS = World.WORLD_HEIGHT / World.TILE_SIZE;
+    private boolean[][] occupiedTiles = new boolean[COLS][ROWS];
     private int tileX, tileY;
-    private final int buildingTileSize = size / World.TILE_SIZE; // each building is 64x64, and each tile is 32x32, so it's a factor of 2
+    private final int BUILDING_GRID_TILE_SIZE = size / World.TILE_SIZE; // each building is 64x64, and each tile is 32x32, so it's a factor of 2
 
-    public boolean checkValidPlacement() {
+    public static boolean hasGoldStashPlaced() {
+        for (Building building : EntityManager.placedBuildings) {
+            if (building.type.name.equals("Gold Stash")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Building getGoldStash() {
+        for (Building building : EntityManager.placedBuildings) {
+            if (building.type.name.equals("Gold Stash")) {
+                return building;
+            }
+        }
+
+        return null;
+    }
+
+    public static boolean isIconDisabled(int index) {
+        BuildingType type = buildingTypes[index];
+
+        // Before gold stash is placed, disable very icon except gold stash itself
+        if (!hasGoldStashPlaced() && index != GOLD_STASH_INDEX) {
+            return true;
+        }
+
+        // Disable icon if this building already reached max placements
+        if (countPlacedBuildings(type) >= type.maxPlacements) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static int countPlacedBuildings(BuildingType type) {
+        int count = 0;
+
+        for (Building building : EntityManager.placedBuildings) {
+            if (building.type == type) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private boolean checkValidPlacement() {
         // Check if player has selected a building
         if (selectedBuilding == null) return false;
 
@@ -68,8 +121,8 @@ public class BuildSystem {
         if (CheckCollisionPointRec(GetMousePosition(), BuildMenu.MENU_RECT)) return false;
 
         // Check if placement overlaps with occupied tiles
-        for (int x = tileX; x < tileX + buildingTileSize; x++) {
-            for (int y = tileY; y < tileY + buildingTileSize; y++) {
+        for (int x = tileX; x < tileX + BUILDING_GRID_TILE_SIZE; x++) {
+            for (int y = tileY; y < tileY + BUILDING_GRID_TILE_SIZE; y++) {
                 if (occupiedTiles[x][y]) {
                     return false;
                 }
@@ -86,45 +139,67 @@ public class BuildSystem {
         // Check if placement overlaps with player
         if (CheckCollisionRecs(previewRec, Player.playerRec)) return false;
 
+        // Check if within predefined distance from goldstash
+        if (!selectedBuilding.name.equals("Gold Stash")) {
+            Building goldStash = getGoldStash();
+
+            if (goldStash == null) {
+                return false;
+            }
+
+            float previewCenterX = snappedX + size / 2f;
+            float previewCenterY = snappedY + size / 2f;
+
+            float stashCenterX = goldStash.position.x() + size / 2f;
+            float stashCenterY = goldStash.position.y() + size / 2f;
+
+            float distance = Vector2Distance(
+                    newVector2(previewCenterX, previewCenterY),
+                    newVector2(stashCenterX, stashCenterY)
+            );
+
+            if (distance > PLACEMENT_RADIUS) {
+                return false;
+            }
+        }
+
         // if all checks pass, return true
         return true;
     }
 
-    private int countPlacedBuildings(BuildingType type) {
-        int count = 0;
-
-        for (Building building : EntityManager.placedBuildings) {
-            if (building.type == type) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public void keyBinds() {
-        if (IsKeyPressed(KEY_ONE)) {
+    private void keyBinds() {
+        if (IsKeyPressed(KEY_ONE) && !isIconDisabled(0)) {
             selectedBuilding = buildingTypes[0];
             selectedIndex = 0;
         }
-        if (IsKeyPressed(KEY_TWO)) {
+        if (IsKeyPressed(KEY_TWO) && !isIconDisabled(1)) {
             selectedBuilding = buildingTypes[1];
             selectedIndex = 1;
         }
-        if (IsKeyPressed(KEY_THREE)) {
+        if (IsKeyPressed(KEY_THREE) && !isIconDisabled(2)) {
             selectedBuilding = buildingTypes[2];
             selectedIndex = 2;
         }
-        if (IsKeyPressed(KEY_FOUR)) {
+        if (IsKeyPressed(KEY_FOUR) && !isIconDisabled(3)) {
             selectedBuilding = buildingTypes[3];
             selectedIndex = 3;
         }
     }
 
-    public void getClickedBuilding() {
+    private void getClickedBuilding() {
         // Check if player uses the build HUD
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             for (int i = 0; i < BuildMenu.menuRects.length; i++) {
                 if (CheckCollisionPointRec(GetMousePosition(), BuildMenu.menuRects[i])) {
+
+                    // If icon is disabled, do not select it
+                    if (isIconDisabled(i)) {
+                        selectedBuilding = null;
+                        selectedIndex = -1;
+                        return;
+                    }
+
+                    // Else, update variables
                     selectedBuilding = buildingTypes[i];
                     selectedIndex = i;
                 }
@@ -141,16 +216,16 @@ public class BuildSystem {
         }
     }
 
-    public void occupyTiles() {
+    private void occupyTiles() {
         // Update grid of occupied tiles after player places a new building
-        for (int x = tileX; x < tileX + buildingTileSize; x++) {
-            for (int y = tileY; y < tileY + buildingTileSize; y++) {
+        for (int x = tileX; x < tileX + BUILDING_GRID_TILE_SIZE; x++) {
+            for (int y = tileY; y < tileY + BUILDING_GRID_TILE_SIZE; y++) {
                 occupiedTiles[x][y] = true;
             }
         }
     }
 
-    public void getPreviewPosition() {
+    private void getPreviewPosition() {
         // Get player mouse position
         Vector2 mouse = GetMousePosition();
         mouse = GetScreenToWorld2D(mouse, Camera.camera);
@@ -168,17 +243,12 @@ public class BuildSystem {
     }
 
     private Building createBuilding(Vector2 position, BuildingType type) {
-        if (type.name.equals("Gold Mine")) {
-            return new GoldMine(position, type);
-        }
-        if (type.name.equals("Gold Stash")) {
-            return new GoldStash(position, type);
-        }
-        if (type.name.equals("Cannon Tower")) {
-            return new CannonTower(position, type);
-        }
-
-        return new Building(position, type);
+        return switch (type.name) {
+            case "Gold Mine" -> new GoldMine(position, type);
+            case "Gold Stash" -> new GoldStash(position, type);
+            case "Cannon Tower" -> new CannonTower(position, type);
+            default -> new Building(position, type);
+        };
     }
 
     public void update() {
@@ -198,24 +268,44 @@ public class BuildSystem {
             // update material
             Player.numStone -= selectedBuilding.stoneCost;
             Player.numGold -= selectedBuilding.goldCost;
+
+            // If this building has now reached its max placements, stop showing the preview
+            if (isIconDisabled(selectedIndex)) {
+                selectedBuilding = null;
+                selectedIndex = -1;
+            }
         }
     }
 
     public void draw() {
-        // Show red tint if not valid placement (e.x. overlapping with already placed building)
-        // Otherwise, show default white tint
+        // For testing purposes, draw the placement radius
+        Building goldStash = getGoldStash();
+
+        if (goldStash != null) {
+            DrawCircleLines(
+                    (int) (goldStash.position.x() + size / 2f),
+                    (int) (goldStash.position.y() + size / 2f),
+                    PLACEMENT_RADIUS,
+                    RED
+            );
+        }
+
+        if (selectedBuilding == null || selectedIndex == -1) {
+            return;
+        }
+
+        // Show red tint if not valid placement. Otherwise, show default white tint
         Color previewColor = validPlacement
                 ? newColor(255, 255, 255, 150)
                 : newColor(255, 0, 0, 150);
 
         // Draw building preview
-        if (selectedBuilding != null) {
-            DrawTextureEx(
-                    buildingIconTextures[selectedIndex],
-                    newVector2(snappedX, snappedY),
-                    0,
-                    1.0f,
-                    previewColor);
-        }
+        DrawTextureEx(
+                buildingIconTextures[selectedIndex],
+                newVector2(snappedX, snappedY),
+                0,
+                1.0f,
+                previewColor);
+
     }
 }

@@ -2,6 +2,7 @@ package ui;
 
 import buildings.Building;
 import core.Main;
+import systems.BuildSystem;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
@@ -36,14 +37,18 @@ public class BuildMenu {
         }
     }
 
-    public void drawUI() {
+    public void draw() {
         // Draw outline and fill of build menu
         DrawRectangleRoundedLinesEx(MENU_RECT, 0.6f, 0, 2.0f, BLUE);
         DrawRectangleRounded(MENU_RECT, 0.6f, 0, MENU_FILL);
 
         // Draw building icons inside the build menu
         for (int i = 0; i < menuRects.length; i++) {
-            DrawTextureEx(buildingIconTextures[i], newVector2(menuRects[i].x(), menuRects[i].y()), 0.0f, HUD_SCALE, WHITE);
+            Color iconColor = BuildSystem.isIconDisabled(i)
+                    ? GRAY
+                    : WHITE;
+
+            DrawTextureEx(buildingIconTextures[i], newVector2(menuRects[i].x(), menuRects[i].y()), 0.0f, HUD_SCALE, iconColor);
         }
     }
 }

@@ -103,7 +103,7 @@ public class GameState {
         EndMode2D();
 
         // Draw UI & HUD
-        buildMenu.drawUI();
+        buildMenu.draw();
         HUD.drawHUD();
         HUD.updateHUD();
 
