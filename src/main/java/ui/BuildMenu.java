@@ -1,13 +1,14 @@
 package ui;
 
 import buildings.Building;
+import buildings.BuildingType;
 import core.Main;
 import systems.BuildSystem;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
-import static systems.BuildSystem.buildingIconTextures;
+import static systems.BuildSystem.*;
 
 public class BuildMenu {
     // Build menu data
@@ -50,5 +51,69 @@ public class BuildMenu {
 
             DrawTextureEx(buildingIconTextures[i], newVector2(menuRects[i].x(), menuRects[i].y()), 0.0f, HUD_SCALE, iconColor);
         }
+
+        // Draw tooltip if mouse is hovering over an icon
+        for (int i = 0; i < menuRects.length; i++) {
+            if (CheckCollisionPointRec(GetMousePosition(), menuRects[i])) {
+                drawBuildingTooltip(i);
+                break;
+            }
+        }
+    }
+
+    private void drawBuildingTooltip(int index) {
+        BuildingType type = buildingTypes[index];
+
+        float tooltipWidth = 240;
+        float tooltipHeight = 80;
+
+        float tooltipX = menuRects[index].x() - (tooltipWidth - HUD_BUILDING_SIZE) / 2;
+        float tooltipY = menuRects[index].y() - tooltipHeight - 25;
+
+
+        Rectangle tooltipRect = newRectangle(
+                tooltipX,
+                tooltipY,
+                tooltipWidth,
+                tooltipHeight
+        );
+
+        // Background
+        DrawRectangleRounded(
+                tooltipRect,
+                0.15f,
+                0,
+                MENU_FILL
+        );
+
+        // Border
+        DrawRectangleRoundedLinesEx(
+                tooltipRect,
+                0.15f,
+                0,
+                2.0f,
+                BLUE
+        );
+
+        int textX = (int) tooltipX + 15;
+        int textY = (int) tooltipY + 12;
+
+        DrawText(type.name, textX, textY, 20, DARKBLUE);
+
+        DrawText(
+                type.stoneCost + " stone, " + type.goldCost + " gold",
+                textX,
+                textY + 35,
+                18,
+                BLUE
+        );
+
+        DrawText(
+                countPlacedBuildings(type) + " / " + type.maxPlacements,
+                textX + 170,
+                textY + 1,
+                18,
+                BLUE
+        );
     }
 }

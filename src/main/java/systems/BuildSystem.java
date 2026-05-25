@@ -90,7 +90,7 @@ public class BuildSystem {
         return false;
     }
 
-    private static int countPlacedBuildings(BuildingType type) {
+    public static int countPlacedBuildings(BuildingType type) {
         int count = 0;
 
         for (Building building : EntityManager.placedBuildings) {
