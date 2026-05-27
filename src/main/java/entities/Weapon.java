@@ -35,6 +35,7 @@ public class Weapon {
     public String getDescription() { return description; }
     public int getTier() { return tier; }
     public String getType() { return type; }
+    public int getEfficiency(){return efficiency;}
 
     // Setters (if needed)
     public void setCost(int cost) { this.cost = cost; }

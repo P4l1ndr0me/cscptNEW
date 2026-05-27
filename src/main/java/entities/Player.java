@@ -14,6 +14,7 @@ public class Player extends Entity {
     public static Rectangle miningRec;
     public static int numStone = 1000;
     public static int numGold = 1000;
+    public static int health = 100;
 
     // Size & movement
     private final float halfWidth;

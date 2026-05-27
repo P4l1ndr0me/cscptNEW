@@ -9,18 +9,19 @@ import ui.BuildMenu;
 
 import java.util.ArrayList;
 
+import static com.raylib.Helpers.newColor;
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 import static core.EntityManager.spawnedEnemies;
 import static world.World.WORLD_HEIGHT;
 import static world.World.WORLD_WIDTH;
+import systems.WaveSystem;
 
 public class GameState {
     final private Player player;
     final private BuildSystem buildSystem;
     final private BuildMenu buildMenu;
-
-    public static ArrayList<int[]> zombieSpawnPoint = new ArrayList<>();
+    final private WaveSystem waveSystem;
 
     public GameState() {
         TextureManager.init();
@@ -29,32 +30,7 @@ public class GameState {
         player = new Player();
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
-
-        for (int i = 0; i < 10; i++) {
-            int[] pos = getSpawnPosition();
-            EntityManager.spawnZombie
-                    (pos[0],
-                            pos[1],
-                            2.0f,
-                            50.0f,
-                            TextureManager.getTexture("enemy1"),
-                            3,
-                            3);
-        }
-
-        for (int i = 0; i < 3; i++) {
-
-            int[] pos = getSpawnPosition();
-
-            EntityManager.spawnZombie
-                    (pos[0],
-                            pos[1],
-                            2.0f,
-                            75.0f,
-                            TextureManager.getTexture("enemy2"),
-                            3,
-                            3);
-        }
+        waveSystem = new WaveSystem();
       
         // initialize
         Camera.init();
@@ -73,6 +49,7 @@ public class GameState {
         Camera.update(player.getPosition());
         buildSystem.update();
         EntityManager.updateEntities(dt);
+        waveSystem.update(dt);
     }
 
     public void draw() {
@@ -106,7 +83,7 @@ public class GameState {
         buildMenu.drawUI();
         HUD.drawHUD();
         HUD.updateHUD();
-
+        waveSystem.draw();
         // Misc
 
         // Draw mouse position
@@ -129,26 +106,8 @@ public class GameState {
         // Draw FPS
         DrawFPS(Main.SCREEN_WIDTH - 75, 5);
 
+        waveSystem.drawDarknessOverlay();
+
         EndDrawing();
-    }
-
-    public int[] getSpawnPosition() {
-        int playerX = WORLD_WIDTH / 2;
-        int playerY = WORLD_HEIGHT / 2;
-        int safeRadius = 500;
-
-        double angle = Math.random() * 2 * Math.PI;
-        double maxDist = Math.min(WORLD_WIDTH, WORLD_HEIGHT) / 2.0;
-        double distance = safeRadius + Math.random() * (maxDist - safeRadius);
-
-        int x = (int) (playerX + distance * Math.cos(angle));
-        int y = (int) (playerY + distance * Math.sin(angle));
-
-        // clamp to map bounds
-        x = Math.max(0, Math.min(WORLD_WIDTH - 1, x));
-        y = Math.max(0, Math.min(WORLD_HEIGHT - 1, y));
-        zombieSpawnPoint.add(new int[]{x, y});
-
-        return new int[]{x, y};
     }
 }

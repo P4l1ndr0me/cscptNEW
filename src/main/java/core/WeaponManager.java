@@ -10,8 +10,6 @@ public class WeaponManager {
     public static HashMap<String, Integer> unlockedWeapons = new HashMap<>();
 
     public static void init(){
-
-        // init all pickaxes
         // PICKAXES
         allWeapons.add(new Weapon("stone_pickaxe", "Stone Pickaxe", "stonepickaxe",
                 100, 15, 1.0f, "Basic Mining Tool", 100, 1, "pickaxe"));
@@ -45,8 +43,8 @@ public class WeaponManager {
                 500, 40, 1.5f, "range weapon", 0, 3, "bow"));
 
         unlockedWeapons.put("pickaxe", 1);
-        unlockedWeapons.put("sword", 1);
-        unlockedWeapons.put("bow", 1);
+        unlockedWeapons.put("sword", 0);
+        unlockedWeapons.put("bow", 0);
 
 
         // Put in map for easy lookup
