@@ -40,7 +40,7 @@ public class BuildSystem {
     private boolean placedBuildingThisFrame = false;
 
     // Tracking selected building
-    private BuildingType selectedBuilding = null;
+    public BuildingType selectedBuilding = null;
     private int selectedIndex = -1;
     private int snappedX, snappedY;
     private Rectangle previewRec;
@@ -220,6 +220,17 @@ public class BuildSystem {
         for (int x = tileX; x < tileX + BUILDING_GRID_TILE_SIZE; x++) {
             for (int y = tileY; y < tileY + BUILDING_GRID_TILE_SIZE; y++) {
                 occupiedTiles[x][y] = true;
+            }
+        }
+    }
+
+    public void freeTiles(Building building) {
+        int buildingTileX = (int) building.position.x() / World.TILE_SIZE;
+        int buildingTileY = (int) building.position.y() / World.TILE_SIZE;
+
+        for (int x = buildingTileX; x < buildingTileX + BUILDING_GRID_TILE_SIZE; x++) {
+            for (int y = buildingTileY; y < buildingTileY + BUILDING_GRID_TILE_SIZE; y++) {
+                occupiedTiles[x][y] = false;
             }
         }
     }

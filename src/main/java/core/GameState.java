@@ -76,6 +76,8 @@ public class GameState {
         buildSystem.update();
         buildingSelectionSystem.update();
         EntityManager.updateEntities(dt);
+
+        HUD.updateHUD();
     }
 
     public void draw() {
@@ -96,7 +98,7 @@ public class GameState {
         // Draw building preview
         buildSystem.draw();
 
-        buildingSelectionSystem.draw();
+        buildingSelectionSystem.drawWorld();
 
         // Hitboxes (debugging)
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
@@ -110,7 +112,8 @@ public class GameState {
         // Draw UI & HUD
         buildMenu.draw();
         HUD.drawHUD();
-        HUD.updateHUD();
+
+        buildingSelectionSystem.drawUI();
 
         EndDrawing();
     }
