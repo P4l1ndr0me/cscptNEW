@@ -35,13 +35,12 @@ public class BuildSystem {
             new BuildingType("Gold Stash", buildingTextures[3], 0,0, 1, 500)
     };
 
-    //
-
     private static final int GOLD_STASH_INDEX = 3;
     private static final float PLACEMENT_RADIUS = 750f;
+    private boolean placedBuildingThisFrame = false;
 
     // Tracking selected building
-    private BuildingType selectedBuilding = null;
+    public BuildingType selectedBuilding = null;
     private int selectedIndex = -1;
     private int snappedX, snappedY;
     private Rectangle previewRec;
@@ -225,6 +224,17 @@ public class BuildSystem {
         }
     }
 
+    public void freeTiles(Building building) {
+        int buildingTileX = (int) building.position.x() / World.TILE_SIZE;
+        int buildingTileY = (int) building.position.y() / World.TILE_SIZE;
+
+        for (int x = buildingTileX; x < buildingTileX + BUILDING_GRID_TILE_SIZE; x++) {
+            for (int y = buildingTileY; y < buildingTileY + BUILDING_GRID_TILE_SIZE; y++) {
+                occupiedTiles[x][y] = false;
+            }
+        }
+    }
+
     private void getPreviewPosition() {
         // Get player mouse position
         Vector2 mouse = GetMousePosition();
@@ -252,6 +262,8 @@ public class BuildSystem {
     }
 
     public void update() {
+        placedBuildingThisFrame = false;
+
         getClickedBuilding();
 
         getPreviewPosition();
@@ -268,6 +280,8 @@ public class BuildSystem {
             // update material
             Player.numStone -= selectedBuilding.stoneCost;
             Player.numGold -= selectedBuilding.goldCost;
+
+            placedBuildingThisFrame = true;
 
             // If this building has now reached its max placements, stop showing the preview
             if (isIconDisabled(selectedIndex)) {
@@ -307,5 +321,14 @@ public class BuildSystem {
                 1.0f,
                 previewColor);
 
+    }
+
+    // Getters
+    public boolean placedBuildingThisFrame() {
+        return placedBuildingThisFrame;
+    }
+
+    public boolean isPlacingBuilding() {
+        return selectedBuilding != null;
     }
 }

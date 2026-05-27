@@ -13,7 +13,7 @@ import static systems.BuildSystem.*;
 
 public class BuildMenu {
     // Build menu data
-    public static final Color MENU_FILL = newColor(80, 80, 80, 255);
+    public static final Color MENU_FILL = newColor(80, 80, 80, 220);
     private static final float MENU_X = 0.3f * Main.SCREEN_WIDTH;
     private static final int MENU_HEIGHT = 60;
     private static final float MENU_Y = Main.SCREEN_HEIGHT - MENU_HEIGHT - 20;
