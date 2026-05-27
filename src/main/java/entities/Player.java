@@ -277,8 +277,6 @@ public class Player extends Entity {
     }
 
     private void updateAnimation(float dt) {
-        if (!isMoving) frameTimer = 0f;
-
         if (isMoving) {
             frameTimer += dt;
 
@@ -292,6 +290,7 @@ public class Player extends Entity {
                 }
             }
         } else {
+            frameTimer = 0f;
             currentFrame = 0;
             pickaxeFrame = 0;
         }

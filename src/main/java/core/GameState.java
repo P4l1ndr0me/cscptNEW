@@ -1,20 +1,16 @@
 package core;
 
-import systems.BuildSystem;
-import ui.HUD;
-import world.ResourceNode;
-import world.World;
+import systems.*;
+import ui.*;
+import world.*;
 import entities.*;
-import ui.BuildMenu;
 
 import java.util.ArrayList;
 
-import static com.raylib.Helpers.newColor;
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 import static core.EntityManager.spawnedEnemies;
-import static world.World.WORLD_HEIGHT;
-import static world.World.WORLD_WIDTH;
+import static core.Main.pixelFont;
 import systems.WaveSystem;
 
 public class GameState {
@@ -22,16 +18,19 @@ public class GameState {
     final private BuildSystem buildSystem;
     final private BuildMenu buildMenu;
     final private WaveSystem waveSystem;
+    final private BuildingSelectionSystem buildingSelectionSystem;
 
     public GameState() {
         TextureManager.init();
+        SetTextureFilter(pixelFont.texture(), TEXTURE_FILTER_POINT);
 
         // Create new instances
         player = new Player();
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
         waveSystem = new WaveSystem();
-      
+        buildingSelectionSystem = new BuildingSelectionSystem(buildSystem);
+
         // initialize
         Camera.init();
         ResourceNode.init();
@@ -48,8 +47,11 @@ public class GameState {
         }
         Camera.update(player.getPosition());
         buildSystem.update();
+        buildingSelectionSystem.update();
         EntityManager.updateEntities(dt);
         waveSystem.update(dt);
+
+        HUD.updateHUD();
     }
 
     public void draw() {
@@ -70,6 +72,8 @@ public class GameState {
         // Draw building preview
         buildSystem.draw();
 
+        buildingSelectionSystem.drawWorld();
+
         // Hitboxes (debugging)
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
             DrawCircleLinesV(stoneCenter, ResourceNode.stoneRadius, RED);
@@ -80,32 +84,12 @@ public class GameState {
         EndMode2D();
 
         // Draw UI & HUD
-        buildMenu.drawUI();
+        buildMenu.draw();
         HUD.drawHUD();
-        HUD.updateHUD();
+       
+        buildingSelectionSystem.drawUI();
+
         waveSystem.draw();
-        // Misc
-
-        // Draw mouse position
-        Vector2 mousePos = GetMousePosition();
-        GetMousePosition().close();
-        DrawText("Mouse XY: " + (int) mousePos.x() + ", " + (int) mousePos.y(), 5, Main.SCREEN_HEIGHT - 25, 20, BLUE);
-
-        // Draw player position
-        DrawText("X: " + (int) Math.floor(player.getPosition().x()),
-                5,
-                5,
-                20,
-                BLUE);
-        DrawText("Y: " + (int) Math.floor(player.getPosition().y()),
-                5,
-                25,
-                20,
-                BLUE);
-
-        // Draw FPS
-        DrawFPS(Main.SCREEN_WIDTH - 75, 5);
-
         waveSystem.drawDarknessOverlay();
 
         EndDrawing();

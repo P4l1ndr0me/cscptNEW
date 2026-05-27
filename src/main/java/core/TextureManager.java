@@ -4,7 +4,7 @@ import java.util.HashMap;
 import static com.raylib.Raylib.*;
 
 public class TextureManager {
-    private static HashMap<String, Texture> textures = new HashMap<>();
+    private static final HashMap<String, Texture> textures = new HashMap<>();
 
     public static void loadTexture(String key, String path) {
         Texture tex = LoadTexture(path);
@@ -37,8 +37,10 @@ public class TextureManager {
         // Building-related
         TextureManager.loadTexture("Gold Stash", "src/main/assets/images/buildings/goldstash.png");
         TextureManager.loadTexture("Gold Mine", "src/main/assets/images/buildings/goldmine.png");
-        TextureManager.loadTexture("Cannon Tower", "src/main/assets/images/buildings/building2.png");
-        TextureManager.loadTexture("Arrow Tower", "src/main/assets/images/buildings/building3.png");
+        TextureManager.loadTexture("Tower Base", "src/main/assets/images/buildings/towerbase.png");
+        TextureManager.loadTexture("Cannon Head", "src/main/assets/images/buildings/test.png");
+        TextureManager.loadTexture("Cannon Tower Combined", "src/main/assets/images/buildings/cannoncombined.png");
+        TextureManager.loadTexture("Arrow Head", "src/main/assets/images/buildings/building3.png");
 
         // Enemy-related
         TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");

@@ -2,7 +2,6 @@ package core;
 
 import entities.Weapon;
 import java.util.*;
-import java.io.*;
 
 public class WeaponManager {
     public static HashMap<String, Weapon> weapons = new HashMap<>();
