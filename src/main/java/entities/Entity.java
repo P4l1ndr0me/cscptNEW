@@ -9,6 +9,7 @@ public class Entity {
     Texture texture;
     int rows;
     int frames;
+    int health;
 
     int currentFrame;
     int currentRow;

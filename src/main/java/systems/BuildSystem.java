@@ -29,7 +29,7 @@ public class BuildSystem {
     };
 
     public static BuildingType[] buildingTypes = {
-            new BuildingType("Gold Mine", buildingTextures[0], 50, 0, 8, 200),
+            new BuildingType("Gold Mine", buildingTextures[0], 50, 0, 45, 200),
             new BuildingType("Cannon Tower", buildingTextures[1], 75, 40, 10, 150),
             new BuildingType("Arrow Tower", buildingTextures[2], 60, 30, 10, 100),
             new BuildingType("Gold Stash", buildingTextures[3], 0,0, 1, 500)
