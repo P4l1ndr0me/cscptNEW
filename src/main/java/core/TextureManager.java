@@ -37,12 +37,10 @@ public class TextureManager {
         // Building-related
         TextureManager.loadTexture("Gold Stash", "src/main/assets/images/buildings/goldstash.png");
         TextureManager.loadTexture("Gold Mine", "src/main/assets/images/buildings/goldmine.png");
-        TextureManager.loadTexture("Cannon Base", "src/main/assets/images/buildings/base.png");
-        TextureManager.loadTexture("Cannon Head", "src/main/assets/images/buildings/cannonhead.png");
+        TextureManager.loadTexture("Tower Base", "src/main/assets/images/buildings/towerbase.png");
+        TextureManager.loadTexture("Cannon Head", "src/main/assets/images/buildings/test.png");
         TextureManager.loadTexture("Cannon Tower Combined", "src/main/assets/images/buildings/cannoncombined.png");
-
-
-        TextureManager.loadTexture("Arrow Base", "src/main/assets/images/buildings/building3.png");
+        TextureManager.loadTexture("Arrow Head", "src/main/assets/images/buildings/building3.png");
 
         // Enemy-related
         TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");

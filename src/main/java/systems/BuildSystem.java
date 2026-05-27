@@ -16,15 +16,15 @@ import static buildings.Building.size;
 public class BuildSystem {
     public static Texture[] buildingTextures = {
             TextureManager.getTexture("Gold Mine"),
-            TextureManager.getTexture("Cannon Base"),
-            TextureManager.getTexture("Arrow Base"),
+            TextureManager.getTexture("Tower Base"),
+            TextureManager.getTexture("Tower Base"),
             TextureManager.getTexture("Gold Stash")
     };
 
     public static Texture[] buildingIconTextures = {
             TextureManager.getTexture("Gold Mine"),
             TextureManager.getTexture("Cannon Tower Combined"),
-            TextureManager.getTexture("Arrow Base"), // will change to arrow tower combined
+            TextureManager.getTexture("Tower Base"), // will change to arrow tower combined
             TextureManager.getTexture("Gold Stash")
     };
 
@@ -90,7 +90,7 @@ public class BuildSystem {
         return false;
     }
 
-    private static int countPlacedBuildings(BuildingType type) {
+    public static int countPlacedBuildings(BuildingType type) {
         int count = 0;
 
         for (Building building : EntityManager.placedBuildings) {
