@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 import static core.EntityManager.spawnedEnemies;
+import static core.Main.pixelFont;
 import static world.World.WORLD_HEIGHT;
 import static world.World.WORLD_WIDTH;
 
@@ -24,6 +25,7 @@ public class GameState {
 
     public GameState() {
         TextureManager.init();
+        SetTextureFilter(pixelFont.texture(), TEXTURE_FILTER_POINT);
 
         // Create new instances
         player = new Player();
@@ -106,28 +108,6 @@ public class GameState {
         buildMenu.draw();
         HUD.drawHUD();
         HUD.updateHUD();
-
-        // Misc
-
-        // Draw mouse position
-        Vector2 mousePos = GetMousePosition();
-        GetMousePosition().close();
-        DrawText("Mouse XY: " + (int) mousePos.x() + ", " + (int) mousePos.y(), 5, Main.SCREEN_HEIGHT - 25, 20, BLUE);
-
-        // Draw player position
-        DrawText("X: " + (int) Math.floor(player.getPosition().x()),
-                5,
-                5,
-                20,
-                BLUE);
-        DrawText("Y: " + (int) Math.floor(player.getPosition().y()),
-                5,
-                25,
-                20,
-                BLUE);
-
-        // Draw FPS
-        DrawFPS(Main.SCREEN_WIDTH - 75, 5);
 
         EndDrawing();
     }

@@ -8,11 +8,12 @@ import systems.BuildSystem;
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
+import static core.Main.pixelFont;
 import static systems.BuildSystem.*;
 
 public class BuildMenu {
     // Build menu data
-    public static final Color MENU_FILL = newColor(203, 203, 203, 100);
+    public static final Color MENU_FILL = newColor(80, 80, 80, 255);
     private static final float MENU_X = 0.3f * Main.SCREEN_WIDTH;
     private static final int MENU_HEIGHT = 60;
     private static final float MENU_Y = Main.SCREEN_HEIGHT - MENU_HEIGHT - 20;
@@ -40,13 +41,13 @@ public class BuildMenu {
 
     public void draw() {
         // Draw outline and fill of build menu
-        DrawRectangleRoundedLinesEx(MENU_RECT, 0.6f, 0, 2.0f, BLUE);
+        DrawRectangleRoundedLinesEx(MENU_RECT, 0.6f, 0, 2.0f, BLACK);
         DrawRectangleRounded(MENU_RECT, 0.6f, 0, MENU_FILL);
 
         // Draw building icons inside the build menu
         for (int i = 0; i < menuRects.length; i++) {
             Color iconColor = BuildSystem.isIconDisabled(i)
-                    ? GRAY
+                    ? MENU_FILL
                     : WHITE;
 
             DrawTextureEx(buildingIconTextures[i], newVector2(menuRects[i].x(), menuRects[i].y()), 0.0f, HUD_SCALE, iconColor);
@@ -92,28 +93,38 @@ public class BuildMenu {
                 0.15f,
                 0,
                 2.0f,
-                BLUE
+                BLACK
         );
 
-        int textX = (int) tooltipX + 15;
-        int textY = (int) tooltipY + 12;
+        int textX = (int) tooltipX + 10;
+        int textY = (int) tooltipY + 10;
 
-        DrawText(type.name, textX, textY, 20, DARKBLUE);
+        DrawTextEx(
+                pixelFont,
+                type.name,
+                newVector2(textX, textY)
+                ,24,
+                1.0f,
+                WHITE);
 
-        DrawText(
+        DrawTextEx(
+                pixelFont,
                 type.stoneCost + " stone, " + type.goldCost + " gold",
-                textX,
-                textY + 35,
+                newVector2(textX, tooltipY + tooltipHeight - 30),
                 18,
-                BLUE
+                1.0f,
+                WHITE
         );
 
-        DrawText(
-                countPlacedBuildings(type) + " / " + type.maxPlacements,
-                textX + 170,
-                textY + 1,
-                18,
-                BLUE
+        String text = countPlacedBuildings(type) + " / " + type.maxPlacements;
+        Vector2 textSize = MeasureTextEx(pixelFont, text, 24, 1.0f);
+        DrawTextEx(
+                pixelFont,
+                text,
+                newVector2(tooltipX + tooltipWidth - textSize.x() - 10, textY),
+                24,
+                1.0f,
+                WHITE
         );
     }
 }

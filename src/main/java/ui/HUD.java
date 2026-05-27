@@ -8,6 +8,7 @@ import static com.raylib.Colors.*;
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
 
+import static core.Main.pixelFont;
 import static entities.Player.numStone;
 import static entities.Player.numGold;
 import static ui.BuildMenu.MENU_FILL;
@@ -97,12 +98,26 @@ public class HUD {
     private static int currentShopTab = 2;
     private static int hoveredWeaponIndex = -1;// 0 = weapons, 1 = buildings
 
+
+
     public static void drawHUD() {
         // Draw outline and fill of resourceRect
-        DrawRectangleRoundedLinesEx(resourceRect, 0.6f, 0, 2.0f, BLUE);
+        DrawRectangleRoundedLinesEx(resourceRect, 0.6f, 0, 2.0f, BLACK);
         DrawRectangleRounded(resourceRect, 0.6f, 0, MENU_FILL);
-        DrawText("Stone: " + numStone, menuX + 20, menuY + 20, 20, BLUE);
-        DrawText("Gold: " + numGold, menuX + 20, menuY + 50, 20, BLUE);
+        DrawTextEx(
+                pixelFont,
+                "Stone: " + numStone,
+                newVector2(menuX + 20, menuY + 16)
+                , 24,
+                1.0f,
+                WHITE);
+        DrawTextEx(
+                pixelFont,
+                "Gold: " + numGold,
+                newVector2(menuX + 20, menuY + 45)
+                , 24,
+                1.0f,
+                WHITE);
 
         // SHOP BUTTON
         DrawRectangleRec(shopButton, DARKGRAY);
