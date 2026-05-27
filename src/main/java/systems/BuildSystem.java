@@ -35,10 +35,9 @@ public class BuildSystem {
             new BuildingType("Gold Stash", buildingTextures[3], 0,0, 1, 500)
     };
 
-    //
-
     private static final int GOLD_STASH_INDEX = 3;
     private static final float PLACEMENT_RADIUS = 750f;
+    private boolean placedBuildingThisFrame = false;
 
     // Tracking selected building
     private BuildingType selectedBuilding = null;
@@ -252,6 +251,8 @@ public class BuildSystem {
     }
 
     public void update() {
+        placedBuildingThisFrame = false;
+
         getClickedBuilding();
 
         getPreviewPosition();
@@ -268,6 +269,8 @@ public class BuildSystem {
             // update material
             Player.numStone -= selectedBuilding.stoneCost;
             Player.numGold -= selectedBuilding.goldCost;
+
+            placedBuildingThisFrame = true;
 
             // If this building has now reached its max placements, stop showing the preview
             if (isIconDisabled(selectedIndex)) {
@@ -307,5 +310,9 @@ public class BuildSystem {
                 1.0f,
                 previewColor);
 
+    }
+
+    public boolean placedBuildingThisFrame() {
+        return placedBuildingThisFrame;
     }
 }

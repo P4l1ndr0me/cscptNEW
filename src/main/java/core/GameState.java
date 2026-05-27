@@ -1,11 +1,9 @@
 package core;
 
-import systems.BuildSystem;
-import ui.HUD;
-import world.ResourceNode;
-import world.World;
+import systems.*;
+import ui.*;
+import world.*;
 import entities.*;
-import ui.BuildMenu;
 
 import java.util.ArrayList;
 
@@ -20,6 +18,7 @@ public class GameState {
     final private Player player;
     final private BuildSystem buildSystem;
     final private BuildMenu buildMenu;
+    final private BuildingSelectionSystem buildingSelectionSystem;
 
     public static ArrayList<int[]> zombieSpawnPoint = new ArrayList<>();
 
@@ -31,6 +30,7 @@ public class GameState {
         player = new Player();
         buildMenu = new BuildMenu();
         buildSystem = new BuildSystem();
+        buildingSelectionSystem = new BuildingSelectionSystem(buildSystem);
 
         for (int i = 0; i < 10; i++) {
             int[] pos = getSpawnPosition();
@@ -74,6 +74,7 @@ public class GameState {
         }
         Camera.update(player.getPosition());
         buildSystem.update();
+        buildingSelectionSystem.update();
         EntityManager.updateEntities(dt);
     }
 
@@ -94,6 +95,8 @@ public class GameState {
 
         // Draw building preview
         buildSystem.draw();
+
+        buildingSelectionSystem.draw();
 
         // Hitboxes (debugging)
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
