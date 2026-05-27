@@ -4,6 +4,7 @@ import core.TextureManager;
 import core.EntityManager;
 import entities.Enemy;
 
+import static com.raylib.Colors.RED;
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.WHITE;
 import static com.raylib.Helpers.*;
@@ -11,7 +12,7 @@ import static com.raylib.Helpers.*;
 public class CannonTower extends Building {
     private final Texture cannonHeadTexture = TextureManager.getTexture("Cannon Head");
 
-    private float rotation = 90;
+    private float rotation = 0;
 
     // How far the cannon can detect enemies
     private final float range = 250f;
@@ -35,11 +36,13 @@ public class CannonTower extends Building {
         // Draw head of cannon next
         Rectangle source = newRectangle(0, 0, cannonHeadTexture.width(), cannonHeadTexture.height());
 
-        Rectangle dest = newRectangle(position.x() + 32, position.y() + 32, 46, 78);
+        Rectangle dest = newRectangle(position.x() + 32, position.y() + 32, cannonHeadTexture.width(), cannonHeadTexture.height());
 
-        Vector2 origin = newVector2(23, 55);
+        Vector2 origin = newVector2(23, 23);
 
         DrawTexturePro(cannonHeadTexture, source, dest, origin, rotation, WHITE);
+
+        DrawCircleLines((int)(position.x() + size / 2f), (int)(position.y() + size / 2f), range, RED);
     }
 
     private Enemy getNearestEnemyInRange() {
@@ -81,6 +84,6 @@ public class CannonTower extends Building {
         float dy = enemyY - cannonCenterY;
 
         // atan2 gives angle in radians, then we convert to degrees
-        rotation = (float) Math.toDegrees(Math.atan2(dy, dx)) + 90;
+        rotation = (float) Math.toDegrees(Math.atan2(dy, dx)) + 0;
     }
 }
