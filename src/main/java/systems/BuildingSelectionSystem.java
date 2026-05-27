@@ -49,20 +49,27 @@ public class BuildingSelectionSystem {
             return;
         }
 
-//        // Right click deselects the currently selected building
-//        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-//            selectedBuilding = null;
-//            return;
-//        }
+        // If player is currently placing building, prevent user from selecting
+        if (buildSystem.isPlacingBuilding()) {
+            selectedBuilding = null;
+            return;
+        }
 
-        // Only check selection on left click
+        // Only check selection if player left clicks
         if (!IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             return;
         }
 
+
         Vector2 mouseScreen = GetMousePosition();
 
-        // Prevent UI from disappearing when clicking it
+        // Do not select buildings when clicking the build menu
+        if (CheckCollisionPointRec(mouseScreen, BuildMenu.MENU_RECT)) {
+            clearSelection();
+            return;
+        }
+
+        // Prevent building panel from disappearing when clicking it
         if (selectedBuilding != null && CheckCollisionPointRec(mouseScreen, panelRect)) {
             if (CheckCollisionPointRec(mouseScreen, sellButton)) {
                 sellSelectedBuilding();
@@ -71,17 +78,11 @@ public class BuildingSelectionSystem {
             return;
         }
 
-        // Do not select buildings when clicking the build menu
-        if (CheckCollisionPointRec(mouseScreen, BuildMenu.MENU_RECT)) {
-            selectedBuilding = null;
-            return;
-        }
-
         // Convert mouse screen position to world position
         Vector2 mouseWorld = GetScreenToWorld2D(mouseScreen, Camera.camera);
 
         // Assume the player clicked empty space
-        selectedBuilding = null;
+        clearSelection();
 
         // Check if the player clicked any placed building
         for (Building building : EntityManager.placedBuildings) {
@@ -189,10 +190,14 @@ public class BuildingSelectionSystem {
         EntityManager.placedBuildings.remove(selectedBuilding);
 
         // Close the selected building UI
-        selectedBuilding = null;
+        clearSelection();
     }
 
     public Building getSelectedBuilding() {
         return selectedBuilding;
+    }
+
+    public void clearSelection() {
+        selectedBuilding = null;
     }
 }

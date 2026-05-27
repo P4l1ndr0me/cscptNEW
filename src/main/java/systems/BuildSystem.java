@@ -323,7 +323,12 @@ public class BuildSystem {
 
     }
 
+    // Getters
     public boolean placedBuildingThisFrame() {
         return placedBuildingThisFrame;
+    }
+
+    public boolean isPlacingBuilding() {
+        return selectedBuilding != null;
     }
 }
