@@ -24,7 +24,7 @@ public class BuildSystem {
     public static Texture[] buildingIconTextures = {
             TextureManager.getTexture("Gold Mine 1"),
             TextureManager.getTexture("Cannon Tower Combined"),
-            TextureManager.getTexture("Tower Base"), // will change to arrow tower combined
+            TextureManager.getTexture("Arrow Tower Combined"),
             TextureManager.getTexture("Gold Stash 1")
     };
 

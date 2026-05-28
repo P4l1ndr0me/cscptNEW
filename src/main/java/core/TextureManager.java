@@ -56,6 +56,9 @@ public class TextureManager {
 
         // Arrow
         TextureManager.loadTexture("Arrow Tower 1", "src/main/assets/images/buildings/arrowtower/arrow_tower_lvl1.png");
+        TextureManager.loadTexture("Arrow Tower 2", "src/main/assets/images/buildings/arrowtower/arrow_tower_lvl2.png");
+        TextureManager.loadTexture("Arrow Tower 3", "src/main/assets/images/buildings/arrowtower/arrow_tower_lvl3.png");
+        TextureManager.loadTexture("Arrow Tower Combined", "src/main/assets/images/buildings/arrowtower/arrow_combined.png");
 
         // Enemy-related
         TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");

@@ -39,7 +39,7 @@ public class ArrowTower extends Building {
 
         Rectangle dest = newRectangle(position.x() + 32, position.y() + 32, headTex.width(), headTex.height());
 
-        Vector2 origin = newVector2(31, 30);
+        Vector2 origin = newVector2(30, 29);
 
         DrawTexturePro(headTex, source, dest, origin, rotation, WHITE);
 
