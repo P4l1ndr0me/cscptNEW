@@ -38,15 +38,16 @@ public class GameState {
     public void update() {
         float dt = GetFrameTime(); // get delta time (time since last frame)
 
-        // Update
         player.update(dt);
-        for (Enemy spawnedEnemy : spawnedEnemies) {
-            spawnedEnemy.update(dt);
-        }
+
         Camera.update(player.getPosition());
+
         buildSystem.update();
+
         buildingSelectionSystem.update();
+
         EntityManager.updateEntities(dt);
+
         waveSystem.update(dt);
 
         HUD.updateHUD();

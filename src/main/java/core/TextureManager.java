@@ -61,8 +61,10 @@ public class TextureManager {
         TextureManager.loadTexture("Arrow Tower Combined", "src/main/assets/images/buildings/arrowtower/arrow_combined.png");
 
         // Enemy-related
-        TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");
-        TextureManager.loadTexture("enemy2", "src/main/assets/images/sprites/redZombie.png");
+        TextureManager.loadTexture("Zombie Tier 1", "src/main/assets/images/zombie/zombie_tier1.png");
+        TextureManager.loadTexture("Zombie Tier 2", "src/main/assets/images/zombie/zombie_tier2.png");
+        TextureManager.loadTexture("Zombie Tier 3", "src/main/assets/images/zombie/zombie_tier3.png");
+        TextureManager.loadTexture("Zombie Tier 4", "src/main/assets/images/zombie/zombie_tier4.png");
 
         //weapons
         TextureManager.loadTexture("stonepickaxe","src/main/assets/images/items/stonePick.png");

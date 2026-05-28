@@ -35,13 +35,16 @@ public class EntityManager {
 
         // Draw enemies
         for (Enemy enemy : spawnedEnemies){
-            enemy.drawWalk();
+            enemy.draw();
         }
     }
 
     public static void updateEntities(float dt) {
         for (Building building : EntityManager.placedBuildings) {
             building.update(dt);
+        }
+        for (Enemy spawnedEnemy : spawnedEnemies) {
+            spawnedEnemy.update(dt);
         }
     }
 

@@ -2,9 +2,6 @@ package systems;
 
 import core.EntityManager;
 import core.TextureManager;
-import entities.Enemy;
-import com.raylib.Raylib;
-import world.World;
 
 import java.util.ArrayList;
 
@@ -124,7 +121,7 @@ public class WaveSystem {
             EntityManager.spawnZombie(
                     pos[0], pos[1],
                     2.0f, 50.0f,
-                    TextureManager.getTexture("enemy1"),
+                    TextureManager.getTexture("Zombie Tier 1"),
                     3, 3
             );
         }
@@ -135,7 +132,7 @@ public class WaveSystem {
                 EntityManager.spawnZombie(
                         pos[0], pos[1],
                         2.0f, 75.0f,
-                        TextureManager.getTexture("enemy2"),
+                        TextureManager.getTexture("Zombie Tier 2"),
                         3, 3
                 );
             }
