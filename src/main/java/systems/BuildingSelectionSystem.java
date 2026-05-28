@@ -19,7 +19,7 @@ public class BuildingSelectionSystem {
 
     // Center screen UI panel
     private static final float PANEL_WIDTH = 360;
-    private static final float PANEL_HEIGHT = 220;
+    private static final float PANEL_HEIGHT = 250;
 
     private static final float PANEL_X = Main.SCREEN_WIDTH / 2f - PANEL_WIDTH / 2f;
     private static final float PANEL_Y = Main.SCREEN_HEIGHT / 2f - PANEL_HEIGHT / 2f;
@@ -28,14 +28,14 @@ public class BuildingSelectionSystem {
 
     private final Rectangle upgradeButton = newRectangle(
             PANEL_X + 40,
-            PANEL_Y + 155,
+            PANEL_Y + 190,
             120,
             40
     );
 
     private final Rectangle sellButton = newRectangle(
             PANEL_X + 200,
-            PANEL_Y + 155,
+            PANEL_Y + 190,
             120,
             40
     );
@@ -43,6 +43,7 @@ public class BuildingSelectionSystem {
     public BuildingSelectionSystem(BuildSystem buildSystem) {
         this.buildSystem = buildSystem;
     }
+
     public void update() {
         // If player has just placed building, do not instantly select it
         if (buildSystem.placedBuildingThisFrame()) {
@@ -71,6 +72,10 @@ public class BuildingSelectionSystem {
 
         // Prevent building panel from disappearing when clicking it
         if (selectedBuilding != null && CheckCollisionPointRec(mouseScreen, panelRect)) {
+            if (CheckCollisionPointRec(mouseScreen, upgradeButton)) {
+                upgradeSelectedBuilding();
+            }
+
             if (CheckCollisionPointRec(mouseScreen, sellButton)) {
                 sellSelectedBuilding();
             }
@@ -93,17 +98,6 @@ public class BuildingSelectionSystem {
         }
     }
 
-    public void drawWorld() {
-        if (selectedBuilding == null) {
-            return;
-        }
-
-        // Draw an outline around the selected building
-        DrawRectangleLinesEx(selectedBuilding.getRect(), 3.0f, YELLOW);
-
-        drawUI();
-    }
-
     public void drawUI() {
         if (selectedBuilding == null) {
             return;
@@ -117,7 +111,7 @@ public class BuildingSelectionSystem {
         DrawTextEx(
                 pixelFont,
                 selectedBuilding.type.name,
-                newVector2(PANEL_X + 30, PANEL_Y + 25),
+                newVector2(PANEL_X + 30, PANEL_Y + 20),
                 32,
                 1.0f,
                 WHITE
@@ -126,25 +120,73 @@ public class BuildingSelectionSystem {
         // Health
         DrawTextEx(
                 pixelFont,
-                "Health: " + selectedBuilding.health + " / " + selectedBuilding.type.maxHealth,
-                newVector2(PANEL_X + 30, PANEL_Y + 75),
+                "Health: " + selectedBuilding.health + " / " + selectedBuilding.maxHealth,
+                newVector2(PANEL_X + 30, PANEL_Y + 60),
                 24,
                 1.0f,
                 WHITE
         );
 
-        // Temporary level text
+        // Level
         DrawTextEx(
                 pixelFont,
-                "Level: 1",
-                newVector2(PANEL_X + 30, PANEL_Y + 110),
+                "Level: " + selectedBuilding.level + " / " + selectedBuilding.maxLevel,
+                newVector2(PANEL_X + 30, PANEL_Y + 90),
                 24,
                 1.0f,
                 WHITE
         );
 
-        drawButton(upgradeButton, "Upgrade", GREEN);
+        // Damage
+        DrawTextEx(
+                pixelFont,
+                "Damage: " + selectedBuilding.damage,
+                newVector2(PANEL_X + 30, PANEL_Y + 120),
+                24,
+                1.0f,
+                WHITE
+        );
 
+        String upgradeCostText;
+        if (selectedBuilding.canUpgrade()) {
+            upgradeCostText = "Upgrade: "
+                    + selectedBuilding.getUpgradeStoneCost()
+                    + " stone, "
+                    + selectedBuilding.getUpgradeGoldCost()
+                    + " gold";
+        } else if (selectedBuilding.level < selectedBuilding.maxLevel) {
+            upgradeCostText = "Upgrade Gold Stash first";
+        } else {
+            upgradeCostText = "";
+        }
+
+
+        DrawTextEx(
+                pixelFont,
+                upgradeCostText,
+                newVector2(PANEL_X + 30, PANEL_Y + 150),
+                18,
+                1.0f,
+                WHITE
+        );
+
+        // Draw upgrade button
+        Color upgradeColor = selectedBuilding.canUpgrade()
+                ? GREEN
+                : GRAY;
+
+        String upgradeText;
+        if (selectedBuilding.canUpgrade()) {
+            upgradeText = "Upgrade";
+        } else if (selectedBuilding.level < selectedBuilding.maxLevel) {
+            upgradeText = "Locked";
+        } else {
+            upgradeText = "MAX LEVEL";
+        }
+
+        drawButton(upgradeButton, upgradeText, upgradeColor);
+
+        // Draw sell button
         Color sellColor = selectedBuilding.type.name.equals("Gold Stash")
                 ? GRAY
                 : RED;
@@ -164,6 +206,28 @@ public class BuildingSelectionSystem {
                 1.0f,
                 BLACK
         );
+    }
+
+    private void upgradeSelectedBuilding() {
+        if (selectedBuilding == null) {
+            return;
+        }
+
+        if (!selectedBuilding.canUpgrade()) {
+            return;
+        }
+
+        int stoneCost = selectedBuilding.getUpgradeStoneCost();
+        int goldCost = selectedBuilding.getUpgradeGoldCost();
+
+        if (Player.numStone < stoneCost || Player.numGold < goldCost) {
+            return;
+        }
+
+        Player.numStone -= stoneCost;
+        Player.numGold -= goldCost;
+
+        selectedBuilding.upgrade();
     }
 
     private void sellSelectedBuilding() {

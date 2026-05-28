@@ -1,23 +1,24 @@
 package buildings;
 
-import core.TextureManager;
 import core.EntityManager;
+import core.TextureManager;
 import entities.Enemy;
 
 import static com.raylib.Colors.RED;
-import static com.raylib.Raylib.*;
 import static com.raylib.Colors.WHITE;
-import static com.raylib.Helpers.*;
+import static com.raylib.Helpers.newRectangle;
+import static com.raylib.Helpers.newVector2;
+import static com.raylib.Raylib.*;
 
-public class CannonTower extends Building {
-    private float rotation = 0;
-
-    // How far the cannon can detect enemies
-    private final float range = 250f;
-
-    public CannonTower(Vector2 position, BuildingType type) {
+public class ArrowTower extends Building {
+    public ArrowTower(Vector2 position, BuildingType type) {
         super(position, type);
     }
+
+    private float rotation = 0;
+
+    // How far the arrow can detect enemies
+    private final float range = 350f;
 
     public void update(float dt) {
         Enemy target = getNearestEnemyInRange();
@@ -38,7 +39,7 @@ public class CannonTower extends Building {
 
         Rectangle dest = newRectangle(position.x() + 32, position.y() + 32, headTex.width(), headTex.height());
 
-        Vector2 origin = newVector2(23, 23);
+        Vector2 origin = newVector2(30, 29);
 
         DrawTexturePro(headTex, source, dest, origin, rotation, WHITE);
 
@@ -50,14 +51,14 @@ public class CannonTower extends Building {
         float closestDistance = range;
 
         // Center of the cannon tower
-        float cannonCenterX = position.x() + size / 2f;
-        float cannonCenterY = position.y() + size / 2f;
+        float arrowCenterX = position.x() + size / 2f;
+        float arrowCenterY = position.y() + size / 2f;
 
         for (Enemy enemy : EntityManager.spawnedEnemies) {
             Vector2 enemyPos = enemy.getPosition();
 
-            float dx = enemyPos.x() - cannonCenterX;
-            float dy = enemyPos.y() - cannonCenterY;
+            float dx = enemyPos.x() - arrowCenterX;
+            float dy = enemyPos.y() - arrowCenterY;
 
             float distance = (float) Math.sqrt(dx * dx + dy * dy);
 
@@ -72,16 +73,16 @@ public class CannonTower extends Building {
 
     private void aimAtEnemy(Enemy enemy) {
         // Center of cannon
-        float cannonCenterX = position.x() + size / 2f;
-        float cannonCenterY = position.y() + size / 2f;
+        float arrowCenterX = position.x() + size / 2f;
+        float arrowCenterY = position.y() + size / 2f;
 
         // Enemy position
         float enemyX = enemy.getPosition().x();
         float enemyY = enemy.getPosition().y();
 
         // Difference between enemy and cannon
-        float dx = enemyX - cannonCenterX;
-        float dy = enemyY - cannonCenterY;
+        float dx = enemyX - arrowCenterX;
+        float dy = enemyY - arrowCenterY;
 
         // atan2 gives angle in radians, then we convert to degrees
         rotation = (float) Math.toDegrees(Math.atan2(dy, dx)) + 0;
@@ -89,16 +90,16 @@ public class CannonTower extends Building {
 
     public int getUpgradeStoneCost() {
         return switch (level) {
-            case 1 -> 150;
-            case 2 -> 300;
+            case 1 -> 120;
+            case 2 -> 240;
             default -> 0;
         };
     }
 
     public int getUpgradeGoldCost() {
         return switch (level) {
-            case 1 -> 100;
-            case 2 -> 250;
+            case 1 -> 80;
+            case 2 -> 200;
             default -> 0;
         };
     }

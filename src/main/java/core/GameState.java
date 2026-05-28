@@ -5,8 +5,6 @@ import ui.*;
 import world.*;
 import entities.*;
 
-import java.util.ArrayList;
-
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 import static core.EntityManager.spawnedEnemies;
@@ -71,8 +69,6 @@ public class GameState {
 
         // Draw building preview
         buildSystem.draw();
-
-        buildingSelectionSystem.drawWorld();
 
         // Hitboxes (debugging)
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
