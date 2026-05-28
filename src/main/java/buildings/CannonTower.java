@@ -10,8 +10,6 @@ import static com.raylib.Colors.WHITE;
 import static com.raylib.Helpers.*;
 
 public class CannonTower extends Building {
-    private final Texture cannonHeadTexture = TextureManager.getTexture("Cannon Head");
-
     private float rotation = 0;
 
     // How far the cannon can detect enemies
@@ -30,17 +28,19 @@ public class CannonTower extends Building {
     }
 
     public void draw() {
+        Texture headTex = TextureManager.getTexture(type.name + " " + level);
+
         // Draw base of cannon first
-        DrawTextureEx(type.texture, position, 0, 1.0f, WHITE);
+        DrawTextureEx(type.baseTexture, position, 0, 1.0f, WHITE);
 
         // Draw head of cannon next
-        Rectangle source = newRectangle(0, 0, cannonHeadTexture.width(), cannonHeadTexture.height());
+        Rectangle source = newRectangle(0, 0, headTex.width(), headTex.height());
 
-        Rectangle dest = newRectangle(position.x() + 32, position.y() + 32, cannonHeadTexture.width(), cannonHeadTexture.height());
+        Rectangle dest = newRectangle(position.x() + 32, position.y() + 32, headTex.width(), headTex.height());
 
         Vector2 origin = newVector2(23, 23);
 
-        DrawTexturePro(cannonHeadTexture, source, dest, origin, rotation, WHITE);
+        DrawTexturePro(headTex, source, dest, origin, rotation, WHITE);
 
         DrawCircleLines((int)(position.x() + size / 2f), (int)(position.y() + size / 2f), range, RED);
     }

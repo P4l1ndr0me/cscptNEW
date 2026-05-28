@@ -98,15 +98,6 @@ public class BuildingSelectionSystem {
         }
     }
 
-    public void drawWorld() {
-        if (selectedBuilding == null) {
-            return;
-        }
-
-        // Draw an outline around the selected building
-        DrawRectangleLinesEx(selectedBuilding.getRect(), 2.0f, YELLOW);
-    }
-
     public void drawUI() {
         if (selectedBuilding == null) {
             return;

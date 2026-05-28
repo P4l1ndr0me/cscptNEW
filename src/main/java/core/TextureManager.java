@@ -35,12 +35,27 @@ public class TextureManager {
         TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/player_sprites.png");
 
         // Building-related
-        TextureManager.loadTexture("Gold Stash", "src/main/assets/images/buildings/goldstash.png");
-        TextureManager.loadTexture("Gold Mine", "src/main/assets/images/buildings/goldmine.png");
+
+        // Goldstash
+        TextureManager.loadTexture("Gold Stash 1", "src/main/assets/images/buildings/goldstash/goldstash_lvl1.png");
+        TextureManager.loadTexture("Gold Stash 2", "src/main/assets/images/buildings/goldstash/goldstash_lvl2.png");
+        TextureManager.loadTexture("Gold Stash 3", "src/main/assets/images/buildings/goldstash/goldstash_lvl3.png");
+
+        // Goldmine
+        TextureManager.loadTexture("Gold Mine 1", "src/main/assets/images/buildings/goldmine/goldmine_lvl1.png");
+        TextureManager.loadTexture("Gold Mine 2", "src/main/assets/images/buildings/goldmine/goldmine_lvl2.png");
+        TextureManager.loadTexture("Gold Mine 3", "src/main/assets/images/buildings/goldmine/goldmine_lvl3.png");
+
         TextureManager.loadTexture("Tower Base", "src/main/assets/images/buildings/towerbase.png");
-        TextureManager.loadTexture("Cannon Head", "src/main/assets/images/buildings/test.png");
-        TextureManager.loadTexture("Cannon Tower Combined", "src/main/assets/images/buildings/cannoncombined.png");
-        TextureManager.loadTexture("Arrow Head", "src/main/assets/images/buildings/building3.png");
+
+        // Cannon
+        TextureManager.loadTexture("Cannon Tower 1", "src/main/assets/images/buildings/cannontower/cannon_tower_lvl1.png");
+        TextureManager.loadTexture("Cannon Tower 2", "src/main/assets/images/buildings/cannontower/cannon_tower_lvl2.png");
+        TextureManager.loadTexture("Cannon Tower 3", "src/main/assets/images/buildings/cannontower/cannon_tower_lvl3.png");
+        TextureManager.loadTexture("Cannon Tower Combined", "src/main/assets/images/buildings/cannontower/cannon_combined.png");
+
+        // Arrow
+        TextureManager.loadTexture("Arrow Tower 1", "src/main/assets/images/buildings/arrowtower/arrow_tower_lvl1.png");
 
         // Enemy-related
         TextureManager.loadTexture("enemy1", "src/main/assets/images/sprites/ZOMBIE1.png");

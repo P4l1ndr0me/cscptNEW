@@ -14,25 +14,25 @@ import static com.raylib.Raylib.*;
 import static buildings.Building.size;
 
 public class BuildSystem {
-    public static Texture[] buildingTextures = {
-            TextureManager.getTexture("Gold Mine"),
+    public static Texture[] baseBuildingTextures = {
+            TextureManager.getTexture("Gold Mine 1"),
             TextureManager.getTexture("Tower Base"),
             TextureManager.getTexture("Tower Base"),
-            TextureManager.getTexture("Gold Stash")
+            TextureManager.getTexture("Gold Stash 1")
     };
 
     public static Texture[] buildingIconTextures = {
-            TextureManager.getTexture("Gold Mine"),
+            TextureManager.getTexture("Gold Mine 1"),
             TextureManager.getTexture("Cannon Tower Combined"),
             TextureManager.getTexture("Tower Base"), // will change to arrow tower combined
-            TextureManager.getTexture("Gold Stash")
+            TextureManager.getTexture("Gold Stash 1")
     };
 
     public static BuildingType[] buildingTypes = {
-            new BuildingType("Gold Mine", buildingTextures[0], 50, 0, 8, 200, 0),
-            new BuildingType("Cannon Tower", buildingTextures[1], 75, 40, 10, 150, 25),
-            new BuildingType("Arrow Tower", buildingTextures[2], 60, 30, 10, 100, 15),
-            new BuildingType("Gold Stash", buildingTextures[3], 0,0, 1, 500, 0)
+            new BuildingType("Gold Mine", baseBuildingTextures[0], 50, 0, 8, 200, 0),
+            new BuildingType("Cannon Tower", baseBuildingTextures[1], 75, 40, 10, 150, 25),
+            new BuildingType("Arrow Tower", baseBuildingTextures[2], 60, 30, 10, 100, 15),
+            new BuildingType("Gold Stash", baseBuildingTextures[3], 0,0, 1, 500, 0)
     };
 
     private static final int GOLD_STASH_INDEX = 3;
