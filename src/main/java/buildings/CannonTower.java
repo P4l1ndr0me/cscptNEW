@@ -86,4 +86,20 @@ public class CannonTower extends Building {
         // atan2 gives angle in radians, then we convert to degrees
         rotation = (float) Math.toDegrees(Math.atan2(dy, dx)) + 0;
     }
+
+    public int getUpgradeStoneCost() {
+        return switch (level) {
+            case 1 -> 150;
+            case 2 -> 300;
+            default -> 0;
+        };
+    }
+
+    public int getUpgradeGoldCost() {
+        return switch (level) {
+            case 1 -> 100;
+            case 2 -> 250;
+            default -> 0;
+        };
+    }
 }

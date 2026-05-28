@@ -13,14 +13,17 @@ public class BuildingType {
 
     // Placement and health data for this type of building
     public int maxPlacements;
-    public int maxHealth;
+    public int baseMaxHealth;
 
-    public BuildingType(String name, Texture texture, int stoneCost, int goldCost, int maxPlacements, int maxHealth) {
+    public int baseDamage;
+
+    public BuildingType(String name, Texture texture, int stoneCost, int goldCost, int maxPlacements, int baseMaxHealth, int baseDamage) {
         this.name = name;
         this.texture = texture;
         this.stoneCost = stoneCost;
         this.goldCost = goldCost;
         this.maxPlacements = maxPlacements;
-        this.maxHealth = maxHealth;
+        this.baseMaxHealth = baseMaxHealth;
+        this.baseDamage = baseDamage;
     }
 }

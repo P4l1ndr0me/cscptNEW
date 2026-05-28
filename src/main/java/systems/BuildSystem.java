@@ -29,10 +29,10 @@ public class BuildSystem {
     };
 
     public static BuildingType[] buildingTypes = {
-            new BuildingType("Gold Mine", buildingTextures[0], 50, 0, 45, 200),
-            new BuildingType("Cannon Tower", buildingTextures[1], 75, 40, 10, 150),
-            new BuildingType("Arrow Tower", buildingTextures[2], 60, 30, 10, 100),
-            new BuildingType("Gold Stash", buildingTextures[3], 0,0, 1, 500)
+            new BuildingType("Gold Mine", buildingTextures[0], 50, 0, 8, 200, 0),
+            new BuildingType("Cannon Tower", buildingTextures[1], 75, 40, 10, 150, 25),
+            new BuildingType("Arrow Tower", buildingTextures[2], 60, 30, 10, 100, 15),
+            new BuildingType("Gold Stash", buildingTextures[3], 0,0, 1, 500, 0)
     };
 
     private static final int GOLD_STASH_INDEX = 3;
@@ -49,7 +49,7 @@ public class BuildSystem {
     // Grid occupancy system
     private final int COLS = World.WORLD_WIDTH / World.TILE_SIZE;
     private final int ROWS = World.WORLD_HEIGHT / World.TILE_SIZE;
-    private boolean[][] occupiedTiles = new boolean[COLS][ROWS];
+    private final boolean[][] occupiedTiles = new boolean[COLS][ROWS];
     private int tileX, tileY;
     private final int BUILDING_GRID_TILE_SIZE = size / World.TILE_SIZE; // each building is 64x64, and each tile is 32x32, so it's a factor of 2
 
@@ -63,7 +63,7 @@ public class BuildSystem {
         return false;
     }
 
-    private Building getGoldStash() {
+    public static Building getGoldStash() {
         for (Building building : EntityManager.placedBuildings) {
             if (building.type.name.equals("Gold Stash")) {
                 return building;
@@ -257,6 +257,7 @@ public class BuildSystem {
             case "Gold Mine" -> new GoldMine(position, type);
             case "Gold Stash" -> new GoldStash(position, type);
             case "Cannon Tower" -> new CannonTower(position, type);
+            case "Arrow Tower" -> new ArrowTower(position, type);
             default -> new Building(position, type);
         };
     }
