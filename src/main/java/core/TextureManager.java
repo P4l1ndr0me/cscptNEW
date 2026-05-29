@@ -53,12 +53,14 @@ public class TextureManager {
         TextureManager.loadTexture("Cannon Tower 2", "src/main/assets/images/buildings/cannontower/cannon_tower_lvl2.png");
         TextureManager.loadTexture("Cannon Tower 3", "src/main/assets/images/buildings/cannontower/cannon_tower_lvl3.png");
         TextureManager.loadTexture("Cannon Tower Combined", "src/main/assets/images/buildings/cannontower/cannon_combined.png");
+        TextureManager.loadTexture("Cannon Bullet", "src/main/assets/images/buildings/cannontower/cannon_bullet.png");
 
         // Arrow
         TextureManager.loadTexture("Arrow Tower 1", "src/main/assets/images/buildings/arrowtower/arrow_tower_lvl1.png");
         TextureManager.loadTexture("Arrow Tower 2", "src/main/assets/images/buildings/arrowtower/arrow_tower_lvl2.png");
         TextureManager.loadTexture("Arrow Tower 3", "src/main/assets/images/buildings/arrowtower/arrow_tower_lvl3.png");
         TextureManager.loadTexture("Arrow Tower Combined", "src/main/assets/images/buildings/arrowtower/arrow_combined.png");
+        TextureManager.loadTexture("Arrow Bullet", "src/main/assets/images/buildings/arrowtower/arrow_bullet.png");
 
         // Enemy-related
         TextureManager.loadTexture("Zombie Tier 1", "src/main/assets/images/zombie/zombie_tier1.png");

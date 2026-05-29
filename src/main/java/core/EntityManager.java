@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import buildings.Building;
 import entities.Enemy;
+import entities.TowerBullet;
 import world.ResourceNode;
 
 import static com.raylib.Colors.WHITE;
@@ -14,6 +15,7 @@ public class EntityManager {
     // Stores all active enemies, placed buildings, and stone resource positions
     public static ArrayList<Enemy> spawnedEnemies = new ArrayList<>();
     public static ArrayList<Building> placedBuildings = new ArrayList<>(); // store info of every placed building
+    public static ArrayList<TowerBullet> towerBullets = new ArrayList<>();
     public static ArrayList<Vector2> stoneCenters = new ArrayList<>(); // store center pos of every stone
 
     public static void drawEntities() {
@@ -37,6 +39,11 @@ public class EntityManager {
         for (Enemy enemy : spawnedEnemies){
             enemy.draw();
         }
+
+        // Draw bullets
+        for (TowerBullet bullet : towerBullets) {
+            bullet.draw();
+        }
     }
 
     public static void updateEntities(float dt) {
@@ -45,6 +52,16 @@ public class EntityManager {
         }
         for (Enemy spawnedEnemy : spawnedEnemies) {
             spawnedEnemy.update(dt);
+        }
+
+        for (int i = towerBullets.size() - 1; i >= 0; i--) {
+            TowerBullet bullet = towerBullets.get(i);
+
+            bullet.update(dt);
+
+            if (!bullet.isActive()) {
+                towerBullets.remove(i);
+            }
         }
     }
 

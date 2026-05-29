@@ -3,6 +3,7 @@ package buildings;
 import core.EntityManager;
 import core.TextureManager;
 import entities.Enemy;
+import entities.TowerBullet;
 
 import static com.raylib.Colors.RED;
 import static com.raylib.Colors.WHITE;
@@ -20,11 +21,24 @@ public class ArrowTower extends Building {
     // How far the arrow can detect enemies
     private final float range = 350f;
 
+    private float attackTimer = 0f;
+    private final float attackCooldown = 0.45f;
+    private final float knockbackStrength = 3f;
+
     public void update(float dt) {
         Enemy target = getNearestEnemyInRange();
 
         if (target != null) {
             aimAtEnemy(target);
+
+            attackTimer +=dt;
+
+            if (attackTimer >= attackCooldown) {
+                attackTimer = 0f;
+                shoot(target);
+            }
+        } else {
+            attackTimer = 0f;
         }
     }
 
@@ -94,6 +108,33 @@ public class ArrowTower extends Building {
             case 2 -> 240;
             default -> 0;
         };
+    }
+
+    private void shoot(Enemy target) {
+        float arrowCenterX = position.x() + size / 2f;
+        float arrowCenterY = position.y() + size / 2f;
+
+        float angleRad = (float) Math.toRadians(rotation);
+
+        float barrelOffset = 32f;
+
+        Vector2 bulletStart = newVector2(
+                arrowCenterX + (float) Math.cos(angleRad) * barrelOffset,
+                arrowCenterY + (float) Math.sin(angleRad) * barrelOffset
+        );
+
+        EntityManager.towerBullets.add(
+                new TowerBullet(
+                        bulletStart,
+                        target,
+                        damage,
+                        knockbackStrength,
+                        "Arrow Bullet",
+                        550f,
+                        1.0f,
+                        0f
+                )
+        );
     }
 
     public int getUpgradeGoldCost() {
