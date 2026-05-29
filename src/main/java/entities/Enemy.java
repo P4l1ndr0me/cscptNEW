@@ -13,8 +13,8 @@ public class Enemy extends Entity {
 
     // Hitbox
     private final float hitRadius = 12f;
-    private final float hitOffsetX = 6f;
-    private final float hitOffsetY = 13f;
+    private float hitOffsetX;
+    private float hitOffsetY;
 
     // Movement
     private final float separationRadius = 24f;
@@ -22,6 +22,13 @@ public class Enemy extends Entity {
 
     // Animation
     private final float animSpeed = 0.20f;
+
+    // Combat
+    private int damage = 10;
+    private final float attackRange = 2f;
+    private float attackCooldown = 1.0f;
+    private float attackTimer = 0f;
+    private Building targetBuilding = null;
 
     // Debug
     private final boolean showDebugHitbox = true;
@@ -34,6 +41,14 @@ public class Enemy extends Entity {
     }
 
     public void update(float dt) {
+        targetBuilding = getBuildingInAttackRange();
+
+        if (targetBuilding != null) {
+            attackBuilding(dt);
+            updateAnimation(dt, newVector2(0, 0));
+            //return;
+        }
+
         Building target = getTargetBuilding();
 
         if (target == null) {
@@ -54,6 +69,45 @@ public class Enemy extends Entity {
         move(moveDir, dt);
         boundaryClamp();
         updateAnimation(dt, moveDir);
+    }
+
+    private Building getBuildingInAttackRange() {
+        Vector2 center = getHitCenter();
+
+        for (Building building : EntityManager.placedBuildings) {
+            if (CheckCollisionCircleRec(
+                    center,
+                    hitRadius + attackRange,
+                    building.getRect()
+            )) {
+                return building;
+            }
+        }
+
+        return null;
+    }
+
+    private void attackBuilding(float dt) {
+        if (targetBuilding == null) {
+            return;
+        }
+
+        attackTimer += dt;
+
+        if (attackTimer >= attackCooldown) {
+            attackTimer = 0f;
+
+            targetBuilding.health -= damage;
+
+            if (targetBuilding.health <= 0) {
+                destroyBuilding(targetBuilding);
+                targetBuilding = null;
+            }
+        }
+    }
+
+    private void destroyBuilding(Building building) {
+        EntityManager.placedBuildings.remove(building);
     }
 
     private Building getTargetBuilding() {
@@ -186,11 +240,17 @@ public class Enemy extends Entity {
         if (Math.abs(moveDir.x()) > Math.abs(moveDir.y())) {
             if (moveDir.x() < 0) {
                 currentFrame = 0; // left
+                hitOffsetX = 7f;
+                hitOffsetY = 9f;
             } else {
                 currentFrame = 2; // right
+                hitOffsetX = -6f;
+                hitOffsetY = 9f;
             }
         } else {
             currentFrame = 1; // up/down
+            hitOffsetX = 1f;
+            hitOffsetY = 9f;
         }
 
         // Cycle rows for walking animation

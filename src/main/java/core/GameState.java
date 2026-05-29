@@ -7,7 +7,6 @@ import entities.*;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
-import static core.EntityManager.spawnedEnemies;
 import static core.Main.pixelFont;
 import systems.WaveSystem;
 
