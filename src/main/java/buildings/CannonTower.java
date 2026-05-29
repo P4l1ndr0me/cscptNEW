@@ -14,11 +14,11 @@ public class CannonTower extends Building {
     private float rotation = 0;
 
     // How far the cannon can detect enemies
-    private final float range = 250f;
+    private final float range = 270f;
 
     private float attackTimer = 0f;
     private final float attackCooldown = 1.2f;
-    private final float knockbackStrength = 10f;
+    private final float knockbackStrength = 6f;
 
     public CannonTower(Vector2 position, BuildingType type) {
         super(position, type);

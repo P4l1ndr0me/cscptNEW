@@ -16,7 +16,7 @@ import static world.World.WORLD_WIDTH;
 public class WaveSystem {
 
     // Time of day
-    private int timeMinutes = 20 * 60;
+    private int timeMinutes = 21 * 60;
     private final int DAY_MINUTES = 24 * 60;
 
     // Night settings
@@ -28,30 +28,29 @@ public class WaveSystem {
     private static final int MORNING_MESSAGE_MINUTES = 30; // 6:00 AM - 6:30 AM
 
     // Speed of time
-    private float minutesPerSecond = 12f;
+    private float minutesPerSecond = 5f;
     private float timeAccumulator = 0;
 
     // Wave progression
-    private int waveNumber = 0;
+    private int waveNumber = 1;
     private boolean waveActive = false;
     private boolean firstWaveStarted = false;
     private boolean waveStartedThisNight = false;
 
+    // Wave intensity
+    private float currentIntensity = 0f;
+
     // Spawn control
     private float spawnTimer = 0;
-    private float baseSpawnInterval = 3.0f;
+    private float baseSpawnInterval = 2.0f;
 
     // UI
     private String timeString = "8:00 PM";
     private float darknessAlpha = 0f;
 
     // Spawn radius around Gold Stash
-    private final int MIN_SPAWN_RADIUS = 420;
-    private final int MAX_SPAWN_RADIUS = 560;
-
-    // Ring spawning
-    private final float ANGLE_JITTER = 0.18f;
-    private final float RADIUS_JITTER = 45f;
+    private final int MIN_SPAWN_RADIUS = 700;
+    private final int MAX_SPAWN_RADIUS = 800;
 
     public WaveSystem() {
         updateTimeString();
@@ -60,6 +59,12 @@ public class WaveSystem {
     public void update(float dt) {
         updateTime(dt);
         updateDarknessAlpha();
+
+        if (IsKeyPressed(KEY_E)) {
+            skipToNextNight();
+        }
+
+        currentIntensity = getIntensityAtTime();
 
         boolean night = isNight();
         boolean hasGoldStash = BuildSystem.getGoldStash() != null;
@@ -81,11 +86,33 @@ public class WaveSystem {
         }
 
         // During an active night wave, spawn zombies every few seconds
-        if (waveActive && night) {
+        if (waveActive && night && currentIntensity > 0.01f) {
             updateSpawning(dt);
         } else {
             spawnTimer = 0;
         }
+    }
+
+    private void skipToNextNight() {
+        // Do not skip if there is no Gold Stash yet
+        if (BuildSystem.getGoldStash() == null) {
+            return;
+        }
+
+        // If a wave is currently active, end it first
+        if (waveActive) {
+            endWave();
+        }
+
+        // Set time to exactly 9:00 PM
+        timeMinutes = NIGHT_START_HOUR * 60;
+        timeAccumulator = 0;
+        spawnTimer = 0;
+
+        // Allow the wave to start immediately this frame
+        waveStartedThisNight = false;
+
+        updateTimeString();
     }
 
     private void updateTime(float dt) {
@@ -105,81 +132,123 @@ public class WaveSystem {
         firstWaveStarted = true;
         waveStartedThisNight = true;
         spawnTimer = 0;
-
-        waveNumber++;
     }
 
     private void endWave() {
         waveActive = false;
         spawnTimer = 0;
+
+        waveNumber++;
+    }
+
+    private float getIntensityAtTime() {
+        int hour = timeMinutes / 60;
+        int minute = timeMinutes % 60;
+        float timeInHours = hour + minute / 60f;
+
+        if (!isNight()) {
+            return 0f;
+        }
+
+        float intensity;
+
+        // 9 PM to midnight: ramp up
+        if (timeInHours >= 21 && timeInHours < 24) {
+            intensity = 0.25f + (timeInHours - 21f) / 3f * 0.75f;
+        }
+
+        // Midnight to 3 AM: maximum danger
+        else if (timeInHours >= 0 && timeInHours < 3) {
+            intensity = 1.0f;
+        }
+
+        // 3 AM to 6 AM: ramp down
+        else {
+            intensity = 1.0f - (timeInHours - 3f) / 3f;
+        }
+
+        return Math.max(0f, Math.min(1f, intensity));
     }
 
     private void updateSpawning(float dt) {
-        float dynamicInterval = baseSpawnInterval;
+        float dynamicInterval = baseSpawnInterval / currentIntensity;
 
-        // Later waves spawn rings slightly faster
+        // Later waves spawn slightly faster
         dynamicInterval -= waveNumber * 0.04f;
 
         // Prevent spawning from becoming too fast
-        dynamicInterval = Math.max(1.25f, dynamicInterval);
+        dynamicInterval = Math.max(0.75f, dynamicInterval);
 
         spawnTimer += dt;
 
         while (spawnTimer >= dynamicInterval) {
             spawnTimer -= dynamicInterval;
-            spawnZombieRing();
+            spawnWaveBatch();
         }
     }
 
-    private int getRingSpawnCount() {
-        // Increase ring size as waves go up
-        return Math.min(6 + waveNumber * 2, 26);
+    private void spawnWaveBatch() {
+        int zombieCount = getBatchZombieCount();
+
+        for (int i = 0; i < zombieCount; i++) {
+            spawnZombie();
+        }
     }
 
-    private void spawnZombieRing() {
+    private int getBatchZombieCount() {
+        int baseCount = 2 + waveNumber / 3;
+        int intensityBonus = (int)(currentIntensity * 3);
+
+        return Math.min(baseCount + intensityBonus, 14);
+    }
+
+    private void spawnZombie() {
+        ZombieTier tier = chooseZombieTier();
+
+        if (tier == null) {
+            return;
+        }
+
+        Vector2 spawnPos = getSpawnPositionAroundGoldStash();
+
+        if (spawnPos == null) {
+            return;
+        }
+
+        Enemy enemy = new Enemy(
+                spawnPos,
+                tier.scale,
+                tier.speed,
+                TextureManager.getTexture(tier.textureName),
+                3,
+                3,
+                tier.health,
+                tier.damage
+        );
+
+        EntityManager.addEnemy(enemy);
+    }
+
+    private Vector2 getSpawnPositionAroundGoldStash() {
         Building goldStash = BuildSystem.getGoldStash();
 
         if (goldStash == null) {
-            return;
+            return null;
         }
 
         float stashCenterX = goldStash.position.x() + Building.size / 2f;
         float stashCenterY = goldStash.position.y() + Building.size / 2f;
 
-        int count = getRingSpawnCount();
+        double angle = Math.random() * 2 * Math.PI;
+        double distance = MIN_SPAWN_RADIUS + Math.random() * (MAX_SPAWN_RADIUS - MIN_SPAWN_RADIUS);
 
-        float startAngle = (float)(Math.random() * Math.PI * 2.0);
-        float angleStep = (float)((Math.PI * 2.0) / count);
+        float x = (float)(stashCenterX + distance * Math.cos(angle));
+        float y = (float)(stashCenterY + distance * Math.sin(angle));
 
-        for (int i = 0; i < count; i++) {
-            ZombieTier tier = chooseZombieTier();
+        x = Math.max(0, Math.min(WORLD_WIDTH - 1, x));
+        y = Math.max(0, Math.min(WORLD_HEIGHT - 1, y));
 
-            float angle = startAngle
-                    + i * angleStep
-                    + (float)((Math.random() - 0.5) * 2.0 * ANGLE_JITTER);
-
-            float radius = (MIN_SPAWN_RADIUS + MAX_SPAWN_RADIUS) / 2f
-                    + (float)((Math.random() - 0.5) * 2.0 * RADIUS_JITTER);
-
-            float x = stashCenterX + (float)Math.cos(angle) * radius;
-            float y = stashCenterY + (float)Math.sin(angle) * radius;
-
-            x = Math.max(0, Math.min(WORLD_WIDTH - 1, x));
-            y = Math.max(0, Math.min(WORLD_HEIGHT - 1, y));
-
-            Enemy enemy = new Enemy(
-                    newVector2(x, y),
-                    tier.scale,
-                    tier.speed,
-                    TextureManager.getTexture(tier.textureName),
-                    3,
-                    3,
-                    tier.health,
-                    tier.damage
-            );
-
-            EntityManager.addEnemy(enemy);
-        }
+        return newVector2(x, y);
     }
 
     private ZombieTier chooseZombieTier() {
@@ -257,7 +326,30 @@ public class WaveSystem {
         }
 
         drawCenteredText("Wave: " + waveNumber, 38, 24, WHITE);
-        drawCenteredText("Zombies: " + EntityManager.spawnedEnemies.size(), 66, 24, WHITE);
+
+        drawIntensityBar();
+    }
+
+    private void drawIntensityBar() {
+        int barWidth = 220;
+        int barHeight = 12;
+        int barX = (GetScreenWidth() - barWidth) / 2;
+        int barY = 105;
+
+        DrawRectangle(barX, barY, barWidth, barHeight, DARKGRAY);
+        DrawRectangle(barX, barY, (int)(barWidth * currentIntensity), barHeight, RED);
+
+        String text = "Wave Intensity";
+        Vector2 textSize = MeasureTextEx(pixelFont, text, 20, 1.0f);
+
+        DrawTextEx(
+                pixelFont,
+                text,
+                newVector2((GetScreenWidth() - textSize.x()) / 2f, barY - 24),
+                20,
+                1.0f,
+                WHITE
+        );
     }
 
     private void drawCenteredText(String text, float y, float fontSize, Color color) {
@@ -303,36 +395,36 @@ public class WaveSystem {
         TIER_1(
                 "Zombie Tier 1",
                 2.0f,
-                50.0f,
-                100,
-                10,
+                30.0f,
+                30,
+                5,
                 1
         ),
 
         TIER_2(
                 "Zombie Tier 2",
                 2.0f,
-                65.0f,
-                140,
-                15,
+                60.0f,
+                175,
+                9,
                 3
         ),
 
         TIER_3(
                 "Zombie Tier 3",
                 2.0f,
-                45.0f,
-                250,
-                25,
+                50.0f,
+                300,
+                16,
                 6
         ),
 
         TIER_4(
                 "Zombie Tier 4",
                 2.0f,
-                35.0f,
-                400,
-                40,
+                36.0f,
+                500,
+                26,
                 9
         );
 
