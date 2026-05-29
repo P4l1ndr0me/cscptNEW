@@ -65,8 +65,7 @@ public class EntityManager {
         }
     }
 
-    public static void spawnZombie(float x, float y, float scale, float spd, Texture texture, int row, int col){
-        Enemy enemy = new Enemy(newVector2(x, y), scale, spd, texture, row, col);
+    public static void addEnemy(Enemy enemy) {
         spawnedEnemies.add(enemy);
     }
 

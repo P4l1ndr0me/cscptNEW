@@ -24,8 +24,8 @@ public class Enemy extends Entity {
     private final float animSpeed = 0.20f;
 
     // Combat
-    private int damage = 10;
-    private int health = 100;
+    private int damage;
+    private int health;
     private final float attackRange = 2f;
     private float attackCooldown = 1.0f;
     private float attackTimer = 0f;
@@ -34,8 +34,20 @@ public class Enemy extends Entity {
     // Debug
     private final boolean showDebugHitbox = true;
 
-    public Enemy(Vector2 position, float scale, float speed, Texture texture, int rows, int frames) {
+    public Enemy(
+            Vector2 position,
+            float scale,
+            float speed,
+            Texture texture,
+            int rows,
+            int frames,
+            int health,
+            int damage
+    ) {
         super(position, scale, speed, texture, rows, frames);
+
+        this.health = health;
+        this.damage = damage;
 
         currentFrame = 1;
         currentRow = 0;
