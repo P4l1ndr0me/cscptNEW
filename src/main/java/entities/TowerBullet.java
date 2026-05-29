@@ -8,16 +8,16 @@ import static com.raylib.Helpers.newRectangle;
 import static com.raylib.Helpers.newVector2;
 import static com.raylib.Raylib.*;
 
-public class CannonBullet {
+public class TowerBullet {
     private Vector2 position;
     private Vector2 velocity;
     private Enemy target;
 
-    private final Texture texture = TextureManager.getTexture("Cannon Bullet");
+    private final Texture texture;
 
-    private final float speed = 300f;
-    private final float scale = 1.0f;
-    private final float hitRadius = 0f;
+    private final float speed;
+    private final float scale;
+    private final float hitRadius;
 
     private final int damage;
     private final float knockbackStrength;
@@ -25,11 +25,26 @@ public class CannonBullet {
     private boolean active = true;
     private float rotation;
 
-    public CannonBullet(Vector2 startPosition, Enemy target, int damage, float knockbackStrength) {
+    public TowerBullet(
+            Vector2 startPosition,
+            Enemy target,
+            int damage,
+            float knockbackStrength,
+            String textureName,
+            float speed,
+            float scale,
+            float hitRadius
+    ) {
         this.position = newVector2(startPosition.x(), startPosition.y());
         this.target = target;
         this.damage = damage;
         this.knockbackStrength = knockbackStrength;
+
+        this.texture = TextureManager.getTexture(textureName);
+
+        this.speed = speed;
+        this.scale = scale;
+        this.hitRadius = hitRadius;
 
         updateVelocity();
     }

@@ -2,8 +2,8 @@ package buildings;
 
 import core.TextureManager;
 import core.EntityManager;
-import entities.CannonBullet;
 import entities.Enemy;
+import entities.TowerBullet;
 
 import static com.raylib.Colors.RED;
 import static com.raylib.Raylib.*;
@@ -17,8 +17,8 @@ public class CannonTower extends Building {
     private final float range = 250f;
 
     private float attackTimer = 0f;
-    private final float attackCooldown = 0.8f;
-    private final float knockbackStrength = 8f;
+    private final float attackCooldown = 1.2f;
+    private final float knockbackStrength = 10f;
 
     public CannonTower(Vector2 position, BuildingType type) {
         super(position, type);
@@ -114,12 +114,16 @@ public class CannonTower extends Building {
                 cannonCenterY + (float) Math.sin(angleRad) * barrelOffset
         );
 
-        EntityManager.cannonBullets.add(
-                new CannonBullet(
+        EntityManager.towerBullets.add(
+                new TowerBullet(
                         bulletStart,
                         target,
                         damage,
-                        knockbackStrength
+                        knockbackStrength,
+                        "Cannon Bullet",
+                        300f,
+                        1.0f,
+                        0f
                 )
         );
     }
