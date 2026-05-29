@@ -3,6 +3,8 @@ package core;
 import java.util.ArrayList;
 
 import buildings.Building;
+import buildings.CannonTower;
+import entities.CannonBullet;
 import entities.Enemy;
 import world.ResourceNode;
 
@@ -14,6 +16,7 @@ public class EntityManager {
     // Stores all active enemies, placed buildings, and stone resource positions
     public static ArrayList<Enemy> spawnedEnemies = new ArrayList<>();
     public static ArrayList<Building> placedBuildings = new ArrayList<>(); // store info of every placed building
+    public static ArrayList<CannonBullet> cannonBullets = new ArrayList<>();
     public static ArrayList<Vector2> stoneCenters = new ArrayList<>(); // store center pos of every stone
 
     public static void drawEntities() {
@@ -37,6 +40,11 @@ public class EntityManager {
         for (Enemy enemy : spawnedEnemies){
             enemy.draw();
         }
+
+        // Draw bullets
+        for (CannonBullet bullet : cannonBullets) {
+            bullet.draw();
+        }
     }
 
     public static void updateEntities(float dt) {
@@ -45,6 +53,16 @@ public class EntityManager {
         }
         for (Enemy spawnedEnemy : spawnedEnemies) {
             spawnedEnemy.update(dt);
+        }
+
+        for (int i = cannonBullets.size() - 1; i >= 0; i--) {
+            CannonBullet bullet = cannonBullets.get(i);
+
+            bullet.update(dt);
+
+            if (!bullet.isActive()) {
+                cannonBullets.remove(i);
+            }
         }
     }
 

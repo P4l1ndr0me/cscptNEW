@@ -25,6 +25,7 @@ public class Enemy extends Entity {
 
     // Combat
     private int damage = 10;
+    private int health = 100;
     private final float attackRange = 2f;
     private float attackCooldown = 1.0f;
     private float attackTimer = 0f;
@@ -297,6 +298,35 @@ public class Enemy extends Entity {
                     RED
             );
         }
+    }
+
+    public void takeDamage(int amount) {
+        health -= amount;
+    }
+
+    public boolean isDead() {
+        return health <= 0;
+    }
+
+    public void applyKnockback(Vector2 direction, float strength) {
+        if (Vector2Length(direction) == 0) {
+            return;
+        }
+
+        direction = Vector2Normalize(direction);
+
+        float nextX = position.x() + direction.x() * strength;
+        float nextY = position.y() + direction.y() * strength;
+
+        if (!collidesWithBuilding(nextX, position.y())) {
+            position.x(nextX);
+        }
+
+        if (!collidesWithBuilding(position.x(), nextY)) {
+            position.y(nextY);
+        }
+
+        boundaryClamp();
     }
 
     public Vector2 getHitCenter() {

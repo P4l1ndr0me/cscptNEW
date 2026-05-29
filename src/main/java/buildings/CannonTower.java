@@ -2,6 +2,7 @@ package buildings;
 
 import core.TextureManager;
 import core.EntityManager;
+import entities.CannonBullet;
 import entities.Enemy;
 
 import static com.raylib.Colors.RED;
@@ -15,6 +16,10 @@ public class CannonTower extends Building {
     // How far the cannon can detect enemies
     private final float range = 250f;
 
+    private float attackTimer = 0f;
+    private final float attackCooldown = 0.8f;
+    private final float knockbackStrength = 8f;
+
     public CannonTower(Vector2 position, BuildingType type) {
         super(position, type);
     }
@@ -24,6 +29,15 @@ public class CannonTower extends Building {
 
         if (target != null) {
             aimAtEnemy(target);
+
+            attackTimer += dt;
+
+            if (attackTimer >= attackCooldown) {
+                attackTimer = 0f;
+                shoot(target);
+            }
+        } else {
+            attackTimer = 0f;
         }
     }
 
@@ -42,7 +56,7 @@ public class CannonTower extends Building {
 
         DrawTexturePro(headTex, source, dest, origin, rotation, WHITE);
 
-        //DrawCircleLines((int)(position.x() + size / 2f), (int)(position.y() + size / 2f), range, RED);
+        DrawCircleLines((int)(position.x() + size / 2f), (int)(position.y() + size / 2f), range, RED);
     }
 
     private Enemy getNearestEnemyInRange() {
@@ -85,6 +99,29 @@ public class CannonTower extends Building {
 
         // atan2 gives angle in radians, then we convert to degrees
         rotation = (float) Math.toDegrees(Math.atan2(dy, dx)) + 0;
+    }
+
+    private void shoot(Enemy target) {
+        float cannonCenterX = position.x() + size / 2f;
+        float cannonCenterY = position.y() + size / 2f;
+
+        float angleRad = (float) Math.toRadians(rotation);
+
+        float barrelOffset = 35f;
+
+        Vector2 bulletStart = newVector2(
+                cannonCenterX + (float) Math.cos(angleRad) * barrelOffset,
+                cannonCenterY + (float) Math.sin(angleRad) * barrelOffset
+        );
+
+        EntityManager.cannonBullets.add(
+                new CannonBullet(
+                        bulletStart,
+                        target,
+                        damage,
+                        knockbackStrength
+                )
+        );
     }
 
     public int getUpgradeStoneCost() {
