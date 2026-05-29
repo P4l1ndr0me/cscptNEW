@@ -7,7 +7,6 @@ import entities.*;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
-import static core.EntityManager.spawnedEnemies;
 import static core.Main.pixelFont;
 import systems.WaveSystem;
 
@@ -38,15 +37,16 @@ public class GameState {
     public void update() {
         float dt = GetFrameTime(); // get delta time (time since last frame)
 
-        // Update
         player.update(dt);
-        for (Enemy spawnedEnemy : spawnedEnemies) {
-            spawnedEnemy.update(dt);
-        }
+
         Camera.update(player.getPosition());
+
         buildSystem.update();
+
         buildingSelectionSystem.update();
+
         EntityManager.updateEntities(dt);
+
         waveSystem.update(dt);
 
         HUD.updateHUD();

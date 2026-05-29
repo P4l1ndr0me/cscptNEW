@@ -294,16 +294,16 @@ public class BuildSystem {
 
     public void draw() {
         // For testing purposes, draw the placement radius
-        Building goldStash = getGoldStash();
-
-        if (goldStash != null) {
-            DrawCircleLines(
-                    (int) (goldStash.position.x() + size / 2f),
-                    (int) (goldStash.position.y() + size / 2f),
-                    PLACEMENT_RADIUS,
-                    RED
-            );
-        }
+//        Building goldStash = getGoldStash();
+//
+//        if (goldStash != null) {
+//            DrawCircleLines(
+//                    (int) (goldStash.position.x() + size / 2f),
+//                    (int) (goldStash.position.y() + size / 2f),
+//                    PLACEMENT_RADIUS,
+//                    RED
+//            );
+//        }
 
         if (selectedBuilding == null || selectedIndex == -1) {
             return;

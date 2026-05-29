@@ -42,7 +42,7 @@ public class CannonTower extends Building {
 
         DrawTexturePro(headTex, source, dest, origin, rotation, WHITE);
 
-        DrawCircleLines((int)(position.x() + size / 2f), (int)(position.y() + size / 2f), range, RED);
+        //DrawCircleLines((int)(position.x() + size / 2f), (int)(position.y() + size / 2f), range, RED);
     }
 
     private Enemy getNearestEnemyInRange() {
