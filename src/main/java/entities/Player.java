@@ -36,7 +36,7 @@ public class Player extends Entity {
     private final int miningRecOffset = 10;
 
     // Mining animation
-    private final Texture mining = TextureManager.getTexture("mining");
+    private final Texture mining = TextureManager.getTexture("mining1");
     private int pickaxeFrame = 0;
     private final int pickaxeRows = 4;
     private final int pickaxeFrames = 3;
