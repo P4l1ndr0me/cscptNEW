@@ -9,6 +9,9 @@ import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Player extends Entity {
     public static Rectangle playerRec;
     public static Rectangle miningRec;
@@ -29,14 +32,20 @@ public class Player extends Entity {
     private boolean hasPickaxeEquipped = false; // R to toggle
     private boolean isAutoMining = false;       // SPACE to toggle
     private float miningTimer = 0f;
-    private final float miningCooldown = 0.8f;
-    private final int miningAmount = 20;
     private final int miningRecWidth = 25;
     private final int miningRecHeight = 30;
     private final int miningRecOffset = 10;
 
+    private static int miningDamage = 15;      // stones per hit
+    private static float miningSpeed = 0.8f;   // seconds between hits
+
     // Mining animation
-    private final Texture mining = TextureManager.getTexture("mining1");
+    private static Texture mining = TextureManager.getTexture("mining1");
+
+    private static int pickaxeTier = 1; // 1 = stone, 2 = iron, 3 = diamond
+    private static int swordTier = 0;
+    private static int bowTier = 0;
+
     private int pickaxeFrame = 0;
     private final int pickaxeRows = 4;
     private final int pickaxeFrames = 3;
@@ -44,6 +53,54 @@ public class Player extends Entity {
     private final float pickaxeFrameSpeed = 0.20f;
     private boolean pickaxeDown = false;
     private final float pickaxeOffset = 3 * scale;
+
+    // ─── Floating text popups ──────────────────────────────
+    private static class MiningPopup {
+        Vector2 position;
+        String text;
+        float timer;
+        float alpha;
+
+        MiningPopup(Vector2 pos, String text) {
+            this.position = pos;
+            this.text = text;
+            this.timer = 1.0f;    // lifetime in seconds
+            this.alpha = 1.0f;
+        }
+
+        void update(float dt) {
+            timer -= dt;
+            alpha = Math.max(0, timer / 1.0f); // fade out
+            position.y(position.y() - 25 * dt); // float upward
+        }
+
+        boolean isAlive() {
+            return timer > 0;
+        }
+    }
+
+    private static List<MiningPopup> miningPopups = new ArrayList<>();
+
+    private static void addMiningPopup(Vector2 position, int amount) {
+        miningPopups.add(new MiningPopup(position, "+" + amount));
+    }
+
+    private void updatePopups(float dt) {
+        for (int i = miningPopups.size() - 1; i >= 0; i--) {
+            miningPopups.get(i).update(dt);
+            if (!miningPopups.get(i).isAlive()) {
+                miningPopups.remove(i);
+            }
+        }
+    }
+
+    private void drawPopups() {
+        for (MiningPopup popup : miningPopups) {
+            Color color = newColor(0, 255, 0, (int)(popup.alpha * 255));
+            DrawText(popup.text, (int)popup.position.x(), (int)popup.position.y(), 16, color);
+        }
+    }
+    // ───────────────────────────────────────────────────────
 
     public Player() {
         super(
@@ -94,6 +151,7 @@ public class Player extends Entity {
         updateMiningRect();
         updateMining(dt);
         updateAnimation(dt);
+        updatePopups(dt);  // ← update floating texts
     }
 
     // draw walking animations for player
@@ -103,6 +161,7 @@ public class Player extends Entity {
         } else {
             drawWalkingAnimation();
         }
+        drawPopups();      // ← draw floating texts on top
     }
 
     private Vector2 getMovementInput() {
@@ -355,10 +414,11 @@ public class Player extends Entity {
 
         if (isNearStone()) {
             miningTimer += dt;
-
-            if (miningTimer >= miningCooldown) {
+            if (miningTimer >= miningSpeed) {
                 miningTimer = 0f;
-                numStone += miningAmount;
+                numStone += miningDamage;
+                // Show floating text at mining rectangle position
+                addMiningPopup(newVector2(miningRec.x() + miningRec.width() / 2, miningRec.y()), miningDamage);
             }
         } else {
             miningTimer = 0f;
@@ -439,7 +499,7 @@ public class Player extends Entity {
         float halfH = ((float) mining.height() / pickaxeRows) * scale / 2;
 
         Rectangle dest = new Rectangle()
-                .x((int) (position.x() - halfW + (lookX == 1 ? pickaxeOffset : -pickaxeOffset))) // add/subtract pickaxe offset
+                .x((int) (position.x() - halfW + (lookX == 1 ? pickaxeOffset : -pickaxeOffset)))
                 .y((int) (position.y() - halfH))
                 .width(halfW * 2)
                 .height(halfH * 2);
@@ -447,5 +507,35 @@ public class Player extends Entity {
         Vector2 origin = newVector2(0, 0);
 
         DrawTexturePro(mining, source, dest, origin, 0.0f, WHITE);
+    }
+
+    public static int getPickaxeTier() { return pickaxeTier; }
+    public static int getSwordTier() { return swordTier; }
+    public static int getBowTier() { return bowTier; }
+
+    public static void upgradePickaxe(Weapon weapon) {
+        pickaxeTier = weapon.getTier();
+        miningDamage = weapon.getDamage();
+        // Faster mining = lower cooldown: baseCooldown / attackSpeed
+        float baseCooldown = 0.8f;
+        miningSpeed = baseCooldown / weapon.getAttackSpeed();
+        // Change mining animation texture
+        Texture newTex = TextureManager.getTexture("mining" + pickaxeTier);
+        if (newTex != null) {
+            mining = newTex;
+        }
+    }
+
+    public static void upgradeSword(Weapon weapon) {
+        if (swordTier < 3) swordTier++;
+    }
+
+    public static void upgradeBow(Weapon weapon) {
+        if (bowTier < 3) bowTier++;
+    }
+
+    // Optional: get current mining texture (used in drawPickaxeAnimation)
+    public static Texture getCurrentMiningTexture() {
+        return mining;
     }
 }

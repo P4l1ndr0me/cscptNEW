@@ -4,6 +4,7 @@ import core.Main;
 import core.TextureManager;
 import core.WeaponManager;
 import entities.Weapon;
+import systems.PurchaseSystem;
 
 import static com.raylib.Colors.*;
 import static com.raylib.Raylib.*;
@@ -28,24 +29,35 @@ public class HUD {
 
     // Store which weapons are currently being displayed
     private static Weapon[] displayedWeapons = new Weapon[3];
-    private static int[] weaponCosts = new int[3];
 
     // SHOP BUTTON
     private static final Rectangle shopButton = newRectangle(menuX + 70, menuY - 70, 140, 50);
 
+    // HELP BUTTON (top right)
+    private static final Rectangle helpButton = newRectangle(Main.SCREEN_WIDTH - 120, 20, 100, 40);
+    private static boolean helpScreenOpen = false;
+
     // SHOP PANEL
     private static final Rectangle shopPanel = newRectangle(shopPanX, shopPanY, shopPanW, shopPanH);
+
+    // HELP PANEL
+    private static final float helpPanW = Main.SCREEN_WIDTH * 2f / 3f;
+    private static final float helpPanH = Main.SCREEN_HEIGHT * 2f / 3f;
+    private static final float helpPanX = (Main.SCREEN_WIDTH - helpPanW) / 2f;
+    private static final float helpPanY = (Main.SCREEN_HEIGHT - helpPanH) / 2f;
+    private static final Rectangle helpPanel = newRectangle(helpPanX, helpPanY, helpPanW, helpPanH);
+    private static final Rectangle closeHelpButton = newRectangle(helpPanX + helpPanW - 80, helpPanY + 20, 60, 35);
 
     // TAB BUTTONS
     private static final Rectangle weaponsTabButton = newRectangle(shopPanX + 50, shopPanY + 60, 150, 40);
     private static final Rectangle buildingsTabButton = newRectangle(shopPanX + 250, shopPanY + 60, 150, 40);
 
-    // ITEM RECTANGLES - Hardcoded for 1280x720
+    // ITEM RECTANGLES
     private static final Rectangle pickRect = newRectangle(shopPanX + 50, shopPanY + 130, shopPanW - 100, 80);
     private static final Rectangle swordRect = newRectangle(shopPanX + 50, shopPanY + 240, shopPanW - 100, 80);
     private static final Rectangle bowRect = newRectangle(shopPanX + 50, shopPanY + 350, shopPanW - 100, 80);
 
-    // BUY BUTTONS - Hardcoded for 1280x720
+    // BUY BUTTONS
     private static final Rectangle buyButton1 = newRectangle(shopPanX + 690, shopPanY + 145, 100, 50);
     private static final Rectangle buyButton2 = newRectangle(shopPanX + 690, shopPanY + 255, 100, 50);
     private static final Rectangle buyButton3 = newRectangle(shopPanX + 690, shopPanY + 365, 100, 50);
@@ -53,217 +65,287 @@ public class HUD {
     private static boolean shopOpen = false;
     private static float itemScale = 4.0f;
     private static int currentShopTab = 2; // 0 = weapons, 1 = buildings
-    private static boolean[] buyButtonClicked = new boolean[3];
 
-
+    // Visual feedback fields
+    private static float[] buttonFlashTimers = new float[3]; // 0=pickaxe,1=sword,2=bow
+    private static String purchaseMessage = "";
+    private static float purchaseMessageTimer = 0f;
 
     public static void drawHUD() {
-        // Draw outline and fill of resourceRect
+        // Resource panel
         DrawRectangleRoundedLinesEx(resourceRect, 0.6f, 0, 2.0f, BLACK);
         DrawRectangleRounded(resourceRect, 0.6f, 0, MENU_FILL);
-        DrawTextEx(
-                pixelFont,
-                "Stone: " + numStone,
-                newVector2(menuX + 20, menuY + 16)
-                , 24,
-                1.0f,
-                WHITE);
-        DrawTextEx(
-                pixelFont,
-                "Gold: " + numGold,
-                newVector2(menuX + 20, menuY + 45)
-                , 24,
-                1.0f,
-                WHITE);
+        DrawTextEx(pixelFont, "Stone: " + numStone, newVector2(menuX + 20, menuY + 16), 24, 1.0f, WHITE);
+        DrawTextEx(pixelFont, "Gold: " + numGold, newVector2(menuX + 20, menuY + 45), 24, 1.0f, WHITE);
 
-        // SHOP BUTTON
+        // HELP BUTTON (top right)
+        DrawRectangleRounded(helpButton, 0.2f, 0, DARKGRAY);
+        DrawTextEx(pixelFont, "HELP", newVector2(helpButton.x() + 25, helpButton.y() + 12), 16, 1.0f, WHITE);
+
+        // Shop button
         DrawRectangleRec(shopButton, DARKGRAY);
-        DrawText("SHOP", menuX + 110, menuY - 55, 25, WHITE);
+        DrawTextEx(pixelFont, "SHOP", newVector2(menuX + 110, menuY - 55), 25, 1.0f, WHITE);
 
-        // SHOP PANEL
-        if (shopOpen) {
+        // Help Screen (draws over everything else when open)
+        if (helpScreenOpen) {
+            drawHelpScreen();
+        }
+
+        // Shop panel
+        if (shopOpen && !helpScreenOpen) {
             DrawRectangleRounded(shopPanel, 0.2f, 0, Fade(BLACK, 0.8f));
-            DrawText("SHOP MENU", (int) (shopPanX + shopPanW) / 2 + 50, (int)shopPanY + 30, 24, WHITE);
+            DrawTextEx(pixelFont, "SHOP MENU", newVector2((int) (shopPanX + shopPanW) / 2 + 50, (int) shopPanY + 30), 24, 1.0f, WHITE);
 
-            // TAB BUTTONS
+            // Tabs
             DrawRectangleRec(weaponsTabButton, currentShopTab == 0 ? DARKGRAY : GRAY);
-            DrawText("Weapons", (int) (shopPanX + 80), (int) (shopPanY + 70), 20, WHITE);
+            DrawTextEx(pixelFont, "Weapons", newVector2(shopPanX + 80, shopPanY + 70), 20, 1.0f, WHITE);
 
             DrawRectangleRec(buildingsTabButton, currentShopTab == 1 ? DARKGRAY : GRAY);
-            DrawText("Buildings", (int) (shopPanX + 280), (int) (shopPanY + 70), 20, WHITE);
+            DrawTextEx(pixelFont, "Buildings", newVector2(shopPanX + 280, shopPanY + 70), 20, 1.0f, WHITE);
 
-            if (currentShopTab == 0){
+            if (currentShopTab == 0) {
                 displayWeaponsTab();
+            }
+
+            // Draw purchase message if active
+            if (purchaseMessageTimer > 0) {
+                int msgWidth = (int) MeasureTextEx(pixelFont, purchaseMessage, 20, 1.0f).x();
+                DrawTextEx(pixelFont, purchaseMessage,
+                        newVector2(shopPanX + shopPanW / 2 - msgWidth / 2, shopPanY + shopPanH - 40),
+                        20, 1.0f, YELLOW);
             }
         }
     }
 
-    public static void updateHUD(){
+    private static void drawHelpScreen() {
+        // Darken background
+        DrawRectangle(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, Fade(BLACK, 0.85f));
+
+        // Help panel background
+        DrawRectangleRounded(helpPanel, 0.2f, 0, Fade(DARKGRAY, 0.95f));
+        DrawRectangleRoundedLinesEx(helpPanel, 0.2f, 0, 3.0f, GOLD);
+
+        // Title
+        DrawTextEx(pixelFont, "HOW TO PLAY",
+                newVector2(helpPanX + helpPanW / 2 - MeasureTextEx(pixelFont, "HOW TO PLAY", 32, 1.0f).x() / 2, helpPanY + 40),
+                32, 1.0f, GOLD);
+
+        // Close button
+        DrawRectangleRounded(closeHelpButton, 0.2f, 0, RED);
+        DrawTextEx(pixelFont, "X", newVector2(closeHelpButton.x() + 22, closeHelpButton.y() + 8), 20, 1.0f, WHITE);
+
+        // Controls sections
+        float startX = helpPanX + 50;
+        float startY = helpPanY + 110;
+        int lineHeight = 35;
+
+        // Movement
+        DrawTextEx(pixelFont, "MOVEMENT", newVector2(startX, startY), 24, 1.0f, SKYBLUE);
+        DrawTextEx(pixelFont, "W / A / S / D     -     Move around the world", newVector2(startX + 30, startY + lineHeight), 18, 1.0f, WHITE);
+
+        // Mining
+        DrawTextEx(pixelFont, "MINING", newVector2(startX, startY + lineHeight * 3), 24, 1.0f, SKYBLUE);
+        DrawTextEx(pixelFont, "R     -     Equip / Unequip pickaxe", newVector2(startX + 30, startY + lineHeight * 4), 18, 1.0f, WHITE);
+        DrawTextEx(pixelFont, "SPACE     -     Start / Stop auto-mining", newVector2(startX + 30, startY + lineHeight * 5), 18, 1.0f, WHITE);
+
+        // Shop
+        DrawTextEx(pixelFont, "SHOP", newVector2(startX, startY + lineHeight * 7), 24, 1.0f, SKYBLUE);
+        DrawTextEx(pixelFont, "B     -     Open / Close shop", newVector2(startX + 30, startY + lineHeight * 8), 18, 1.0f, WHITE);
+        DrawTextEx(pixelFont, "Click BUY     -     Purchase weapons and upgrades", newVector2(startX + 30, startY + lineHeight * 9), 18, 1.0f, WHITE);
+
+        // Resources
+        DrawTextEx(pixelFont, "RESOURCES", newVector2(helpPanX + helpPanW / 2 + 50, startY), 24, 1.0f, SKYBLUE);
+        DrawTextEx(pixelFont, "Stone     -    Mined from stone nodes", newVector2(helpPanX + helpPanW / 2 + 80, startY + lineHeight), 18, 1.0f, WHITE);
+        DrawTextEx(pixelFont, "Gold     -    Earned from placing Gold Mines", newVector2(helpPanX + helpPanW / 2 + 80, startY + lineHeight * 2), 18, 1.0f, WHITE);
+
+        // Upgrades
+        DrawTextEx(pixelFont, "UPGRADES", newVector2(helpPanX + helpPanW / 2 + 50, startY + lineHeight * 4), 24, 1.0f, SKYBLUE);
+        DrawTextEx(pixelFont, "Better pickaxes = faster mining", newVector2(helpPanX + helpPanW / 2 + 80, startY + lineHeight * 5), 18, 1.0f, WHITE);
+        DrawTextEx(pixelFont, "& more stone per hit!", newVector2(helpPanX + helpPanW / 2 + 80, startY + lineHeight * 6), 18, 1.0f, WHITE);
+
+        // Buildings (future)
+        DrawTextEx(pixelFont, "BUILDINGS", newVector2(helpPanX + helpPanW / 2 + 50, startY + lineHeight * 7), 24, 1.0f, SKYBLUE);
+    }
+
+    public static void updateHUD() {
         Vector2 mouse = GetMousePosition();
 
-        // Toggle shop
-        if (IsKeyPressed(KEY_B)) {
+        // Update timers for visual feedback
+        for (int i = 0; i < buttonFlashTimers.length; i++) {
+            if (buttonFlashTimers[i] > 0) {
+                buttonFlashTimers[i] -= GetFrameTime();
+            }
+        }
+        if (purchaseMessageTimer > 0) {
+            purchaseMessageTimer -= GetFrameTime();
+        }
+
+        // Toggle help screen with H key
+        if (IsKeyPressed(KEY_H)) {
+            if (helpScreenOpen) {
+                helpScreenOpen = false;
+            } else {
+                helpScreenOpen = true;
+                shopOpen = false; // Close shop if open when help opens
+            }
+        }
+
+        // Close help with ESC
+        if (helpScreenOpen && IsKeyPressed(KEY_ESCAPE)) {
+            helpScreenOpen = false;
+        }
+
+        // Toggle shop (only if help screen is not open)
+        if (!helpScreenOpen && IsKeyPressed(KEY_B)) {
             shopOpen = !shopOpen;
             if (shopOpen && currentShopTab == 2) {
-                currentShopTab = 0; // Default to weapons tab
+                currentShopTab = 0;
                 updateDisplayedWeapons();
             }
         }
 
-        // Shop interactions
+        // Help screen button interactions
+        if (helpScreenOpen) {
+            // Close button click
+            if (CheckCollisionPointRec(mouse, closeHelpButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                helpScreenOpen = false;
+            }
+            return; // Don't process other UI when help is open
+        }
+
+        // Tab switching (only if shop open)
         if (shopOpen) {
             if (CheckCollisionPointRec(mouse, weaponsTabButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 currentShopTab = 0;
                 updateDisplayedWeapons();
             }
-
             if (CheckCollisionPointRec(mouse, buildingsTabButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 currentShopTab = 1;
-                // Initialize buildings tab when implemented
+                // Buildings tab placeholder
             }
+        }
+
+        // Help button click (top right)
+        if (CheckCollisionPointRec(mouse, helpButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            helpScreenOpen = true;
+            shopOpen = false;
         }
     }
 
     private static void updateDisplayedWeapons() {
-        // Get next tier weapons for each type
-        Weapon pickaxe = WeaponManager.getNextWeapon("pickaxe");
-        Weapon sword = WeaponManager.getNextWeapon("sword");
-        Weapon bow = WeaponManager.getNextWeapon("bow");
-
-        displayedWeapons[0] = pickaxe;
-        displayedWeapons[1] = sword;
-        displayedWeapons[2] = bow;
-
-        // Calculate costs
-        for (int i = 0; i < displayedWeapons.length; i++) {
-            if (displayedWeapons[i] != null) {
-                weaponCosts[i] = displayedWeapons[i].getCost();
-            } else {
-                weaponCosts[i] = -1; // Max tier reached
-            }
-        }
+        displayedWeapons[0] = WeaponManager.getNextWeapon("pickaxe");
+        displayedWeapons[1] = WeaponManager.getNextWeapon("sword");
+        displayedWeapons[2] = WeaponManager.getNextWeapon("bow");
     }
 
-    public static void displayWeaponsTab() {
+    private static void displayWeaponsTab() {
         Vector2 mouse = GetMousePosition();
 
-        // Pickaxe section
+        // Background sections
         DrawRectangleRounded(pickRect, 0.2f, 0, Fade(GRAY, 0.8f));
-
-        // Sword section
         DrawRectangleRounded(swordRect, 0.2f, 0, Fade(GRAY, 0.8f));
-
-        // Bow section
         DrawRectangleRounded(bowRect, 0.2f, 0, Fade(GRAY, 0.8f));
 
-        // Display Pickaxe
+        // ─── PICKAXE ──────────────────────────────────────────
         if (displayedWeapons[0] != null) {
-            Weapon pickaxe = displayedWeapons[0];
-            DrawTextureEx(TextureManager.getTexture(pickaxe.getTextureName()),
-                    newVector2(shopPanX + 75.0f, shopPanY + 145.0f), 0.0f, itemScale, WHITE);
-            DrawText(pickaxe.getName(), (int) (shopPanX + 140), (int) (shopPanY + 150), 18, WHITE);
-            DrawText("Tier: " + pickaxe.getTier(), (int) (shopPanX + 140), (int) (shopPanY + 170), 16, WHITE);
-            DrawText("Damage: " + pickaxe.getDamage(), (int) (shopPanX + 280), (int) (shopPanY + 150), 18, WHITE);
-            if (pickaxe.getEfficiency() > 0) {
-                DrawText("Efficiency: +" + pickaxe.getEfficiency(), (int) (shopPanX + 280), (int) (shopPanY + 175), 18, WHITE);
+            Weapon w = displayedWeapons[0];
+            DrawTextureEx(TextureManager.getTexture(w.getTextureName()),
+                    newVector2(shopPanX + 75, shopPanY + 145), 0, itemScale, WHITE);
+            DrawTextEx(pixelFont, w.getName(), newVector2(shopPanX + 140, shopPanY + 150), 18, 1.0f, WHITE);
+            DrawTextEx(pixelFont, "Tier: " + w.getTier(), newVector2(shopPanX + 140, shopPanY + 170), 16, 1.0f, WHITE);
+            DrawTextEx(pixelFont, "Damage: " + w.getDamage(), newVector2(shopPanX + 280, shopPanY + 150), 18, 1.0f, WHITE);
+            if (w.getEfficiency() > 0) {
+                DrawTextEx(pixelFont, "Efficiency: +" + w.getEfficiency(), newVector2(shopPanX + 280, shopPanY + 175), 18, 1.0f, WHITE);
             }
-            DrawText("Cost: " + weaponCosts[0] + " gold", (int) (shopPanX + 450), (int) (shopPanY + 160), 18, GOLD);
+            DrawTextEx(pixelFont, "Cost: " + w.getCost() + " gold", newVector2(shopPanX + 450, shopPanY + 160), 18, 1.0f, GOLD);
         } else {
             DrawTextureEx(TextureManager.getTexture("stonepickaxe"),
-                    newVector2(shopPanX + 75.0f, shopPanY + 145.0f), 0.0f, itemScale, WHITE);
-            DrawText("MAX TIER REACHED", (int) (shopPanX + 200), (int) (shopPanY + 170), 20, RED);
+                    newVector2(shopPanX + 75, shopPanY + 145), 0, itemScale, WHITE);
+            DrawTextEx(pixelFont, "MAX TIER REACHED", newVector2(shopPanX + 200, shopPanY + 170), 20, 1.0f, RED);
         }
 
-        // Display Sword
+        // ─── SWORD ────────────────────────────────────────────
         if (displayedWeapons[1] != null) {
-            Weapon sword = displayedWeapons[1];
-            DrawTextureEx(TextureManager.getTexture(sword.getTextureName()),
-                    newVector2(shopPanX + 75.0f, shopPanY + 255.0f), 0.0f, itemScale, WHITE);
-            DrawText(sword.getName(), (int) (shopPanX + 140), (int) (shopPanY + 260), 18, WHITE);
-            DrawText("Tier: " + sword.getTier(), (int) (shopPanX + 140), (int) (shopPanY + 280), 16, WHITE);
-            DrawText("Damage: " + sword.getDamage(), (int) (shopPanX + 280), (int) (shopPanY + 260), 18, WHITE);
-            DrawText("Cost: " + weaponCosts[1] + " gold", (int) (shopPanX + 450), (int) (shopPanY + 270), 18, GOLD);
+            Weapon w = displayedWeapons[1];
+            DrawTextureEx(TextureManager.getTexture(w.getTextureName()),
+                    newVector2(shopPanX + 75, shopPanY + 255), 0, itemScale, WHITE);
+            DrawTextEx(pixelFont, w.getName(), newVector2(shopPanX + 140, shopPanY + 260), 18, 1.0f, WHITE);
+            DrawTextEx(pixelFont, "Tier: " + w.getTier(), newVector2(shopPanX + 140, shopPanY + 280), 16, 1.0f, WHITE);
+            DrawTextEx(pixelFont, "Damage: " + w.getDamage(), newVector2(shopPanX + 280, shopPanY + 260), 18, 1.0f, WHITE);
+            DrawTextEx(pixelFont, "Cost: " + w.getCost() + " gold", newVector2(shopPanX + 450, shopPanY + 270), 18, 1.0f, GOLD);
         } else {
             DrawTextureEx(TextureManager.getTexture("woodensword"),
-                    newVector2(shopPanX + 75.0f, shopPanY + 255.0f), 0.0f, itemScale, WHITE);
-            DrawText("MAX TIER REACHED", (int) (shopPanX + 200), (int) (shopPanY + 280), 20, RED);
+                    newVector2(shopPanX + 75, shopPanY + 255), 0, itemScale, WHITE);
+            DrawTextEx(pixelFont, "MAX TIER REACHED", newVector2(shopPanX + 200, shopPanY + 280), 20, 1.0f, RED);
         }
 
-        // Display Bow
+        // ─── BOW ──────────────────────────────────────────────
         if (displayedWeapons[2] != null) {
-            Weapon bow = displayedWeapons[2];
-            DrawTextureEx(TextureManager.getTexture(bow.getTextureName()),
-                    newVector2(shopPanX + 75.0f, shopPanY + 365.0f), 0.0f, itemScale, WHITE);
-            DrawText(bow.getName(), (int) (shopPanX + 140), (int) (shopPanY + 370), 18, WHITE);
-            DrawText("Tier: " + bow.getTier(), (int) (shopPanX + 140), (int) (shopPanY + 390), 16, WHITE);
-            DrawText("Damage: " + bow.getDamage(), (int) (shopPanX + 280), (int) (shopPanY + 370), 18, WHITE);
-            DrawText("Cost: " + weaponCosts[2] + " gold", (int) (shopPanX + 450), (int) (shopPanY + 380), 18, GOLD);
+            Weapon w = displayedWeapons[2];
+            DrawTextureEx(TextureManager.getTexture(w.getTextureName()),
+                    newVector2(shopPanX + 75, shopPanY + 365), 0, itemScale, WHITE);
+            DrawTextEx(pixelFont, w.getName(), newVector2(shopPanX + 140, shopPanY + 370), 18, 1.0f, WHITE);
+            DrawTextEx(pixelFont, "Tier: " + w.getTier(), newVector2(shopPanX + 140, shopPanY + 390), 16, 1.0f, WHITE);
+            DrawTextEx(pixelFont, "Damage: " + w.getDamage(), newVector2(shopPanX + 280, shopPanY + 370), 18, 1.0f, WHITE);
+            DrawTextEx(pixelFont, "Cost: " + w.getCost() + " gold", newVector2(shopPanX + 450, shopPanY + 380), 18, 1.0f, GOLD);
         } else {
             DrawTextureEx(TextureManager.getTexture("woodenbow"),
-                    newVector2(shopPanX + 75.0f, shopPanY + 365.0f), 0.0f, itemScale, WHITE);
-            DrawText("MAX TIER REACHED", (int) (shopPanX + 200), (int) (shopPanY + 390), 20, RED);
+                    newVector2(shopPanX + 75, shopPanY + 365), 0, itemScale, WHITE);
+            DrawTextEx(pixelFont, "MAX TIER REACHED", newVector2(shopPanX + 200, shopPanY + 390), 20, 1.0f, RED);
         }
 
-        // Buy buttons colors
-        Color buy1Color = buyButtonClicked[0] ? newColor(0, 120, 0, 120) : GREEN;
-        Color buy2Color = buyButtonClicked[1] ? newColor(0, 120, 0, 120) : GREEN;
-        Color buy3Color = buyButtonClicked[2] ? newColor(0, 120, 0, 120) : GREEN;
-
-        // Check if player can afford
-        if (displayedWeapons[0] != null && numGold < weaponCosts[0]) {
-            buy1Color = Fade(RED, 0.5f);
-        }
-        if (displayedWeapons[1] != null && numGold < weaponCosts[1]) {
-            buy2Color = Fade(RED, 0.5f);
-        }
-        if (displayedWeapons[2] != null && numGold < weaponCosts[2]) {
-            buy3Color = Fade(RED, 0.5f);
-        }
-
-        // Draw buy buttons
-        DrawRectangleRounded(buyButton1, 0.2f, 0, buy1Color);
-        DrawRectangleRounded(buyButton2, 0.2f, 0, buy2Color);
-        DrawRectangleRounded(buyButton3, 0.2f, 0, buy3Color);
-
-        DrawText("BUY", (int) (shopPanX + 700), (int) (shopPanY + 155), 30, BLACK);
-        DrawText("BUY", (int) (shopPanX + 700), (int) (shopPanY + 265), 30, BLACK);
-        DrawText("BUY", (int) (shopPanX + 700), (int) (shopPanY + 375), 30, BLACK);
-
-        // Handle purchase clicks
-        if (displayedWeapons[0] != null && CheckCollisionPointRec(mouse, buyButton1) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            if (numGold >= weaponCosts[0] && !buyButtonClicked[0]) {
-                purchaseWeapon("pickaxe", displayedWeapons[0], weaponCosts[0]);
-                buyButtonClicked[0] = true;
+        // ─── BUY BUTTONS with flash effect ────────────────────
+        // Pickaxe button
+        if (displayedWeapons[0] != null) {
+            Color btnColor = GREEN;
+            if (buttonFlashTimers[0] > 0) btnColor = WHITE;
+            DrawRectangleRounded(buyButton1, 0.2f, 0, btnColor);
+            DrawTextEx(pixelFont, "BUY", newVector2(shopPanX + 700, shopPanY + 155), 30, 1.0f, BLACK);
+            if (CheckCollisionPointRec(mouse, buyButton1) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                purchaseWeapon("pickaxe", displayedWeapons[0], 0);
             }
+        } else {
+            DrawRectangleRounded(buyButton1, 0.2f, 0, DARKGRAY);
+            DrawTextEx(pixelFont, "MAX", newVector2(shopPanX + 705, shopPanY + 155), 25, 1.0f, BLACK);
         }
 
-        if (displayedWeapons[1] != null && CheckCollisionPointRec(mouse, buyButton2) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            if (numGold >= weaponCosts[1] && !buyButtonClicked[1]) {
-                purchaseWeapon("sword", displayedWeapons[1], weaponCosts[1]);
-                buyButtonClicked[1] = true;
+        // Sword button
+        if (displayedWeapons[1] != null) {
+            Color btnColor = GREEN;
+            if (buttonFlashTimers[1] > 0) btnColor = WHITE;
+            DrawRectangleRounded(buyButton2, 0.2f, 0, btnColor);
+            DrawTextEx(pixelFont, "BUY", newVector2(shopPanX + 700, shopPanY + 265), 30, 1.0f, BLACK);
+            if (CheckCollisionPointRec(mouse, buyButton2) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                purchaseWeapon("sword", displayedWeapons[1], 1);
             }
+        } else {
+            DrawRectangleRounded(buyButton2, 0.2f, 0, DARKGRAY);
+            DrawTextEx(pixelFont, "MAX", newVector2(shopPanX + 705, shopPanY + 265), 25, 1.0f, BLACK);
         }
 
-        if (displayedWeapons[2] != null && CheckCollisionPointRec(mouse, buyButton3) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            if (numGold >= weaponCosts[2] && !buyButtonClicked[2]) {
-                purchaseWeapon("bow", displayedWeapons[2], weaponCosts[2]);
-                buyButtonClicked[2] = true;
+        // Bow button
+        if (displayedWeapons[2] != null) {
+            Color btnColor = GREEN;
+            if (buttonFlashTimers[2] > 0) btnColor = WHITE;
+            DrawRectangleRounded(buyButton3, 0.2f, 0, btnColor);
+            DrawTextEx(pixelFont, "BUY", newVector2(shopPanX + 700, shopPanY + 375), 30, 1.0f, BLACK);
+            if (CheckCollisionPointRec(mouse, buyButton3) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                purchaseWeapon("bow", displayedWeapons[2], 2);
             }
+        } else {
+            DrawRectangleRounded(buyButton3, 0.2f, 0, DARKGRAY);
+            DrawTextEx(pixelFont, "MAX", newVector2(shopPanX + 705, shopPanY + 375), 25, 1.0f, BLACK);
         }
     }
 
-    private static void purchaseWeapon(String weaponType, Weapon weapon, int cost) {
-        if (numGold >= cost) {
-            numGold -= cost;
-            WeaponManager.unlockNextTier(weaponType);
-            updateDisplayedWeapons();
-
-            // Reset click states
-            for (int i = 0; i < buyButtonClicked.length; i++) {
-                buyButtonClicked[i] = false;
-            }
-
-            System.out.println("Purchased " + weapon.getName() + "!");
+    private static void purchaseWeapon(String weaponType, Weapon weapon, int buttonIndex) {
+        boolean success = PurchaseSystem.purchaseWeapon(weaponType, weapon);
+        if (success) {
+            // Visual feedback: flash button and show message
+            buttonFlashTimers[buttonIndex] = 0.5f; // flash for 0.5 seconds
+            purchaseMessage = "Purchased " + weapon.getName() + "!";
+            purchaseMessageTimer = 1.5f;
+            updateDisplayedWeapons(); // Refresh shop with next tier
         }
     }
 }
