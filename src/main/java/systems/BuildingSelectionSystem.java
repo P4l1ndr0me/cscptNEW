@@ -27,16 +27,16 @@ public class BuildingSelectionSystem {
     private final Rectangle panelRect = newRectangle(PANEL_X, PANEL_Y, PANEL_WIDTH, PANEL_HEIGHT);
 
     private final Rectangle upgradeButton = newRectangle(
-            PANEL_X + 40,
+            PANEL_X + 30,
             PANEL_Y + 190,
-            120,
+            135,
             40
     );
 
     private final Rectangle sellButton = newRectangle(
-            PANEL_X + 200,
+            PANEL_X + 195,
             PANEL_Y + 190,
-            120,
+            135,
             40
     );
 
@@ -55,6 +55,8 @@ public class BuildingSelectionSystem {
             selectedBuilding = null;
             return;
         }
+
+        handleKeybinds();
 
         // Only check selection if player left clicks
         if (!IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -177,7 +179,7 @@ public class BuildingSelectionSystem {
 
         String upgradeText;
         if (selectedBuilding.canUpgrade()) {
-            upgradeText = "Upgrade";
+            upgradeText = "Upgrade (E)";
         } else if (selectedBuilding.level < selectedBuilding.maxLevel) {
             upgradeText = "Locked";
         } else {
@@ -191,19 +193,27 @@ public class BuildingSelectionSystem {
                 ? GRAY
                 : RED;
 
-        drawButton(sellButton, "Sell", sellColor);
+        drawButton(sellButton, "Sell (Q)", sellColor);
     }
 
     private void drawButton(Rectangle button, String text, Color color) {
         DrawRectangleRounded(button, 0.25f, 0, color);
         DrawRectangleRoundedLinesEx(button, 0.25f, 0, 2.0f, WHITE);
 
+        float fontSize = 20f;
+        float spacing = 1.0f;
+
+        Vector2 textSize = MeasureTextEx(pixelFont, text, fontSize, spacing);
+
+        float textX = button.x() + (button.width() - textSize.x()) / 2f;
+        float textY = button.y() + (button.height() - textSize.y()) / 2f;
+
         DrawTextEx(
                 pixelFont,
                 text,
-                newVector2(button.x() + 18, button.y() + 10),
-                20,
-                1.0f,
+                newVector2(textX, textY),
+                fontSize,
+                spacing,
                 BLACK
         );
     }
@@ -255,6 +265,20 @@ public class BuildingSelectionSystem {
 
         // Close the selected building UI
         clearSelection();
+    }
+
+    private void handleKeybinds() {
+        if (selectedBuilding == null) {
+            return;
+        }
+
+        if (IsKeyPressed(KEY_E)) {
+            upgradeSelectedBuilding();
+        }
+
+        if (IsKeyPressed(KEY_Q)) {
+            sellSelectedBuilding();
+        }
     }
 
     public Building getSelectedBuilding() {

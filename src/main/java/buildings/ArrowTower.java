@@ -5,8 +5,7 @@ import core.TextureManager;
 import entities.Enemy;
 import entities.TowerBullet;
 
-import static com.raylib.Colors.RED;
-import static com.raylib.Colors.WHITE;
+import static com.raylib.Colors.*;
 import static com.raylib.Helpers.newRectangle;
 import static com.raylib.Helpers.newVector2;
 import static com.raylib.Raylib.*;
@@ -19,11 +18,11 @@ public class ArrowTower extends Building {
     private float rotation = 0;
 
     // How far the arrow can detect enemies
-    private final float range = 340f;
+    private final float range = 225f;
 
     private float attackTimer = 0f;
     private final float attackCooldown = 0.35f;
-    private final float knockbackStrength = 3f;
+    private final float knockbackStrength = 8f;
 
     public void update(float dt) {
         Enemy target = getNearestEnemyInRange();
@@ -38,7 +37,7 @@ public class ArrowTower extends Building {
                 shoot(target);
             }
         } else {
-            attackTimer = 0f;
+            attackTimer = attackCooldown;
         }
     }
 
@@ -57,7 +56,7 @@ public class ArrowTower extends Building {
 
         DrawTexturePro(headTex, source, dest, origin, rotation, WHITE);
 
-        //DrawCircleLines((int)(position.x() + size / 2f), (int)(position.y() + size / 2f), range, RED);
+        DrawCircleLines((int)(position.x() + size / 2f), (int)(position.y() + size / 2f), range, BLUE);
     }
 
     private Enemy getNearestEnemyInRange() {
