@@ -110,9 +110,9 @@ public class Enemy extends Entity {
         if (attackTimer >= attackCooldown) {
             attackTimer = 0f;
 
-            targetBuilding.health -= damage;
+            targetBuilding.takeDamage(damage);
 
-            if (targetBuilding.health <= 0) {
+            if (targetBuilding.isDestroyed()) {
                 destroyBuilding(targetBuilding);
                 targetBuilding = null;
             }
