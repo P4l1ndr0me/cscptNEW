@@ -31,7 +31,8 @@ public class TextureManager {
         TextureManager.loadTexture("stone", "src/main/assets/images/map/stone.png");
 
         // Player-related
-        TextureManager.loadTexture("mining", "src/main/assets/images/player/mining_sprites.png");
+        TextureManager.loadTexture("mining2", "src/main/assets/images/player/mining2.png");
+        TextureManager.loadTexture("mining1", "src/main/assets/images/player/mining1.png");
         TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/player_sprites.png");
 
         // Building-related
