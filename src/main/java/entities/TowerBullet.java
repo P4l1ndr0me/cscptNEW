@@ -1,6 +1,5 @@
 package entities;
 
-import core.EntityManager;
 import core.TextureManager;
 
 import static com.raylib.Colors.WHITE;

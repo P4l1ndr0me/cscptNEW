@@ -15,7 +15,7 @@ import static world.World.WORLD_WIDTH;
 public class WaveSystem {
 
     // Time of day
-    private int timeMinutes = 20 * 60;
+    private int timeMinutes = 21 * 60;
     private final int DAY_MINUTES = 24 * 60;
 
     // Night settings
@@ -44,7 +44,7 @@ public class WaveSystem {
     private float baseSpawnInterval = 3.0f;
 
     // UI
-    private String timeString = "8:00 PM";
+    private String timeString;
     private float darknessAlpha = 0f;
 
     // Spawn radius around Gold Stash
@@ -249,14 +249,14 @@ public class WaveSystem {
                 tier.scale,
                 tier.speed,
                 TextureManager.getTexture(tier.textureName),
-                6,
+                9,
                 3,
                 tier.health,
                 tier.damage,
                 tier.goldDrop
         );
 
-        EntityManager.addEnemy(enemy);
+        EntityManager.spawnedEnemies.add(enemy);
     }
 
     private Vector2 getSpawnPositionAroundGoldStash() {

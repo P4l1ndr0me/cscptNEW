@@ -60,7 +60,7 @@ public class Player extends Entity {
         currentRow = 1;
         lookX = 1;
 
-        halfWidth = ((float) texture.width() / frames) * scale / 2;
+        halfWidth = ((float) texture.width() / cols) * scale / 2;
         halfHeight = ((float) texture.height() / rows) * scale / 2;
 
         playerRec = newRectangle(
@@ -380,12 +380,12 @@ public class Player extends Entity {
                 if (hasPickaxeEquipped) {
                     pickaxeFrame = (pickaxeFrame + 1) % pickaxeFrames;
                 } else {
-                    currentFrame = (currentFrame + 1) % frames;
+                    currentCol = (currentCol + 1) % cols;
                 }
             }
         } else {
             frameTimer = 0f;
-            currentFrame = 0;
+            currentCol = 0;
             pickaxeFrame = 0;
         }
 
@@ -402,11 +402,11 @@ public class Player extends Entity {
     }
 
     private void drawWalkingAnimation() {
-        int frameWidth = texture.width() / frames;
+        int frameWidth = texture.width() / cols;
         int frameHeight = texture.height() / rows;
 
         Rectangle source = new Rectangle()
-                .x(currentFrame * frameWidth)
+                .x(currentCol * frameWidth)
                 .y(currentRow * frameHeight)
                 .width(frameWidth)
                 .height(frameHeight);

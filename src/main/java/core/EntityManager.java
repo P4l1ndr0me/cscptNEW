@@ -70,9 +70,4 @@ public class EntityManager {
             }
         }
     }
-
-    public static void addEnemy(Enemy enemy) {
-        spawnedEnemies.add(enemy);
-    }
-
 }
