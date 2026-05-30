@@ -47,11 +47,13 @@ public class BuildSystem {
     private boolean validPlacement;
 
     // Grid occupancy system
-    private final int COLS = World.WORLD_WIDTH / World.TILE_SIZE;
-    private final int ROWS = World.WORLD_HEIGHT / World.TILE_SIZE;
-    private final boolean[][] occupiedTiles = new boolean[COLS][ROWS];
+    private static final boolean[][] occupiedTiles = new boolean[
+            World.WORLD_WIDTH / World.TILE_SIZE
+            ][
+            World.WORLD_HEIGHT / World.TILE_SIZE
+            ];
     private int tileX, tileY;
-    private final int BUILDING_GRID_TILE_SIZE = size / World.TILE_SIZE; // each building is 64x64, and each tile is 32x32, so it's a factor of 2
+    private static final int BUILDING_GRID_TILE_SIZE = size / World.TILE_SIZE; // each building is 64x64, and each tile is 32x32, so it's a factor of 2
 
     public static boolean hasGoldStashPlaced() {
         for (Building building : EntityManager.placedBuildings) {
@@ -224,7 +226,7 @@ public class BuildSystem {
         }
     }
 
-    public void freeTiles(Building building) {
+    public static void freeTiles(Building building) {
         int buildingTileX = (int) building.position.x() / World.TILE_SIZE;
         int buildingTileY = (int) building.position.y() / World.TILE_SIZE;
 
@@ -233,6 +235,15 @@ public class BuildSystem {
                 occupiedTiles[x][y] = false;
             }
         }
+    }
+
+    public static void destroyBuilding(Building building) {
+        if (building == null) {
+            return;
+        }
+
+        freeTiles(building);
+        EntityManager.placedBuildings.remove(building);
     }
 
     private void getPreviewPosition() {
