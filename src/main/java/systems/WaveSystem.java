@@ -51,6 +51,36 @@ public class WaveSystem {
     private final int MIN_SPAWN_RADIUS = 500;
     private final int MAX_SPAWN_RADIUS = 600;
 
+    private enum ZombieTier {
+        TIER_1("Zombie Tier 1", 2.0f, 100.0f, 70, 3, 5),
+        TIER_2("Zombie Tier 2", 2.0f, 100.0f, 200, 9, 12),
+        TIER_3("Zombie Tier 3", 2.0f, 100.0f, 400, 16, 25),
+        TIER_4("Zombie Tier 4", 2.0f, 100.0f, 600, 26, 45);
+
+        final String textureName;
+        final float scale;
+        final float speed;
+        final int health;
+        final int damage;
+        final int goldDrop;
+
+        ZombieTier(
+                String textureName,
+                float scale,
+                float speed,
+                int health,
+                int damage,
+                int goldDrop
+        ) {
+            this.textureName = textureName;
+            this.scale = scale;
+            this.speed = speed;
+            this.health = health;
+            this.damage = damage;
+            this.goldDrop = goldDrop;
+        }
+    }
+
     public WaveSystem() {
         updateTimeString();
     }
@@ -219,10 +249,11 @@ public class WaveSystem {
                 tier.scale,
                 tier.speed,
                 TextureManager.getTexture(tier.textureName),
-                3,
+                6,
                 3,
                 tier.health,
-                tier.damage
+                tier.damage,
+                tier.goldDrop
         );
 
         EntityManager.addEnemy(enemy);
@@ -448,66 +479,5 @@ public class WaveSystem {
         int hour = timeMinutes / 60;
 
         return hour >= NIGHT_START_HOUR || hour < NIGHT_END_HOUR;
-    }
-
-    private enum ZombieTier {
-        TIER_1(
-                "Zombie Tier 1",
-                2.0f,
-                100.0f,
-                70,
-                3,
-                1
-        ),
-
-        TIER_2(
-                "Zombie Tier 2",
-                2.0f,
-                100.0f,
-                200,
-                9,
-                3
-        ),
-
-        TIER_3(
-                "Zombie Tier 3",
-                2.0f,
-                100.0f,
-                400,
-                16,
-                6
-        ),
-
-        TIER_4(
-                "Zombie Tier 4",
-                2.0f,
-                100.0f,
-                600,
-                26,
-                9
-        );
-
-        final String textureName;
-        final float scale;
-        final float speed;
-        final int health;
-        final int damage;
-        final int unlockWave;
-
-        ZombieTier(
-                String textureName,
-                float scale,
-                float speed,
-                int health,
-                int damage,
-                int unlockWave
-        ) {
-            this.textureName = textureName;
-            this.scale = scale;
-            this.speed = speed;
-            this.health = health;
-            this.damage = damage;
-            this.unlockWave = unlockWave;
-        }
     }
 }

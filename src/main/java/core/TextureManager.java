@@ -63,7 +63,7 @@ public class TextureManager {
         TextureManager.loadTexture("Arrow Bullet", "src/main/assets/images/buildings/arrowtower/arrow_bullet.png");
 
         // Enemy-related
-        TextureManager.loadTexture("Zombie Tier 1", "src/main/assets/images/zombie/zombie_tier1.png");
+        TextureManager.loadTexture("Zombie Tier 1", "src/main/assets/images/zombie/zombie_tier1_new.png");
         TextureManager.loadTexture("Zombie Tier 2", "src/main/assets/images/zombie/zombie_tier2.png");
         TextureManager.loadTexture("Zombie Tier 3", "src/main/assets/images/zombie/zombie_tier3.png");
         TextureManager.loadTexture("Zombie Tier 4", "src/main/assets/images/zombie/zombie_tier4.png");

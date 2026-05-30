@@ -213,16 +213,21 @@ public class Player extends Entity {
                 if (Math.abs(dx) < 7f) {
                     if (dx < 0) {
                         dx = -7f;
-                    } else {
+                    } else if (dx > 0) {
                         dx = 7f;
+                    } else { // dx = 0
+                        dx = 7f; // default rotate right
                     }
                 }
 
                 if (Math.abs(dy) < 7f) {
                     if (dy < 0) {
                         dy = -7f;
-                    } else {
+                    } else if (dy > 0) {
                         dy = 7f;
+                    }
+                    else { // dy = 0
+                        dy = 7f; // default rotate down
                     }
                 }
 

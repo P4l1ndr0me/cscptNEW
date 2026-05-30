@@ -30,6 +30,7 @@ public class Enemy extends Entity {
     private float attackCooldown = 1.0f;
     private float attackTimer = 0f;
     private Building targetBuilding = null;
+    private int goldDrop;
 
     // Debug
     private final boolean showDebugHitbox = true;
@@ -42,12 +43,14 @@ public class Enemy extends Entity {
             int rows,
             int frames,
             int health,
-            int damage
+            int damage,
+            int goldDrop
     ) {
         super(position, scale, speed, texture, rows, frames);
 
         this.health = health;
         this.damage = damage;
+        this.goldDrop = goldDrop;
 
         currentFrame = 1;
         currentRow = 0;
@@ -314,6 +317,11 @@ public class Enemy extends Entity {
 
     public void takeDamage(int amount) {
         health -= amount;
+
+        if (health <= 0) {
+            health = 0;
+            Player.numGold += goldDrop;
+        }
     }
 
     public boolean isDead() {
