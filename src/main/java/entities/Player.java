@@ -81,15 +81,17 @@ public class Player extends Entity {
         Vector2 moveDir = getMovementInput();
 
         updateToolInput();
-
         updateDirection(moveDir);
+
         move(moveDir, dt);
         boundaryClamp();
-
         updatePlayerRect();
-        pushOutOfStones();
-        updateMiningRect();
 
+        pushOutOfStones();
+        boundaryClamp();
+        updatePlayerRect();
+
+        updateMiningRect();
         updateMining(dt);
         updateAnimation(dt);
     }
@@ -132,10 +134,18 @@ public class Player extends Entity {
         return moveDir;
     }
 
+    private void updateToolInput() {
+        if (IsKeyPressed(KEY_R)) {
+            hasPickaxeEquipped = !hasPickaxeEquipped;
+            isAutoMining = false;
+        }
+
+        if (hasPickaxeEquipped && IsKeyPressed(KEY_SPACE)) {
+            isAutoMining = !isAutoMining;
+        }
+    }
+
     private void updateDirection(Vector2 moveDir) {
-        // Set row of sprite sheet based on player direction
-//        if (moveY < 0) currentRow = 0;  // moving up
-//        if (moveY > 0) currentRow = 1;  // moving down
         if (moveDir.x() < 0) {
             currentRow = 2;  // moving left
             lookX = -1;
@@ -200,12 +210,102 @@ public class Player extends Entity {
             if (distance > 0 && distance < radius) {
                 float overlap = radius - distance;
 
-                position.x(Math.round(position.x() + dx / distance * overlap));
-                position.y(Math.round(position.y() + dy / distance * overlap));
+                if (Math.abs(dx) < 7f) {
+                    if (dx < 0) {
+                        dx = -7f;
+                    } else {
+                        dx = 7f;
+                    }
+                }
+
+                if (Math.abs(dy) < 7f) {
+                    if (dy < 0) {
+                        dy = -7f;
+                    } else {
+                        dy = 7f;
+                    }
+                }
+
+                float pushX = dx / distance * overlap;
+                float pushY = dy / distance * overlap;
+
+                applySafeStonePush(pushX, pushY);
 
                 updatePlayerRect();
             }
         }
+    }
+
+    private void applySafeStonePush(float pushX, float pushY) {
+        float originalX = position.x();
+        float originalY = position.y();
+
+        // Try the full push first, then smaller pushes.
+        // 10 steps is usually enough because the push distance is small.
+        int steps = 10;
+
+        for (int i = steps; i >= 1; i--) {
+            float scale = i / (float) steps;
+
+            float testX = originalX + pushX * scale;
+            float testY = originalY + pushY * scale;
+
+            Rectangle testRec = newRectangle(
+                    testX - playerHitboxWidth / 2f,
+                    testY + playerHitboxOffsetY,
+                    playerHitboxWidth,
+                    playerHitboxHeight
+            );
+
+            if (!collidesWithBuildings(testRec)) {
+                position.x(Math.round(testX));
+                position.y(Math.round(testY));
+                updatePlayerRect();
+                return;
+            }
+        }
+
+        // If even a tiny diagonal push fails, try sliding on X only.
+        for (int i = steps; i >= 1; i--) {
+            float scale = i / (float) steps;
+
+            float testX = originalX + pushX * scale;
+
+            Rectangle testRec = newRectangle(
+                    testX - playerHitboxWidth / 2f,
+                    originalY + playerHitboxOffsetY,
+                    playerHitboxWidth,
+                    playerHitboxHeight
+            );
+
+            if (!collidesWithBuildings(testRec)) {
+                position.x(Math.round(testX));
+                updatePlayerRect();
+                return;
+            }
+        }
+
+        // Then try sliding on Y only.
+        for (int i = steps; i >= 1; i--) {
+            float scale = i / (float) steps;
+
+            float testY = originalY + pushY * scale;
+
+            Rectangle testRec = newRectangle(
+                    originalX - playerHitboxWidth / 2f,
+                    testY + playerHitboxOffsetY,
+                    playerHitboxWidth,
+                    playerHitboxHeight
+            );
+
+            if (!collidesWithBuildings(testRec)) {
+                position.y(Math.round(testY));
+                updatePlayerRect();
+                return;
+            }
+        }
+
+        // If all pushes fail, do not move.
     }
 
     private void boundaryClamp() {
@@ -262,17 +362,6 @@ public class Player extends Entity {
             }
         } else {
             miningTimer = 0f;
-        }
-    }
-
-    private void updateToolInput() {
-        if (IsKeyPressed(KEY_R)) {
-            hasPickaxeEquipped = !hasPickaxeEquipped;
-            isAutoMining = false;
-        }
-
-        if (hasPickaxeEquipped && IsKeyPressed(KEY_SPACE)) {
-            isAutoMining = !isAutoMining;
         }
     }
 
