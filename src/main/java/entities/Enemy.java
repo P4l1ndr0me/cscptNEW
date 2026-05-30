@@ -120,7 +120,7 @@ public class Enemy extends Entity {
     }
 
     private void destroyBuilding(Building building) {
-        EntityManager.placedBuildings.remove(building);
+        BuildSystem.destroyBuilding(building);
     }
 
     private Building getTargetBuilding() {

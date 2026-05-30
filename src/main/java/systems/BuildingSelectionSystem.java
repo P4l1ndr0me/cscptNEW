@@ -257,11 +257,7 @@ public class BuildingSelectionSystem {
         Player.numStone += stoneRefund;
         Player.numGold += goldRefund;
 
-        // Free occupied grid tiles
-        buildSystem.freeTiles(selectedBuilding);
-
-        // Remove building from placed buildings
-        EntityManager.placedBuildings.remove(selectedBuilding);
+        BuildSystem.destroyBuilding(selectedBuilding);
 
         // Close the selected building UI
         clearSelection();
