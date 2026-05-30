@@ -56,7 +56,9 @@ public class ArrowTower extends Building {
 
         DrawTexturePro(headTex, source, dest, origin, rotation, WHITE);
 
-        DrawCircleLines((int)(position.x() + size / 2f), (int)(position.y() + size / 2f), range, BLUE);
+        //DrawCircleLines((int)(position.x() + size / 2f), (int)(position.y() + size / 2f), range, BLUE);
+
+        drawHealthBar();
     }
 
     private Enemy getNearestEnemyInRange() {

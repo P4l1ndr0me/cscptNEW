@@ -3,8 +3,8 @@ package buildings;
 import core.TextureManager;
 import systems.BuildSystem;
 
+import static com.raylib.Colors.*;
 import static com.raylib.Raylib.*;
-import static com.raylib.Colors.WHITE;
 import static com.raylib.Helpers.newRectangle;
 
 public class Building {
@@ -35,7 +35,6 @@ public class Building {
     }
 
     public void update(float dt) {
-
     }
 
     public void draw() {
@@ -47,6 +46,50 @@ public class Building {
 
         // Draw building at its top-left position
         DrawTextureEx(tex, position, 0, 1.0f, WHITE);
+
+        drawHealthBar();
+    }
+
+    protected void drawHealthBar() {
+        if (health >= maxHealth) {
+            return;
+        }
+
+        float barWidth = 48;
+        float barHeight = 6;
+
+        // Inside the 64x64 building, near the bottom
+        float barX = position.x() + (size - barWidth) / 2f;
+        float barY = position.y() + size - barHeight - 5;
+
+        float healthPercent = getHealthPercent();
+
+        // Optional dark background behind the bar
+        DrawRectangle(
+                (int) barX,
+                (int) barY,
+                (int) barWidth,
+                (int) barHeight,
+                DARKGRAY
+        );
+
+        // Actual health amount
+        DrawRectangle(
+                (int) barX,
+                (int) barY,
+                (int) (barWidth * healthPercent),
+                (int) barHeight,
+                GREEN
+        );
+
+        // Border
+        DrawRectangleLines(
+                (int) barX,
+                (int) barY,
+                (int) barWidth,
+                (int) barHeight,
+                BLACK
+        );
     }
 
     public boolean canUpgrade() {
@@ -88,5 +131,25 @@ public class Building {
                 size,
                 size
         );
+    }
+
+    public void takeDamage(int amount) {
+        health -= amount;
+
+        if (health < 0) {
+            health = 0;
+        }
+    }
+
+    public boolean isDamaged() {
+        return health < maxHealth;
+    }
+
+    public boolean isDestroyed() {
+        return health <= 0;
+    }
+
+    public float getHealthPercent() {
+        return (float) health / maxHealth;
     }
 }
