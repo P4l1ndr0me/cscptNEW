@@ -70,4 +70,12 @@ public class EntityManager {
             }
         }
     }
+
+    public static void reset() {
+        // Clear all dynamic lists
+        spawnedEnemies.clear();
+        placedBuildings.clear();
+        towerBullets.clear();
+        stoneCenters.clear();
+    }
 }

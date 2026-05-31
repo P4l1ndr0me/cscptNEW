@@ -31,4 +31,16 @@ public class GoldStash extends Building {
             default -> 0;
         };
     }
+
+    public boolean checkDead(){
+        return health == 0;
+    }
+
+    @Override
+    public void takeDamage(int damage) {
+        super.takeDamage(damage);
+        if (health <= 0) {
+            core.GameState.setState(core.GameState.State.GAME_OVER);
+        }
+    }
 }

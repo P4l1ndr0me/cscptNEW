@@ -27,7 +27,7 @@ public class WaveSystem {
     private static final int MORNING_MESSAGE_MINUTES = 30; // 6:00 AM - 6:30 AM
 
     // Speed of time
-    private float minutesPerSecond = 8f;
+    private float minutesPerSecond = 6f;
     private float timeAccumulator = 0;
 
     // Wave progression
@@ -520,15 +520,22 @@ public class WaveSystem {
     }
 
     public void reset() {
-        timeMinutes = 20 * 60;
+        // Reset time
+        timeMinutes = 12 * 60;  // 12:00 PM
         timeAccumulator = 0;
         spawnTimer = 0;
 
-        waveNumber = 0;
+        // Reset wave progression
+        waveNumber = 1;
         waveActive = false;
         firstWaveStarted = false;
         waveStartedThisNight = false;
 
+        // Reset intensity and darkness
+        currentIntensity = 0f;
+        darknessAlpha = 0f;
+
+        // Update display
         updateTimeString();
     }
 

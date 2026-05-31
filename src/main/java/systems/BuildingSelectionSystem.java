@@ -284,4 +284,8 @@ public class BuildingSelectionSystem {
     public void clearSelection() {
         selectedBuilding = null;
     }
+
+    public void reset() {
+        selectedBuilding = null;
+    }
 }

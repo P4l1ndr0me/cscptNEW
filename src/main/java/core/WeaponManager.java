@@ -11,13 +11,16 @@ public class WeaponManager {
     public static void init(){
         // PICKAXES
         allWeapons.add(new Weapon("stone_pickaxe", "Stone Pickaxe", "stonepickaxe",
-                100, 15, 1.0f, "Basic Mining Tool", 100, 1, "pickaxe"));
+                100, 15, 0.7f, "Basic Mining Tool", 100, 1, "pickaxe"));
 
         allWeapons.add(new Weapon("iron_pickaxe", "Iron Pickaxe", "ironpickaxe",
-                300, 20, 1.5f, "Basic Mining Tool", 120, 2, "pickaxe"));
+                300, 20, 1.0f, "Basic Mining Tool", 120, 2, "pickaxe"));
+
+        allWeapons.add(new Weapon("gold_pickaxe", "Gold Pickaxe", "goldpickaxe",
+                300, 25, 1.2f, "Basic Mining Tool", 140, 3, "pickaxe"));
 
         allWeapons.add(new Weapon("diamond_pickaxe", "Diamond Pickaxe", "diamondpickaxe",
-                500, 25, 2.0f, "Basic Mining Tool", 150, 3, "pickaxe"));
+                500, 35, 1.5f, "Basic Mining Tool", 150, 4, "pickaxe"));
 
 
         // SWORDS
@@ -88,5 +91,12 @@ public class WeaponManager {
             }
         }
         return null;
+    }
+
+    public static void reset() {
+        unlockedWeapons.put("pickaxe", 1);
+        unlockedWeapons.put("sword", 0);
+        unlockedWeapons.put("bow", 0);
+
     }
 }
