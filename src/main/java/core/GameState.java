@@ -4,6 +4,7 @@ import systems.*;
 import ui.*;
 import world.*;
 import entities.*;
+import buildings.*;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
@@ -11,6 +12,32 @@ import static core.Main.pixelFont;
 import systems.WaveSystem;
 
 public class GameState {
+    public enum State {
+        PLAYING,
+        GAME_OVER
+    }
+
+    private static State currentState = State.PLAYING;
+
+    // Store instance for reset
+    private static GameState instance;
+
+    public static void setState(State newState) {
+        currentState = newState;
+    }
+
+    public static State getState() {
+        return currentState;
+    }
+
+    public static boolean isPlaying() {
+        return currentState == State.PLAYING;
+    }
+
+    public static boolean isGameOver() {
+        return currentState == State.GAME_OVER;
+    }
+
     final private Player player;
     final private BuildSystem buildSystem;
     final private BuildMenu buildMenu;
@@ -18,6 +45,8 @@ public class GameState {
     final private BuildingSelectionSystem buildingSelectionSystem;
 
     public GameState() {
+        instance = this;
+
         TextureManager.init();
         SetTextureFilter(pixelFont.texture(), TEXTURE_FILTER_POINT);
 
@@ -35,21 +64,22 @@ public class GameState {
     }
 
     public void update() {
-        float dt = GetFrameTime(); // get delta time (time since last frame)
+        float dt = GetFrameTime();
 
-        player.update(dt);
+        // If game over, skip all game logic
+        if (currentState == State.GAME_OVER) {
+            HUD.updateHUD();
+            return;
+        }
 
-        Camera.update(player.getPosition());
-
-        buildSystem.update();
-
-        buildingSelectionSystem.update();
-
-        EntityManager.updateEntities(dt);
-
-        waveSystem.update(dt);
-
+        // Normal game update (only reaches here if NOT game over)
         HUD.updateHUD();
+        player.update(dt);
+        Camera.update(player.getPosition());
+        buildSystem.update();
+        buildingSelectionSystem.update();
+        EntityManager.updateEntities(dt);
+        waveSystem.update(dt);
     }
 
     public void draw() {
@@ -82,12 +112,43 @@ public class GameState {
         // Draw UI & HUD
         buildMenu.draw();
         HUD.drawHUD();
-       
+
         buildingSelectionSystem.drawUI();
 
         waveSystem.draw();
         waveSystem.drawDarknessOverlay();
 
         EndDrawing();
+    }
+
+    public void reset() {
+        // Reset game state
+        currentState = State.PLAYING;
+
+        // Reset all static systems
+        EntityManager.reset();
+        WeaponManager.reset();
+        Camera.reset();
+        HUD.reset();
+        ResourceNode.reset();
+
+        // Reset instance systems
+        waveSystem.reset();
+        player.reset();
+        buildSystem.reset();
+        buildingSelectionSystem.reset();
+
+        // Clear all dynamic entities
+        EntityManager.stoneCenters.clear();
+        EntityManager.placedBuildings.clear();
+        EntityManager.spawnedEnemies.clear();
+        EntityManager.towerBullets.clear();
+
+        // Regenerate stones
+        ResourceNode.init();
+    }
+
+    public static GameState getInstance() {
+        return instance;
     }
 }

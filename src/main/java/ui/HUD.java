@@ -71,7 +71,14 @@ public class HUD {
     private static String purchaseMessage = "";
     private static float purchaseMessageTimer = 0f;
 
+    private static core.GameState gameState;
+
     public static void drawHUD() {
+        if (core.GameState.isGameOver()) {
+            drawGameOverScreen();
+            return;
+        }
+
         // Resource panel
         DrawRectangleRoundedLinesEx(resourceRect, 0.6f, 0, 2.0f, BLACK);
         DrawRectangleRounded(resourceRect, 0.6f, 0, MENU_FILL);
@@ -168,6 +175,16 @@ public class HUD {
     }
 
     public static void updateHUD() {
+        // If game over, only handle exit button, ignore everything else
+        if (core.GameState.isGameOver()) {
+            Vector2 mouse = GetMousePosition();
+            Rectangle exitButton = newRectangle(Main.SCREEN_WIDTH/2 - 60, Main.SCREEN_HEIGHT/2 + 50, 120, 40);
+            if (CheckCollisionPointRec(mouse, exitButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                System.exit(0);
+            }
+            return;
+        }
+
         Vector2 mouse = GetMousePosition();
 
         // Update timers for visual feedback
@@ -186,7 +203,7 @@ public class HUD {
                 helpScreenOpen = false;
             } else {
                 helpScreenOpen = true;
-                shopOpen = false; // Close shop if open when help opens
+                shopOpen = false;
             }
         }
 
@@ -206,11 +223,10 @@ public class HUD {
 
         // Help screen button interactions
         if (helpScreenOpen) {
-            // Close button click
             if (CheckCollisionPointRec(mouse, closeHelpButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 helpScreenOpen = false;
             }
-            return; // Don't process other UI when help is open
+            return;
         }
 
         // Tab switching (only if shop open)
@@ -221,7 +237,6 @@ public class HUD {
             }
             if (CheckCollisionPointRec(mouse, buildingsTabButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 currentShopTab = 1;
-                // Buildings tab placeholder
             }
         }
 
@@ -229,6 +244,14 @@ public class HUD {
         if (CheckCollisionPointRec(mouse, helpButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             helpScreenOpen = true;
             shopOpen = false;
+        }
+
+        // Shop button click
+        if (CheckCollisionPointRec(mouse, shopButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            shopOpen = !shopOpen;
+            if (shopOpen) {
+                updateDisplayedWeapons();
+            }
         }
     }
 
@@ -341,11 +364,69 @@ public class HUD {
     private static void purchaseWeapon(String weaponType, Weapon weapon, int buttonIndex) {
         boolean success = PurchaseSystem.purchaseWeapon(weaponType, weapon);
         if (success) {
-            // Visual feedback: flash button and show message
-            buttonFlashTimers[buttonIndex] = 0.5f; // flash for 0.5 seconds
+            buttonFlashTimers[buttonIndex] = 0.5f;
             purchaseMessage = "Purchased " + weapon.getName() + "!";
             purchaseMessageTimer = 1.5f;
-            updateDisplayedWeapons(); // Refresh shop with next tier
+            updateDisplayedWeapons();
         }
+    }
+
+    public static void drawGameOverScreen() {
+        DrawRectangle(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, Fade(BLACK, 0.9f));
+
+        DrawTextEx(pixelFont, "GAME OVER",
+                newVector2(Main.SCREEN_WIDTH/2 - 80, Main.SCREEN_HEIGHT/2 - 80),
+                40, 1.0f, RED);
+
+        DrawTextEx(pixelFont, "Your Gold Stash was destroyed!",
+                newVector2(Main.SCREEN_WIDTH/2 - 120, Main.SCREEN_HEIGHT/2 - 30),
+                18, 1.0f, WHITE);
+
+        // PLAY AGAIN button
+        Rectangle playAgainButton = newRectangle(Main.SCREEN_WIDTH/2 - 130, Main.SCREEN_HEIGHT/2 + 20, 120, 45);
+        DrawRectangleRounded(playAgainButton, 0.2f, 0, GREEN);
+        DrawTextEx(pixelFont, "PLAY AGAIN",
+                newVector2(playAgainButton.x() + 18, playAgainButton.y() + 12),
+                16, 1.0f, BLACK);
+
+        // EXIT button
+        Rectangle exitButton = newRectangle(Main.SCREEN_WIDTH/2 + 10, Main.SCREEN_HEIGHT/2 + 20, 120, 45);
+        DrawRectangleRounded(exitButton, 0.2f, 0, DARKGRAY);
+        DrawTextEx(pixelFont, "EXIT",
+                newVector2(exitButton.x() + 38, exitButton.y() + 12),
+                16, 1.0f, WHITE);
+
+        Vector2 mouse = GetMousePosition();
+
+        // Play Again button click
+        if (CheckCollisionPointRec(mouse, playAgainButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            if (gameState != null) {
+                gameState.reset();
+            }
+        }
+
+        // Exit button click
+        if (CheckCollisionPointRec(mouse, exitButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            System.exit(0);
+        }
+    }
+
+    public static void setGameState(core.GameState gs) {
+        gameState = gs;
+    }
+
+    public static void reset() {
+        helpScreenOpen = false;
+        shopOpen = false;
+        currentShopTab = 2;
+        purchaseMessage = "";
+        purchaseMessageTimer = 0f;
+
+        for (int i = 0; i < buttonFlashTimers.length; i++) {
+            buttonFlashTimers[i] = 0f;
+        }
+
+        // Refresh displayed weapons
+        updateDisplayedWeapons();
     }
 }

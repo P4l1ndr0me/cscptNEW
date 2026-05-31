@@ -45,4 +45,10 @@ public class ResourceNode {
             }
         }
     }
+
+    public static void reset() {
+        // Stone centers are cleared in EntityManager.reset()
+        // Regenerate stones
+        init();
+    }
 }

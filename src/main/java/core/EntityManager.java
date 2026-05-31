@@ -69,4 +69,11 @@ public class EntityManager {
         spawnedEnemies.add(enemy);
     }
 
+    public static void reset() {
+        // Clear all dynamic lists
+        spawnedEnemies.clear();
+        placedBuildings.clear();
+        towerBullets.clear();
+        stoneCenters.clear();
+    }
 }

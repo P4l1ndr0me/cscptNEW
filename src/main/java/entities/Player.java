@@ -538,4 +538,31 @@ public class Player extends Entity {
     public static Texture getCurrentMiningTexture() {
         return mining;
     }
+
+    public void reset() {
+        position = newVector2(World.WORLD_WIDTH / 2f, World.WORLD_HEIGHT / 2f);
+        numStone = 0;
+        numGold = 1000;
+        health = 100;
+        pickaxeTier = 1;
+        miningDamage = 15;
+        miningSpeed = 0.8f;
+        mining = TextureManager.getTexture("mining1");
+        swordTier = 0;
+        bowTier = 0;
+        hasPickaxeEquipped = false;
+        isAutoMining = false;
+        miningTimer = 0f;
+        pickaxeFrame = 0;
+        pickaxeDown = false;
+        pickaxeAnimTimer = 0f;
+        currentFrame = 0;
+        currentRow = 1;
+        lookX = 1;
+        isMoving = false;
+        frameTimer = 0f;
+        miningPopups.clear();
+        updatePlayerRect();
+        updateMiningRect();
+    }
 }

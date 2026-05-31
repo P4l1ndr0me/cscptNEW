@@ -92,4 +92,11 @@ public class WeaponManager {
         }
         return null;
     }
+
+    public static void reset() {
+        unlockedWeapons.put("pickaxe", 1);
+        unlockedWeapons.put("sword", 0);
+        unlockedWeapons.put("bow", 0);
+
+    }
 }

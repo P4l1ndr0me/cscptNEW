@@ -335,6 +335,25 @@ public class BuildSystem {
 
     }
 
+    public void reset() {
+        // Clear occupied tiles grid
+        for (int i = 0; i < occupiedTiles.length; i++) {
+            for (int j = 0; j < occupiedTiles[i].length; j++) {
+                occupiedTiles[i][j] = false;
+            }
+        }
+
+        // Reset building placement state
+        selectedBuilding = null;
+        selectedIndex = -1;
+        placedBuildingThisFrame = false;
+        snappedX = 0;
+        snappedY = 0;
+        tileX = 0;
+        tileY = 0;
+        validPlacement = false;
+    }
+
     // Getters
     public boolean placedBuildingThisFrame() {
         return placedBuildingThisFrame;

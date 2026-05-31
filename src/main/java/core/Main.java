@@ -1,5 +1,7 @@
 package core;
 
+import ui.HUD;
+
 import static com.raylib.Raylib.*;
 
 public class Main {
@@ -21,6 +23,7 @@ public class Main {
 
         // Create new instance
         GameState gameState = new GameState();
+        HUD.setGameState(gameState);
 
         while (!WindowShouldClose()) {
 
