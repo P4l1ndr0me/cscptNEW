@@ -36,8 +36,6 @@ public class ArrowTower extends Building {
                 attackTimer = 0f;
                 shoot(target);
             }
-        } else {
-            attackTimer = attackCooldown;
         }
     }
 

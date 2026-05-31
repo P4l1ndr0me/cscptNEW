@@ -30,14 +30,14 @@ public class BuildSystem {
     };
 
     public static BuildingType[] buildingTypes = {
-            new BuildingType("Gold Mine", baseBuildingTextures[0], 50, 0, 8, 250, 0),
-            new BuildingType("Cannon Tower", baseBuildingTextures[1], 75, 40, 10, 200, 20),
-            new BuildingType("Arrow Tower", baseBuildingTextures[2], 60, 30, 10, 150, 3),
+            new BuildingType("Gold Mine", baseBuildingTextures[0], 60, 0, 8, 250, 0),
+            new BuildingType("Cannon Tower", baseBuildingTextures[1], 150, 40, 10, 200, 30),
+            new BuildingType("Arrow Tower", baseBuildingTextures[2], 90, 30, 10, 150, 3),
             new BuildingType("Gold Stash", baseBuildingTextures[3], 0, 0, 1, 800, 0)
     };
 
     private static final int GOLD_STASH_INDEX = 3;
-    private static final float PLACEMENT_RADIUS = 750f;
+    private static final float PLACEMENT_RADIUS = 500f;
     private boolean placedBuildingThisFrame = false;
 
     // Tracking selected building
@@ -133,7 +133,7 @@ public class BuildSystem {
 
         // Check if placement overlaps with stone
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
-            if (CheckCollisionCircleRec(stoneCenter, ResourceNode.stoneRadius, previewRec)) {
+            if (CheckCollisionCircleRec(stoneCenter, ResourceNode.STONE_RADIUS - 1, previewRec)) { // Subtract 1 from radius to allow for some leeway
                 return false;
             }
         }
@@ -313,16 +313,16 @@ public class BuildSystem {
 
     public void draw() {
         // For testing purposes, draw the placement radius
-//        Building goldStash = getGoldStash();
-//
-//        if (goldStash != null) {
-//            DrawCircleLines(
-//                    (int) (goldStash.position.x() + size / 2f),
-//                    (int) (goldStash.position.y() + size / 2f),
-//                    PLACEMENT_RADIUS,
-//                    RED
-//            );
-//        }
+        Building goldStash = getGoldStash();
+
+        if (goldStash != null) {
+            DrawCircleLines(
+                    (int) (goldStash.position.x() + size / 2f),
+                    (int) (goldStash.position.y() + size / 2f),
+                    PLACEMENT_RADIUS,
+                    RED
+            );
+        }
 
         if (selectedBuilding == null || selectedIndex == -1) {
             return;
@@ -359,6 +359,12 @@ public class BuildSystem {
         snappedY = 0;
         tileX = 0;
         tileY = 0;
+        validPlacement = false;
+    }
+
+    public void cancelPlacement() {
+        selectedBuilding = null;
+        selectedIndex = -1;
         validPlacement = false;
     }
 

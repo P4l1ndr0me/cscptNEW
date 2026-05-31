@@ -314,7 +314,7 @@ public class WaveSystem {
 
         // Do not spawn on stone
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
-            float combinedRadius = zombieRadius + world.ResourceNode.stoneRadius;
+            float combinedRadius = zombieRadius + world.ResourceNode.STONE_RADIUS;
 
             if (Vector2Distance(spawnPos, stoneCenter) < combinedRadius) {
                 return false;

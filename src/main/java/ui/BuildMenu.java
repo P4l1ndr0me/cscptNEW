@@ -39,7 +39,7 @@ public class BuildMenu {
         }
     }
 
-    public void draw() {
+    public void draw(boolean allowTooltips) {
         // Draw outline and fill of build menu
         DrawRectangleRoundedLinesEx(MENU_RECT, 0.6f, 0, 2.0f, BLACK);
         DrawRectangleRounded(MENU_RECT, 0.6f, 0, MENU_FILL);
@@ -51,6 +51,10 @@ public class BuildMenu {
                     : WHITE;
 
             DrawTextureEx(buildingIconTextures[i], newVector2(menuRects[i].x(), menuRects[i].y()), 0.0f, HUD_SCALE, iconColor);
+        }
+
+        if (!allowTooltips) {
+            return;
         }
 
         // Draw tooltip if mouse is hovering over an icon

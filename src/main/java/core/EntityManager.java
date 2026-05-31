@@ -28,7 +28,7 @@ public class EntityManager {
         for (Vector2 stoneCenter : stoneCenters) {
             DrawTextureEx(
                     TextureManager.getTexture("stone"),
-                    newVector2(stoneCenter.x() - ResourceNode.stoneRadius, stoneCenter.y() - ResourceNode.stoneRadius),
+                    newVector2(stoneCenter.x() - ResourceNode.STONE_RADIUS, stoneCenter.y() - ResourceNode.STONE_RADIUS),
                     0.0f,
                     1.0f,
                     WHITE
