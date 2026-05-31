@@ -50,8 +50,14 @@ public class EntityManager {
         for (Building building : EntityManager.placedBuildings) {
             building.update(dt);
         }
-        for (Enemy spawnedEnemy : spawnedEnemies) {
-            spawnedEnemy.update(dt);
+        for (int i = spawnedEnemies.size() - 1; i >= 0; i--) {
+            Enemy enemy = spawnedEnemies.get(i);
+
+            enemy.update(dt);
+
+            if (enemy.isDead()) {
+                spawnedEnemies.remove(i);
+            }
         }
 
         for (int i = towerBullets.size() - 1; i >= 0; i--) {
@@ -63,10 +69,6 @@ public class EntityManager {
                 towerBullets.remove(i);
             }
         }
-    }
-
-    public static void addEnemy(Enemy enemy) {
-        spawnedEnemies.add(enemy);
     }
 
     public static void reset() {

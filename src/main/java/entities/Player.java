@@ -15,8 +15,8 @@ import java.util.List;
 public class Player extends Entity {
     public static Rectangle playerRec;
     public static Rectangle miningRec;
-    public static int numStone = 10000;
-    public static int numGold = 10000;
+    public static int numStone = 100000;
+    public static int numGold = 100000;
     public static int health = 100;
 
     // Size & movement
@@ -117,7 +117,7 @@ public class Player extends Entity {
         currentRow = 1;
         lookX = 1;
 
-        halfWidth = ((float) texture.width() / frames) * scale / 2;
+        halfWidth = ((float) texture.width() / cols) * scale / 2;
         halfHeight = ((float) texture.height() / rows) * scale / 2;
 
         playerRec = newRectangle(
@@ -272,16 +272,21 @@ public class Player extends Entity {
                 if (Math.abs(dx) < 7f) {
                     if (dx < 0) {
                         dx = -7f;
-                    } else {
+                    } else if (dx > 0) {
                         dx = 7f;
+                    } else { // dx = 0
+                        dx = 7f; // default rotate right
                     }
                 }
 
                 if (Math.abs(dy) < 7f) {
                     if (dy < 0) {
                         dy = -7f;
-                    } else {
+                    } else if (dy > 0) {
                         dy = 7f;
+                    }
+                    else { // dy = 0
+                        dy = 7f; // default rotate down
                     }
                 }
 
@@ -435,12 +440,12 @@ public class Player extends Entity {
                 if (hasPickaxeEquipped) {
                     pickaxeFrame = (pickaxeFrame + 1) % pickaxeFrames;
                 } else {
-                    currentFrame = (currentFrame + 1) % frames;
+                    currentCol = (currentCol + 1) % cols;
                 }
             }
         } else {
             frameTimer = 0f;
-            currentFrame = 0;
+            currentCol = 0;
             pickaxeFrame = 0;
         }
 
@@ -457,11 +462,11 @@ public class Player extends Entity {
     }
 
     private void drawWalkingAnimation() {
-        int frameWidth = texture.width() / frames;
+        int frameWidth = texture.width() / cols;
         int frameHeight = texture.height() / rows;
 
         Rectangle source = new Rectangle()
-                .x(currentFrame * frameWidth)
+                .x(currentCol * frameWidth)
                 .y(currentRow * frameHeight)
                 .width(frameWidth)
                 .height(frameHeight);
@@ -556,7 +561,7 @@ public class Player extends Entity {
         pickaxeFrame = 0;
         pickaxeDown = false;
         pickaxeAnimTimer = 0f;
-        currentFrame = 0;
+        currentCol = 0;
         currentRow = 1;
         lookX = 1;
         isMoving = false;

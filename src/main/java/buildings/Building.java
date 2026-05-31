@@ -40,10 +40,6 @@ public class Building {
     public void draw() {
         Texture tex = TextureManager.getTexture(type.name + " " + level);
 
-        if (tex == null) {
-            tex = type.baseTexture;
-        }
-
         // Draw building at its top-left position
         DrawTextureEx(tex, position, 0, 1.0f, WHITE);
 
@@ -99,7 +95,7 @@ public class Building {
             return false;
         }
 
-        return level < maxLevel & level < BuildSystem.getGoldStash().level;
+        return level < maxLevel && level < goldStash.level;
     }
 
     public int getUpgradeStoneCost() {
