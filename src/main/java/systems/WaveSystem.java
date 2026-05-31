@@ -15,7 +15,7 @@ import static world.World.WORLD_WIDTH;
 public class WaveSystem {
 
     // Time of day
-    private int timeMinutes = 21 * 60;
+    private int timeMinutes = 12 * 60; // Start game at noon
     private final int DAY_MINUTES = 24 * 60;
 
     // Night settings
@@ -27,7 +27,7 @@ public class WaveSystem {
     private static final int MORNING_MESSAGE_MINUTES = 30; // 6:00 AM - 6:30 AM
 
     // Speed of time
-    private float minutesPerSecond = 5f;
+    private float minutesPerSecond = 8f;
     private float timeAccumulator = 0;
 
     // Wave progression
@@ -47,9 +47,10 @@ public class WaveSystem {
     private String timeString;
     private float darknessAlpha = 0f;
 
-    // Spawn radius around Gold Stash
-    private final int MIN_SPAWN_RADIUS = 500;
-    private final int MAX_SPAWN_RADIUS = 600;
+    // Zombie spawning
+    private final float SPAWN_BUFFER_MIN = 200f;
+    private final float SPAWN_BUFFER_MAX = 400f;
+    private final int MAX_SPAWN_ATTEMPTS = 40;
 
     private enum ZombieTier {
         TIER_1("Zombie Tier 1", 2.0f, 100.0f, 70, 3, 5),
@@ -238,7 +239,7 @@ public class WaveSystem {
             return;
         }
 
-        Vector2 spawnPos = getSpawnPositionAroundGoldStash();
+        Vector2 spawnPos = getSpawnPositionAroundBase();
 
         if (spawnPos == null) {
             return;
@@ -259,7 +260,7 @@ public class WaveSystem {
         EntityManager.spawnedEnemies.add(enemy);
     }
 
-    private Vector2 getSpawnPositionAroundGoldStash() {
+    private Vector2 getSpawnPositionAroundBase() {
         Building goldStash = BuildSystem.getGoldStash();
 
         if (goldStash == null) {
@@ -269,16 +270,72 @@ public class WaveSystem {
         float stashCenterX = goldStash.position.x() + Building.size / 2f;
         float stashCenterY = goldStash.position.y() + Building.size / 2f;
 
-        double angle = Math.random() * 2 * Math.PI;
-        double distance = MIN_SPAWN_RADIUS + Math.random() * (MAX_SPAWN_RADIUS - MIN_SPAWN_RADIUS);
+        float furthestBuildingDistance = 0f;
 
-        float x = (float)(stashCenterX + distance * Math.cos(angle));
-        float y = (float)(stashCenterY + distance * Math.sin(angle));
+        for (Building building : EntityManager.placedBuildings) {
+            float buildingCenterX = building.position.x() + Building.size / 2f;
+            float buildingCenterY = building.position.y() + Building.size / 2f;
 
-        x = Math.max(0, Math.min(WORLD_WIDTH - 1, x));
-        y = Math.max(0, Math.min(WORLD_HEIGHT - 1, y));
+            float distance = Vector2Distance(
+                    newVector2(stashCenterX, stashCenterY),
+                    newVector2(buildingCenterX, buildingCenterY)
+            );
 
-        return newVector2(x, y);
+            if (distance > furthestBuildingDistance) {
+                furthestBuildingDistance = distance;
+            }
+        }
+
+        float minRadius = furthestBuildingDistance + SPAWN_BUFFER_MIN;
+        float maxRadius = furthestBuildingDistance + SPAWN_BUFFER_MAX;
+
+        for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++) {
+            double angle = Math.random() * 2 * Math.PI;
+            double distance = minRadius + Math.random() * (maxRadius - minRadius);
+
+            float x = (float) (stashCenterX + distance * Math.cos(angle));
+            float y = (float) (stashCenterY + distance * Math.sin(angle));
+
+            x = Math.max(0, Math.min(WORLD_WIDTH - 1, x));
+            y = Math.max(0, Math.min(WORLD_HEIGHT - 1, y));
+
+            Vector2 spawnPos = newVector2(x, y);
+
+            if (isValidZombieSpawn(spawnPos)) {
+                return spawnPos;
+            }
+        }
+
+        return null;
+    }
+
+    private boolean isValidZombieSpawn(Vector2 spawnPos) {
+        float zombieRadius = 14f;
+
+        // Do not spawn on stone
+        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
+            float combinedRadius = zombieRadius + world.ResourceNode.stoneRadius;
+
+            if (Vector2Distance(spawnPos, stoneCenter) < combinedRadius) {
+                return false;
+            }
+        }
+
+        // Do not spawn inside buildings
+        for (Building building : EntityManager.placedBuildings) {
+            if (CheckCollisionCircleRec(spawnPos, zombieRadius, building.getRect())) {
+                return false;
+            }
+        }
+
+        // Do not spawn directly on top of another zombie
+        for (Enemy enemy : EntityManager.spawnedEnemies) {
+            if (Vector2Distance(spawnPos, enemy.getHitCenter()) < zombieRadius * 2f) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private ZombieTier chooseZombieTier() {

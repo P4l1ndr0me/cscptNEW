@@ -4,6 +4,7 @@ import buildings.*;
 import core.Camera;
 import core.EntityManager;
 import core.TextureManager;
+import entities.Enemy;
 import entities.Player;
 import ui.BuildMenu;
 import world.*;
@@ -29,9 +30,9 @@ public class BuildSystem {
     };
 
     public static BuildingType[] buildingTypes = {
-            new BuildingType("Gold Mine", baseBuildingTextures[0], 50, 0, 8, 225, 0),
-            new BuildingType("Cannon Tower", baseBuildingTextures[1], 75, 40, 10, 175, 20),
-            new BuildingType("Arrow Tower", baseBuildingTextures[2], 60, 30, 10, 125, 3),
+            new BuildingType("Gold Mine", baseBuildingTextures[0], 50, 0, 8, 250, 0),
+            new BuildingType("Cannon Tower", baseBuildingTextures[1], 75, 40, 10, 200, 20),
+            new BuildingType("Arrow Tower", baseBuildingTextures[2], 60, 30, 10, 150, 3),
             new BuildingType("Gold Stash", baseBuildingTextures[3], 0, 0, 1, 800, 0)
     };
 
@@ -139,6 +140,13 @@ public class BuildSystem {
 
         // Check if placement overlaps with player
         if (CheckCollisionRecs(previewRec, Player.playerRec)) return false;
+
+        // Check if placement overlaps with zombies
+        for (Enemy enemy : EntityManager.spawnedEnemies) {
+            if (CheckCollisionCircleRec(enemy.getHitCenter(), enemy.getHitRadius(), previewRec)) {
+                return false;
+            }
+        }
 
         // Check if within predefined distance from goldstash
         if (!selectedBuilding.name.equals("Gold Stash")) {

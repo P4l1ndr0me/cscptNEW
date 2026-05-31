@@ -12,8 +12,8 @@ import static com.raylib.Colors.*;
 public class Player extends Entity {
     public static Rectangle playerRec;
     public static Rectangle miningRec;
-    public static int numStone = 10000;
-    public static int numGold = 10000;
+    public static int numStone = 100000;
+    public static int numGold = 100000;
     public static int health = 100;
 
     // Size & movement

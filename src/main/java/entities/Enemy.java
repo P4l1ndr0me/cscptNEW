@@ -29,7 +29,7 @@ public class Enemy extends Entity {
 
     // Combat
     private int damage;
-    private final float attackRange = 5f;
+    private final float attackRange = 3f;
     private float attackCooldown = 1.0f;
     private float attackTimer = 0f;
     private Building targetBuilding = null;
@@ -82,6 +82,10 @@ public class Enemy extends Entity {
         Vector2 separation = getSeparationForce();
         moveDir.x(moveDir.x() + separation.x() * separationStrength);
         moveDir.y(moveDir.y() + separation.y() * separationStrength);
+
+        if (Vector2Length(moveDir) > 0) {
+            moveDir = Vector2Normalize(moveDir);
+        }
 
         move(moveDir, dt);
 

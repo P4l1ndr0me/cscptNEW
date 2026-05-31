@@ -22,7 +22,7 @@ public class ArrowTower extends Building {
 
     private float attackTimer = 0f;
     private final float attackCooldown = 0.10f;
-    private final float knockbackStrength = 8f;
+    private final float knockbackStrength = 9f;
 
     public void update(float dt) {
         Enemy target = getNearestEnemyInRange();
