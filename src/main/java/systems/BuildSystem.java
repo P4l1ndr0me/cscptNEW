@@ -362,6 +362,12 @@ public class BuildSystem {
         validPlacement = false;
     }
 
+    public void cancelPlacement() {
+        selectedBuilding = null;
+        selectedIndex = -1;
+        validPlacement = false;
+    }
+
     // Getters
     public boolean placedBuildingThisFrame() {
         return placedBuildingThisFrame;

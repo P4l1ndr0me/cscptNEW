@@ -65,14 +65,31 @@ public class GameState {
     public void update() {
         float dt = GetFrameTime();
 
-        // If game over, skip all game logic
+        // Always update HUD first because it controls help/shop/game over UI.
+        HUD.updateHUD();
+
+        // If game over, skip all gameplay logic.
         if (currentState == State.GAME_OVER) {
-            HUD.updateHUD();
+            buildSystem.cancelPlacement();
+            buildingSelectionSystem.clearSelection();
             return;
         }
 
-        // Normal game update (only reaches here if NOT game over)
-        HUD.updateHUD();
+        boolean uiBlocking = HUD.isModalOpen();
+
+        // If a modal UI is open, stop building placement/selection immediately.
+        if (uiBlocking) {
+            buildSystem.cancelPlacement();
+            buildingSelectionSystem.clearSelection();
+
+            // Keep world  running behind shop/help:
+            EntityManager.updateEntities(dt);
+            waveSystem.update(dt);
+
+            return;
+        }
+
+        // Normal gameplay update
         player.update(dt);
         Camera.update(player.getPosition());
         buildSystem.update();
@@ -85,6 +102,8 @@ public class GameState {
         BeginDrawing();
         ClearBackground(GRAY);
 
+        boolean uiBlocking = HUD.isModalOpen();
+
         BeginMode2D(Camera.camera);
 
         // Draw background and grid lines
@@ -96,23 +115,25 @@ public class GameState {
         // Draw player
         player.draw();
 
-        // Draw building preview
-        buildSystem.draw();
-
-        // Hitboxes (debugging)
-        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
-            DrawCircleLinesV(stoneCenter, ResourceNode.STONE_RADIUS, RED);
+        // Only draw building preview when no modal UI is open.
+        if (!uiBlocking) {
+            buildSystem.draw();
         }
+
+        // Debug hitboxes
         DrawRectangleLinesEx(Player.playerRec, 1.0f, RED);
         DrawRectangleLinesEx(Player.miningRec, 1.0f, RED);
 
         EndMode2D();
 
-        // Draw UI & HUD
-        buildMenu.draw();
-        HUD.drawHUD();
+        // Draw normal build menu only when no modal UI is open.
+        // This prevents tooltips from appearing behind shop/help.
+        if (!uiBlocking) {
+            buildingSelectionSystem.drawUI();
+        }
 
-        buildingSelectionSystem.drawUI();
+        buildMenu.draw(!uiBlocking);
+        HUD.drawHUD();
 
         waveSystem.draw();
         waveSystem.drawDarknessOverlay();

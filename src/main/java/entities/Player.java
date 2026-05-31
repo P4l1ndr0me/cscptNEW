@@ -10,7 +10,6 @@ import static com.raylib.Helpers.*;
 import static com.raylib.Colors.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Player extends Entity {
     public static Rectangle playerRec;
@@ -59,18 +58,15 @@ public class Player extends Entity {
         Vector2 position;
         String text;
         float timer;
-        float alpha;
 
         MiningPopup(Vector2 pos, String text) {
             this.position = pos;
             this.text = text;
             this.timer = 1.0f;    // lifetime in seconds
-            this.alpha = 1.0f;
         }
 
         void update(float dt) {
             timer -= dt;
-            alpha = Math.max(0, timer / 1.0f); // fade out
             position.y(position.y() - 25 * dt); // float upward
         }
 
@@ -79,7 +75,7 @@ public class Player extends Entity {
         }
     }
 
-    private static List<MiningPopup> miningPopups = new ArrayList<>();
+    private static ArrayList<MiningPopup> miningPopups = new ArrayList<>();
 
     private static void addMiningPopup(Vector2 position, int amount) {
         miningPopups.add(new MiningPopup(position, "+" + amount));
@@ -96,8 +92,15 @@ public class Player extends Entity {
 
     private void drawPopups() {
         for (MiningPopup popup : miningPopups) {
-            Color color = newColor(0, 255, 0, (int)(popup.alpha * 255));
-            DrawText(popup.text, (int)popup.position.x(), (int)popup.position.y(), 16, color);
+            Color color = newColor(66, 255, 87, 255);
+            DrawTextEx(
+                    core.Main.pixelFont,
+                    popup.text,
+                    newVector2(popup.position.x(), popup.position.y()),
+                    30,
+                    0.5f,
+                    color
+            );
         }
     }
     // ───────────────────────────────────────────────────────
@@ -423,7 +426,7 @@ public class Player extends Entity {
                 miningTimer = 0f;
                 numStone += miningDamage;
                 // Show floating text at mining rectangle position
-                addMiningPopup(newVector2(miningRec.x() + miningRec.width() / 2, miningRec.y()), miningDamage);
+                addMiningPopup(newVector2(miningRec.x(), miningRec.y() - 30), miningDamage);
             }
         } else {
             miningTimer = 0f;
