@@ -1,6 +1,5 @@
 package entities;
 
-import core.EntityManager;
 import core.TextureManager;
 
 import static com.raylib.Colors.WHITE;
@@ -88,11 +87,6 @@ public class TowerBullet {
         if (distance <= hitRadius + target.getHitRadius()) {
             target.takeDamage(damage);
             target.applyKnockback(velocity, knockbackStrength);
-
-            if (target.isDead()) {
-                EntityManager.spawnedEnemies.remove(target);
-            }
-
             active = false;
         }
     }

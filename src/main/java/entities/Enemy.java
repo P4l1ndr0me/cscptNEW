@@ -3,6 +3,7 @@ package entities;
 import buildings.Building;
 import core.EntityManager;
 import systems.BuildSystem;
+import world.ResourceNode;
 import world.World;
 
 import static com.raylib.Helpers.*;
@@ -17,19 +18,22 @@ public class Enemy extends Entity {
     private float hitOffsetY;
 
     // Movement
-    private final float separationRadius = 24f;
-    private final float separationStrength = 0.35f;
+    private final float separationRadius = 30f;
+    private final float separationStrength = 0.45f;
 
     // Animation
-    private final float animSpeed = 0.20f;
+    private final float animSpeed = 0.40f;
+    private int animationFrame = 0;
+    private boolean isAttacking = false;
+    private boolean wasAttacking = false;
 
     // Combat
     private int damage;
-    private int health;
-    private final float attackRange = 2f;
+    private final float attackRange = 3f;
     private float attackCooldown = 1.0f;
     private float attackTimer = 0f;
     private Building targetBuilding = null;
+    private int goldDrop;
 
     // Debug
     private final boolean showDebugHitbox = true;
@@ -40,26 +44,30 @@ public class Enemy extends Entity {
             float speed,
             Texture texture,
             int rows,
-            int frames,
+            int cols,
             int health,
-            int damage
+            int damage,
+            int goldDrop
     ) {
-        super(position, scale, speed, texture, rows, frames);
+        super(position, scale, speed, texture, rows, cols);
 
         this.health = health;
         this.damage = damage;
+        this.goldDrop = goldDrop;
 
-        currentFrame = 1;
+        currentCol = 0;
         currentRow = 0;
     }
 
     public void update(float dt) {
         targetBuilding = getBuildingInAttackRange();
 
-        if (targetBuilding != null) {
+        isAttacking = targetBuilding != null;
+
+        if (isAttacking) {
             attackBuilding(dt);
-            updateAnimation(dt, newVector2(0, 0));
-            //return;
+        } else {
+            attackTimer = attackCooldown;
         }
 
         Building target = getTargetBuilding();
@@ -80,8 +88,131 @@ public class Enemy extends Entity {
         }
 
         move(moveDir, dt);
+
+        pushOutOfStones();
+        pushAwayFromPlayer();
+
         boundaryClamp();
         updateAnimation(dt, moveDir);
+    }
+
+    private void pushOutOfStones() {
+        Vector2 center = getHitCenter();
+
+        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
+            float combinedRadius = hitRadius + ResourceNode.stoneRadius;
+
+            float dx = center.x() - stoneCenter.x();
+            float dy = center.y() - stoneCenter.y();
+
+            float distance = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 0.01f && distance < combinedRadius) {
+                float overlap = combinedRadius - distance;
+
+                float pushX = dx / distance * overlap;
+                float pushY = dy / distance * overlap;
+
+                applySafePush(pushX, pushY);
+
+            }
+        }
+    }
+
+    private void pushAwayFromPlayer() {
+        Vector2 center = getHitCenter();
+
+        Rectangle playerRect = Player.playerRec;
+
+        float closestX = Math.max(
+                playerRect.x(),
+                Math.min(center.x(), playerRect.x() + playerRect.width())
+        );
+
+        float closestY = Math.max(
+                playerRect.y(),
+                Math.min(center.y(), playerRect.y() + playerRect.height())
+        );
+
+        float dx = center.x() - closestX;
+        float dy = center.y() - closestY;
+
+        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > 0.01f && distance < hitRadius) {
+            float overlap = hitRadius - distance;
+
+            // Player only slightly pushes zombie
+            float playerPushStrength = 0.50f;
+
+            float pushX = dx / distance * overlap * playerPushStrength;
+            float pushY = dy / distance * overlap * playerPushStrength;
+
+            applySafePush(pushX, pushY);
+        }
+    }
+
+    private void applySafePush(float pushX, float pushY) {
+        float originalX = position.x();
+        float originalY = position.y();
+
+        int steps = 10;
+
+        // Try full diagonal push first
+        for (int i = steps; i >= 1; i--) {
+            float scale = i / (float) steps;
+
+            float testX = originalX + pushX * scale;
+            float testY = originalY + pushY * scale;
+
+            if (!collidesWithObstacle(testX, testY)) {
+                position.x(testX);
+                position.y(testY);
+                return;
+            }
+        }
+
+        // Try X-only push
+        for (int i = steps; i >= 1; i--) {
+            float scale = i / (float) steps;
+
+            float testX = originalX + pushX * scale;
+
+            if (!collidesWithObstacle(testX, originalY)) {
+                position.x(testX);
+                return;
+            }
+        }
+
+        // Try Y-only push
+        for (int i = steps; i >= 1; i--) {
+            float scale = i / (float) steps;
+
+            float testY = originalY + pushY * scale;
+
+            if (!collidesWithObstacle(originalX, testY)) {
+                position.y(testY);
+                return;
+            }
+        }
+    }
+
+    private boolean collidesWithObstacle(float testX, float testY) {
+        return collidesWithBuilding(testX, testY) || collidesWithStone(testX, testY);
+    }
+
+    private boolean collidesWithStone(float testX, float testY) {
+        Vector2 testCenter = newVector2(testX + hitOffsetX, testY + hitOffsetY);
+
+        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
+            float combinedRadius = hitRadius + ResourceNode.stoneRadius;
+
+            if (Vector2Distance(testCenter, stoneCenter) < combinedRadius) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Building getBuildingInAttackRange() {
@@ -220,7 +351,7 @@ public class Enemy extends Entity {
     }
 
     private void boundaryClamp() {
-        float frameWidth = texture.width() / (float) frames;
+        float frameWidth = texture.width() / (float) cols;
         float frameHeight = texture.height() / (float) rows;
 
         float halfW = frameWidth * scale / 2f;
@@ -244,43 +375,58 @@ public class Enemy extends Entity {
     }
 
     private void updateAnimation(float dt, Vector2 moveDir) {
-        if (Vector2Length(moveDir) == 0) {
+        boolean moving = Vector2Length(moveDir) > 0;
+        boolean shouldAnimate = moving || isAttacking;
+
+        if (isAttacking != wasAttacking) {
+            animationFrame = 0;
             frameTimer = 0;
-            return;
+            wasAttacking = isAttacking;
         }
 
-        // Choose animation column based on direction
-        if (Math.abs(moveDir.x()) > Math.abs(moveDir.y())) {
-            if (moveDir.x() < 0) {
-                currentFrame = 0; // left
-                hitOffsetX = 7f;
-                hitOffsetY = 9f;
+        if (moving) {
+            if (Math.abs(moveDir.x()) > Math.abs(moveDir.y())) {
+                if (moveDir.x() < 0) {
+                    currentCol = 0; // left
+                    hitOffsetX = 7f;
+                    hitOffsetY = 9f;
+                } else {
+                    currentCol = 2; // right
+                    hitOffsetX = -6f;
+                    hitOffsetY = 9f;
+                }
             } else {
-                currentFrame = 2; // right
-                hitOffsetX = -6f;
+                currentCol = 1; // up/down
+                hitOffsetX = 1f;
                 hitOffsetY = 9f;
             }
-        } else {
-            currentFrame = 1; // up/down
-            hitOffsetX = 1f;
-            hitOffsetY = 9f;
         }
 
-        // Cycle rows for walking animation
-        frameTimer += dt;
+        if (shouldAnimate) {
+            frameTimer += dt;
 
-        if (frameTimer >= animSpeed) {
+            if (frameTimer >= animSpeed) {
+                frameTimer = 0;
+                animationFrame = (animationFrame + 1) % 2;
+            }
+        } else {
             frameTimer = 0;
-            currentRow = (currentRow + 1) % rows;
+            animationFrame = 0;
+        }
+
+        if (isAttacking) {
+            currentRow = 2 + animationFrame;
+        } else {
+            currentRow = animationFrame;
         }
     }
 
     public void draw() {
-        int frameWidth = texture.width() / frames;
+        int frameWidth = texture.width() / cols;
         int frameHeight = texture.height() / rows;
 
         Rectangle source = newRectangle(
-                currentFrame * frameWidth,
+                currentCol * frameWidth,
                 currentRow * frameHeight,
                 frameWidth,
                 frameHeight
@@ -314,6 +460,11 @@ public class Enemy extends Entity {
 
     public void takeDamage(int amount) {
         health -= amount;
+
+        if (health <= 0) {
+            health = 0;
+            Player.numGold += goldDrop;
+        }
     }
 
     public boolean isDead() {
