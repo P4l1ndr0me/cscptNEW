@@ -3,6 +3,7 @@ package entities;
 import buildings.Building;
 import core.EntityManager;
 import systems.BuildSystem;
+import world.ResourceNode;
 import world.World;
 
 import static com.raylib.Helpers.*;
@@ -35,7 +36,7 @@ public class Enemy extends Entity {
     private int goldDrop;
 
     // Debug
-    private final boolean showDebugHitbox = false;
+    private final boolean showDebugHitbox = true;
 
     public Enemy(
             Vector2 position,
@@ -83,8 +84,131 @@ public class Enemy extends Entity {
         moveDir.y(moveDir.y() + separation.y() * separationStrength);
 
         move(moveDir, dt);
+
+        pushOutOfStones();
+        pushAwayFromPlayer();
+
         boundaryClamp();
         updateAnimation(dt, moveDir);
+    }
+
+    private void pushOutOfStones() {
+        Vector2 center = getHitCenter();
+
+        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
+            float combinedRadius = hitRadius + ResourceNode.stoneRadius;
+
+            float dx = center.x() - stoneCenter.x();
+            float dy = center.y() - stoneCenter.y();
+
+            float distance = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 0.01f && distance < combinedRadius) {
+                float overlap = combinedRadius - distance;
+
+                float pushX = dx / distance * overlap;
+                float pushY = dy / distance * overlap;
+
+                applySafePush(pushX, pushY);
+
+            }
+        }
+    }
+
+    private void pushAwayFromPlayer() {
+        Vector2 center = getHitCenter();
+
+        Rectangle playerRect = Player.playerRec;
+
+        float closestX = Math.max(
+                playerRect.x(),
+                Math.min(center.x(), playerRect.x() + playerRect.width())
+        );
+
+        float closestY = Math.max(
+                playerRect.y(),
+                Math.min(center.y(), playerRect.y() + playerRect.height())
+        );
+
+        float dx = center.x() - closestX;
+        float dy = center.y() - closestY;
+
+        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > 0.01f && distance < hitRadius) {
+            float overlap = hitRadius - distance;
+
+            // Player only slightly pushes zombie
+            float playerPushStrength = 0.50f;
+
+            float pushX = dx / distance * overlap * playerPushStrength;
+            float pushY = dy / distance * overlap * playerPushStrength;
+
+            applySafePush(pushX, pushY);
+        }
+    }
+
+    private void applySafePush(float pushX, float pushY) {
+        float originalX = position.x();
+        float originalY = position.y();
+
+        int steps = 10;
+
+        // Try full diagonal push first
+        for (int i = steps; i >= 1; i--) {
+            float scale = i / (float) steps;
+
+            float testX = originalX + pushX * scale;
+            float testY = originalY + pushY * scale;
+
+            if (!collidesWithObstacle(testX, testY)) {
+                position.x(testX);
+                position.y(testY);
+                return;
+            }
+        }
+
+        // Try X-only push
+        for (int i = steps; i >= 1; i--) {
+            float scale = i / (float) steps;
+
+            float testX = originalX + pushX * scale;
+
+            if (!collidesWithObstacle(testX, originalY)) {
+                position.x(testX);
+                return;
+            }
+        }
+
+        // Try Y-only push
+        for (int i = steps; i >= 1; i--) {
+            float scale = i / (float) steps;
+
+            float testY = originalY + pushY * scale;
+
+            if (!collidesWithObstacle(originalX, testY)) {
+                position.y(testY);
+                return;
+            }
+        }
+    }
+
+    private boolean collidesWithObstacle(float testX, float testY) {
+        return collidesWithBuilding(testX, testY) || collidesWithStone(testX, testY);
+    }
+
+    private boolean collidesWithStone(float testX, float testY) {
+        Vector2 testCenter = newVector2(testX + hitOffsetX, testY + hitOffsetY);
+
+        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
+            float combinedRadius = hitRadius + ResourceNode.stoneRadius;
+
+            if (Vector2Distance(testCenter, stoneCenter) < combinedRadius) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Building getBuildingInAttackRange() {
@@ -250,11 +374,11 @@ public class Enemy extends Entity {
         boolean moving = Vector2Length(moveDir) > 0;
         boolean shouldAnimate = moving || isAttacking;
 
-//        if (isAttacking != wasAttacking) {
-//            animationFrame = 0;
-//            frameTimer = 0;
-//            wasAttacking = isAttacking;
-//        }
+        if (isAttacking != wasAttacking) {
+            animationFrame = 0;
+            frameTimer = 0;
+            wasAttacking = isAttacking;
+        }
 
         if (moving) {
             if (Math.abs(moveDir.x()) > Math.abs(moveDir.y())) {
@@ -274,14 +398,12 @@ public class Enemy extends Entity {
             }
         }
 
-        int frameCount = isAttacking ? 6 : 3;
-
         if (shouldAnimate) {
             frameTimer += dt;
 
             if (frameTimer >= animSpeed) {
                 frameTimer = 0;
-                animationFrame = (animationFrame + 1) % frameCount;
+                animationFrame = (animationFrame + 1) % 2;
             }
         } else {
             frameTimer = 0;
@@ -289,9 +411,9 @@ public class Enemy extends Entity {
         }
 
         if (isAttacking) {
-            currentRow = 3 + animationFrame; // rows 3-8
+            currentRow = 2 + animationFrame;
         } else {
-            currentRow = 0 + animationFrame;   // rows 0-2
+            currentRow = animationFrame;
         }
     }
 

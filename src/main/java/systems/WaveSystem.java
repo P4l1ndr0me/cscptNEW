@@ -53,9 +53,9 @@ public class WaveSystem {
 
     private enum ZombieTier {
         TIER_1("Zombie Tier 1", 2.0f, 100.0f, 70, 3, 5),
-        TIER_2("Zombie Tier 2", 2.0f, 100.0f, 200, 9, 12),
-        TIER_3("Zombie Tier 3", 2.0f, 100.0f, 400, 16, 25),
-        TIER_4("Zombie Tier 4", 2.0f, 100.0f, 600, 26, 45);
+        TIER_2("Zombie Tier 2", 2.0f, 100.0f, 140, 9, 12),
+        TIER_3("Zombie Tier 3", 2.0f, 100.0f, 250, 16, 25),
+        TIER_4("Zombie Tier 4", 2.0f, 100.0f, 480, 26, 45);
 
         final String textureName;
         final float scale;
@@ -249,7 +249,7 @@ public class WaveSystem {
                 tier.scale,
                 tier.speed,
                 TextureManager.getTexture(tier.textureName),
-                9,
+                4,
                 3,
                 tier.health,
                 tier.damage,

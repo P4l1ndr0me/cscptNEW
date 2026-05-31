@@ -18,10 +18,10 @@ public class ArrowTower extends Building {
     private float rotation = 0;
 
     // How far the arrow can detect enemies
-    private final float range = 225f;
+    private final float range = 150f;
 
     private float attackTimer = 0f;
-    private final float attackCooldown = 0.35f;
+    private final float attackCooldown = 0.10f;
     private final float knockbackStrength = 8f;
 
     public void update(float dt) {
