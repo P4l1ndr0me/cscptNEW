@@ -17,7 +17,7 @@ public class CannonTower extends Building {
     private final float range = 200f;
 
     private float attackTimer = 0f;
-    private final float attackCooldown = 0.40f;
+    private final float attackCooldown = 0.60f;
     private final float knockbackStrength = 12f;
 
     public CannonTower(Vector2 position, BuildingType type) {
@@ -36,8 +36,6 @@ public class CannonTower extends Building {
                 attackTimer = 0f;
                 shoot(target);
             }
-        } else {
-            attackTimer = attackCooldown;
         }
     }
 

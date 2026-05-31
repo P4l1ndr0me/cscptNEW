@@ -4,7 +4,6 @@ import systems.*;
 import ui.*;
 import world.*;
 import entities.*;
-import buildings.*;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
@@ -102,7 +101,7 @@ public class GameState {
 
         // Hitboxes (debugging)
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
-            DrawCircleLinesV(stoneCenter, ResourceNode.stoneRadius, RED);
+            DrawCircleLinesV(stoneCenter, ResourceNode.STONE_RADIUS, RED);
         }
         DrawRectangleLinesEx(Player.playerRec, 1.0f, RED);
         DrawRectangleLinesEx(Player.miningRec, 1.0f, RED);

@@ -100,7 +100,7 @@ public class Enemy extends Entity {
         Vector2 center = getHitCenter();
 
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
-            float combinedRadius = hitRadius + ResourceNode.stoneRadius;
+            float combinedRadius = hitRadius + ResourceNode.STONE_RADIUS;
 
             float dx = center.x() - stoneCenter.x();
             float dy = center.y() - stoneCenter.y();
@@ -205,7 +205,7 @@ public class Enemy extends Entity {
         Vector2 testCenter = newVector2(testX + hitOffsetX, testY + hitOffsetY);
 
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
-            float combinedRadius = hitRadius + ResourceNode.stoneRadius;
+            float combinedRadius = hitRadius + ResourceNode.STONE_RADIUS;
 
             if (Vector2Distance(testCenter, stoneCenter) < combinedRadius) {
                 return true;

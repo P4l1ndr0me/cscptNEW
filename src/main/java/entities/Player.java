@@ -256,7 +256,7 @@ public class Player extends Entity {
 
     private void pushOutOfStones() {
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
-            float radius = ResourceNode.stoneRadius;
+            float radius = ResourceNode.STONE_RADIUS;
 
             float closestX = Math.max(playerRec.x(), Math.min(stoneCenter.x(), playerRec.x() + playerRec.width()));
             float closestY = Math.max(playerRec.y(), Math.min(stoneCenter.y(), playerRec.y() + playerRec.height()));
@@ -404,7 +404,7 @@ public class Player extends Entity {
 
     private boolean isNearStone() {
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
-            if (CheckCollisionCircleRec(stoneCenter, ResourceNode.stoneRadius, miningRec)) {
+            if (CheckCollisionCircleRec(stoneCenter, ResourceNode.STONE_RADIUS, miningRec)) {
                 return true;
             }
         }
