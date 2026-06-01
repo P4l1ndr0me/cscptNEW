@@ -19,7 +19,7 @@ public class Player extends Entity {
 
     // Player resources
     public static int numStone = 0;
-    public static int numGold = 10000;
+    public static int numGold = 0;
     public static int health = 100;
 
     // Size & movement
