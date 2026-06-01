@@ -142,29 +142,24 @@ public class GameState {
     }
 
     public void reset() {
-        // Reset game state
         currentState = State.PLAYING;
 
-        // Reset all static systems
         EntityManager.reset();
         WeaponManager.reset();
         Camera.reset();
         HUD.reset();
         ResourceNode.reset();
 
-        // Reset instance systems
-        waveSystem.reset();
         player.reset();
         buildSystem.reset();
         buildingSelectionSystem.reset();
+        waveSystem.reset(); 
 
-        // Clear all dynamic entities
         EntityManager.stoneCenters.clear();
         EntityManager.placedBuildings.clear();
         EntityManager.spawnedEnemies.clear();
         EntityManager.towerBullets.clear();
 
-        // Regenerate stones
         ResourceNode.init();
     }
 

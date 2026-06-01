@@ -520,22 +520,15 @@ public class WaveSystem {
     }
 
     public void reset() {
-        // Reset time
-        timeMinutes = 12 * 60;  // 12:00 PM
+        timeMinutes = 12 * 60;
         timeAccumulator = 0;
         spawnTimer = 0;
-
-        // Reset wave progression
         waveNumber = 1;
         waveActive = false;
         firstWaveStarted = false;
         waveStartedThisNight = false;
-
-        // Reset intensity and darkness
         currentIntensity = 0f;
         darknessAlpha = 0f;
-
-        // Update display
         updateTimeString();
     }
 
