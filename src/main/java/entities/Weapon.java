@@ -37,7 +37,7 @@ public class Weapon {
     public String getType() { return type; }
     public int getEfficiency(){return efficiency;}
 
-    // Setters (if needed)
+    // Setters
     public void setCost(int cost) { this.cost = cost; }
     public void setDamage(int damage) { this.damage = damage; }
 }

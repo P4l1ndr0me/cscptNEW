@@ -16,12 +16,14 @@ import static entities.Player.numGold;
 import static ui.BuildMenu.MENU_FILL;
 
 public class HUD {
+    // Resource panel
     private static final int menuX = (int) (0.8 * Main.SCREEN_WIDTH);
     private static final int menuY = Main.SCREEN_HEIGHT - 140;
     private static final int menuHeight = 120;
     public static final Rectangle resourceRect = newRectangle(
             menuX, menuY, Main.SCREEN_WIDTH * 0.18f, menuHeight);
 
+    // Shop panel dimensions
     private static final float shopPanW = Main.SCREEN_WIDTH * 2f / 3f;
     private static final float shopPanH = Main.SCREEN_HEIGHT * 2f / 3f;
     private static final float shopPanX = (Main.SCREEN_WIDTH - shopPanW) / 2f;
@@ -30,17 +32,15 @@ public class HUD {
     // Store which weapons are currently being displayed
     private static Weapon[] displayedWeapons = new Weapon[3];
 
-    // SHOP BUTTON
+    // Buttons
     private static final Rectangle shopButton = newRectangle(menuX + 70, menuY - 70, 140, 50);
-
-    // HELP BUTTON (top right)
     private static final Rectangle helpButton = newRectangle(Main.SCREEN_WIDTH - 120, 20, 100, 40);
     private static boolean helpScreenOpen = false;
 
-    // SHOP PANEL
+    // Shop panel
     private static final Rectangle shopPanel = newRectangle(shopPanX, shopPanY, shopPanW, shopPanH);
 
-    // HELP PANEL
+    // Help panel
     private static final float helpPanW = Main.SCREEN_WIDTH * 2f / 3f;
     private static final float helpPanH = Main.SCREEN_HEIGHT * 2f / 3f;
     private static final float helpPanX = (Main.SCREEN_WIDTH - helpPanW) / 2f;
@@ -48,16 +48,16 @@ public class HUD {
     private static final Rectangle helpPanel = newRectangle(helpPanX, helpPanY, helpPanW, helpPanH);
     private static final Rectangle closeHelpButton = newRectangle(helpPanX + helpPanW - 80, helpPanY + 20, 60, 35);
 
-    // TAB BUTTONS
+    // Tab buttons
     private static final Rectangle weaponsTabButton = newRectangle(shopPanX + 50, shopPanY + 60, 150, 40);
     private static final Rectangle buildingsTabButton = newRectangle(shopPanX + 250, shopPanY + 60, 150, 40);
 
-    // ITEM RECTANGLES
+    // Weapon item backgrounds
     private static final Rectangle pickRect = newRectangle(shopPanX + 50, shopPanY + 130, shopPanW - 100, 80);
     private static final Rectangle swordRect = newRectangle(shopPanX + 50, shopPanY + 240, shopPanW - 100, 80);
     private static final Rectangle bowRect = newRectangle(shopPanX + 50, shopPanY + 350, shopPanW - 100, 80);
 
-    // BUY BUTTONS
+    // Buy buttons
     private static final Rectangle buyButton1 = newRectangle(shopPanX + 690, shopPanY + 145, 100, 50);
     private static final Rectangle buyButton2 = newRectangle(shopPanX + 690, shopPanY + 255, 100, 50);
     private static final Rectangle buyButton3 = newRectangle(shopPanX + 690, shopPanY + 365, 100, 50);
@@ -66,14 +66,16 @@ public class HUD {
     private static float itemScale = 4.0f;
     private static int currentShopTab = 2; // 0 = weapons, 1 = buildings
 
-    // Visual feedback fields
-    private static float[] buttonFlashTimers = new float[3]; // 0=pickaxe,1=sword,2=bow
+    // Visual feedback for purchases
+    private static float[] buttonFlashTimers = new float[3];
     private static String purchaseMessage = "";
     private static float purchaseMessageTimer = 0f;
 
     private static core.GameState gameState;
 
+    // Draws the entire HUD including resources, buttons, shop, and help screens
     public static void drawHUD() {
+        // Show game over screen instead of normal HUD
         if (core.GameState.isGameOver()) {
             drawGameOverScreen();
             return;
@@ -124,6 +126,7 @@ public class HUD {
         }
     }
 
+    // Draws the help screen with game controls and information
     private static void drawHelpScreen() {
         // Darken background
         DrawRectangle(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, Fade(BLACK, 0.85f));
@@ -174,8 +177,9 @@ public class HUD {
         DrawTextEx(pixelFont, "BUILDINGS", newVector2(helpPanX + helpPanW / 2 + 50, startY + lineHeight * 7), 24, 1.0f, SKYBLUE);
     }
 
+    // Updates HUD input, timers, and UI state (shop, help screen, buttons)
     public static void updateHUD() {
-        // If game over, only handle exit button, ignore everything else
+        // Game over screen only checks exit button
         if (core.GameState.isGameOver()) {
             Vector2 mouse = GetMousePosition();
             Rectangle exitButton = newRectangle(Main.SCREEN_WIDTH/2 - 60, Main.SCREEN_HEIGHT/2 + 50, 120, 40);
@@ -187,7 +191,7 @@ public class HUD {
 
         Vector2 mouse = GetMousePosition();
 
-        // Update timers for visual feedback
+        // Update visual feedback timers
         for (int i = 0; i < buttonFlashTimers.length; i++) {
             if (buttonFlashTimers[i] > 0) {
                 buttonFlashTimers[i] -= GetFrameTime();
@@ -199,12 +203,8 @@ public class HUD {
 
         // Toggle help screen with H key
         if (IsKeyPressed(KEY_H)) {
-            if (helpScreenOpen) {
-                helpScreenOpen = false;
-            } else {
-                helpScreenOpen = true;
-                shopOpen = false;
-            }
+            helpScreenOpen = !helpScreenOpen;
+            if (helpScreenOpen) shopOpen = false;
         }
 
         // Close help with ESC
@@ -212,7 +212,7 @@ public class HUD {
             helpScreenOpen = false;
         }
 
-        // Toggle shop (only if help screen is not open)
+        // Toggle shop with B key
         if (!helpScreenOpen && IsKeyPressed(KEY_B)) {
             shopOpen = !shopOpen;
             if (shopOpen && currentShopTab == 2) {
@@ -229,7 +229,7 @@ public class HUD {
             return;
         }
 
-        // Tab switching (only if shop open)
+        // Tab switching
         if (shopOpen) {
             if (CheckCollisionPointRec(mouse, weaponsTabButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 currentShopTab = 0;
@@ -240,7 +240,7 @@ public class HUD {
             }
         }
 
-        // Help button click (top right)
+        // Help button click
         if (CheckCollisionPointRec(mouse, helpButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             helpScreenOpen = true;
             shopOpen = false;
@@ -249,18 +249,18 @@ public class HUD {
         // Shop button click
         if (CheckCollisionPointRec(mouse, shopButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             shopOpen = !shopOpen;
-            if (shopOpen) {
-                updateDisplayedWeapons();
-            }
+            if (shopOpen) updateDisplayedWeapons();
         }
     }
 
+    // Refreshes the displayed weapons based on current unlocked tiers
     private static void updateDisplayedWeapons() {
         displayedWeapons[0] = WeaponManager.getNextWeapon("pickaxe");
         displayedWeapons[1] = WeaponManager.getNextWeapon("sword");
         displayedWeapons[2] = WeaponManager.getNextWeapon("bow");
     }
 
+    // Draws the weapons shop tab with all purchasable items
     private static void displayWeaponsTab() {
         Vector2 mouse = GetMousePosition();
 
@@ -269,7 +269,7 @@ public class HUD {
         DrawRectangleRounded(swordRect, 0.2f, 0, Fade(GRAY, 0.8f));
         DrawRectangleRounded(bowRect, 0.2f, 0, Fade(GRAY, 0.8f));
 
-        // ─── PICKAXE ──────────────────────────────────────────
+        // Pickaxe
         if (displayedWeapons[0] != null) {
             Weapon w = displayedWeapons[0];
             DrawTextureEx(TextureManager.getTexture(w.getTextureName()),
@@ -287,7 +287,7 @@ public class HUD {
             DrawTextEx(pixelFont, "MAX TIER REACHED", newVector2(shopPanX + 200, shopPanY + 170), 20, 1.0f, RED);
         }
 
-        // ─── SWORD ────────────────────────────────────────────
+        // Sword
         if (displayedWeapons[1] != null) {
             Weapon w = displayedWeapons[1];
             DrawTextureEx(TextureManager.getTexture(w.getTextureName()),
@@ -302,7 +302,7 @@ public class HUD {
             DrawTextEx(pixelFont, "MAX TIER REACHED", newVector2(shopPanX + 200, shopPanY + 280), 20, 1.0f, RED);
         }
 
-        // ─── BOW ──────────────────────────────────────────────
+        // Bow
         if (displayedWeapons[2] != null) {
             Weapon w = displayedWeapons[2];
             DrawTextureEx(TextureManager.getTexture(w.getTextureName()),
@@ -317,8 +317,8 @@ public class HUD {
             DrawTextEx(pixelFont, "MAX TIER REACHED", newVector2(shopPanX + 200, shopPanY + 390), 20, 1.0f, RED);
         }
 
-        // ─── BUY BUTTONS with flash effect ────────────────────
-        // Pickaxe button
+        // Buy buttons
+        // Pickaxe buy button
         if (displayedWeapons[0] != null) {
             Color btnColor = GREEN;
             if (buttonFlashTimers[0] > 0) btnColor = WHITE;
@@ -332,7 +332,7 @@ public class HUD {
             DrawTextEx(pixelFont, "MAX", newVector2(shopPanX + 705, shopPanY + 155), 25, 1.0f, BLACK);
         }
 
-        // Sword button
+        // Sword buy button
         if (displayedWeapons[1] != null) {
             Color btnColor = GREEN;
             if (buttonFlashTimers[1] > 0) btnColor = WHITE;
@@ -346,7 +346,7 @@ public class HUD {
             DrawTextEx(pixelFont, "MAX", newVector2(shopPanX + 705, shopPanY + 265), 25, 1.0f, BLACK);
         }
 
-        // Bow button
+        // Bow buy button
         if (displayedWeapons[2] != null) {
             Color btnColor = GREEN;
             if (buttonFlashTimers[2] > 0) btnColor = WHITE;
@@ -361,6 +361,7 @@ public class HUD {
         }
     }
 
+    // Handles weapon purchase logic and visual feedback
     private static void purchaseWeapon(String weaponType, Weapon weapon, int buttonIndex) {
         boolean success = PurchaseSystem.purchaseWeapon(weaponType, weapon);
         if (success) {
@@ -371,6 +372,7 @@ public class HUD {
         }
     }
 
+    // Draws the game over screen with play again and exit options
     public static void drawGameOverScreen() {
         DrawRectangle(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, Fade(BLACK, 0.9f));
 
@@ -382,14 +384,13 @@ public class HUD {
                 newVector2(Main.SCREEN_WIDTH/2 - 120, Main.SCREEN_HEIGHT/2 - 30),
                 18, 1.0f, WHITE);
 
-        // PLAY AGAIN button
+        // Buttons
         Rectangle playAgainButton = newRectangle(Main.SCREEN_WIDTH/2 - 130, Main.SCREEN_HEIGHT/2 + 20, 120, 45);
         DrawRectangleRounded(playAgainButton, 0.2f, 0, GREEN);
         DrawTextEx(pixelFont, "PLAY AGAIN",
                 newVector2(playAgainButton.x() + 18, playAgainButton.y() + 12),
                 16, 1.0f, BLACK);
 
-        // EXIT button
         Rectangle exitButton = newRectangle(Main.SCREEN_WIDTH/2 + 10, Main.SCREEN_HEIGHT/2 + 20, 120, 45);
         DrawRectangleRounded(exitButton, 0.2f, 0, DARKGRAY);
         DrawTextEx(pixelFont, "EXIT",
@@ -398,23 +399,28 @@ public class HUD {
 
         Vector2 mouse = GetMousePosition();
 
-        // Play Again button click
         if (CheckCollisionPointRec(mouse, playAgainButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             if (gameState != null) {
                 gameState.reset();
             }
         }
 
-        // Exit button click
         if (CheckCollisionPointRec(mouse, exitButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             System.exit(0);
         }
     }
 
+    // Sets the GameState reference for reset functionality
     public static void setGameState(core.GameState gs) {
         gameState = gs;
     }
 
+    // Returns true if any modal UI (shop or help screen) is open
+    public static boolean isModalOpen() {
+        return shopOpen || helpScreenOpen;
+    }
+
+    // Resets HUD state when restarting the game
     public static void reset() {
         helpScreenOpen = false;
         shopOpen = false;
@@ -426,7 +432,6 @@ public class HUD {
             buttonFlashTimers[i] = 0f;
         }
 
-        // Refresh displayed weapons
         updateDisplayedWeapons();
     }
 }
