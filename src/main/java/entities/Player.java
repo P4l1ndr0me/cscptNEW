@@ -18,8 +18,8 @@ public class Player extends Entity {
     public static Rectangle miningRec;
 
     // Player resources
-    public static int numStone = 100000;
-    public static int numGold = 100000;
+    public static int numStone = 0;
+    public static int numGold = 0;
     public static int health = 100;
 
     // Size & movement
@@ -43,13 +43,13 @@ public class Player extends Entity {
     private static int miningDamage = 15;      // stones per hit
     private static float miningSpeed = 0.8f;   // seconds between hits
 
-    // Mining animation
+    // Mining animation (changes with pickaxe tier)
     private static Texture mining = TextureManager.getTexture("mining1");
 
     // Sword animation (tiered like mining)
     private static Texture swordTexture = null;
 
-    // Weapon tiers
+    // Weapon tiers (0 = not owned)
     private static int pickaxeTier = 1; // 1 = stone, 2 = iron, 3 = diamond
     private static int swordTier = 0;
     private static int bowTier = 0;
@@ -63,16 +63,17 @@ public class Player extends Entity {
     private boolean pickaxeDown = false;
     private final float pickaxeOffset = 3 * scale;
 
-    // Sword combat
-    private boolean hasSwordEquipped = false;  // F to toggle between pickaxe and sword
-    private float attackRadius = 50f;          // Radius for sword attack
-    private float attackCooldown = 0.5f;       // Seconds between attacks
-    private float attackTimer = 0f;
+    // Sword combat (using same pattern as mining: accumulator timer)
+    private boolean hasSwordEquipped = false;  // G to toggle
+    private float attackRadius = 50f;
+    private float attackCooldown = 0.7f;       // seconds between attacks (same as miningSpeed)
+    private float attackAccumulator = 0f;      // accumulates time, resets after attack
     private boolean isAttacking = false;
     private float attackAnimTimer = 0f;
     private final float attackAnimDuration = 0.2f;
+    private boolean isAutoAttacking = false;   // toggle with SPACE when sword equipped
 
-    // Slash effect animation (handles attack visuals)
+    // Slash effect animation (plays on top of player when attacking)
     private static Texture slashWest;
     private static Texture slashEast;
     private int slashFrame = 0;
@@ -84,15 +85,9 @@ public class Player extends Entity {
     // Debug
     private final boolean showDebugHitbox = true;
 
-
-    // Updates sword attack input and cooldown
+    // --- Sword combat (using accumulator timer, exactly like auto-mining) ---
     private void updateSwordCombat(float dt) {
-        // Update attack cooldown
-        if (attackTimer > 0) {
-            attackTimer -= dt;
-        }
-
-        // Update attack animation timer
+        // Attack animation timer (independent of actual attack rate)
         if (isAttacking) {
             attackAnimTimer += dt;
             if (attackAnimTimer >= attackAnimDuration) {
@@ -101,15 +96,24 @@ public class Player extends Entity {
             }
         }
 
-        // Only allow attack if: Sword is equipped (F key), Player actually owns a sword, Attack is off cooldown, space bar pressed
-        if (hasSwordEquipped && hasSword() && attackTimer <= 0 && IsKeyPressed(KEY_SPACE)) {
-            performSwordAttack();
-            attackTimer = attackCooldown;
-            isAttacking = true;
-            // Start slash effect
-            isSlashing = true;
-            slashFrame = 0;
-            slashAnimTimer = 0f;
+        // Toggle auto-attack with SPACE (only when sword equipped)
+        if (hasSwordEquipped && hasSword() && IsKeyPressed(KEY_SPACE)) {
+            isAutoAttacking = !isAutoAttacking;
+            attackAccumulator = 0f;  // reset accumulator on toggle
+            System.out.println("Auto-attack: " + (isAutoAttacking ? "ON" : "OFF"));
+        }
+
+        // Auto-attack logic – same as mining: accumulate dt, attack when >= cooldown
+        if (hasSwordEquipped && hasSword() && isAutoAttacking) {
+            attackAccumulator += dt;
+            if (attackAccumulator >= attackCooldown) {
+                attackAccumulator = 0f;
+                performSwordAttack();
+                isAttacking = true;
+                isSlashing = true;
+                slashFrame = 0;
+                slashAnimTimer = 0f;
+            }
         }
     }
 
@@ -120,8 +124,6 @@ public class Player extends Entity {
 
         Vector2 playerCenter = getPlayerCenter();
         int enemiesHit = 0;
-
-        // lookX: 1 = facing east (right), -1 = facing west (left)
         int facing = lookX;
 
         // Check all spawned enemies
@@ -129,19 +131,14 @@ public class Player extends Entity {
             Enemy enemy = EntityManager.spawnedEnemies.get(i);
             Vector2 enemyCenter = enemy.getHitCenter();
 
-            // Vector from player to enemy
             float dx = enemyCenter.x() - playerCenter.x();
             float dy = enemyCenter.y() - playerCenter.y();
             float distance = (float) Math.sqrt(dx * dx + dy * dy);
 
             if (distance <= attackRadius) {
                 boolean inFront = false;
-
-                if (facing == 1) { // facing east → enemies with dx > 0 (right side)
-                    inFront = dx > 0;
-                } else if (facing == -1) { // facing west → enemies with dx < 0 (left side)
-                    inFront = dx < 0;
-                }
+                if (facing == 1) inFront = dx > 0;      // facing right → enemies to the right
+                else if (facing == -1) inFront = dx < 0; // facing left → enemies to the left
 
                 if (inFront) {
                     enemy.takeDamage(swordDamage);
@@ -164,117 +161,69 @@ public class Player extends Entity {
 
     // Returns the center position of the player (for attack radius)
     private Vector2 getPlayerCenter() {
-        return newVector2(
-                position.x(),
-                position.y() - 10f  // Adjust to chest/head level
-        );
+        return newVector2(position.x(), position.y() - 10f);
     }
 
     // Shows floating damage text when hitting enemies
     private void addDamagePopup(Vector2 center, int damage, int hitCount) {
-        String text;
-        if (hitCount > 1) {
-            text = hitCount + " enemies hit!";
-        } else {
-            text = damage + " damage!";
-        }
+        String text = (hitCount > 1) ? hitCount + " enemies hit!" : damage + " damage!";
         miningPopups.add(new MiningPopup(center, text));
     }
 
-    // Floating text popups for mining gains
+    // --- Floating text popups (mining gains & damage numbers) ---
     private static class MiningPopup {
         Vector2 position;
         String text;
         float timer;
-
         MiningPopup(Vector2 pos, String text) {
             this.position = pos;
             this.text = text;
-            this.timer = 1.0f;    // lifetime in seconds
+            this.timer = 1.0f;
         }
-
         void update(float dt) {
             timer -= dt;
             position.y(position.y() - 25 * dt); // float upward
         }
-
-        boolean isAlive() {
-            return timer > 0;
-        }
+        boolean isAlive() { return timer > 0; }
     }
 
     private static ArrayList<MiningPopup> miningPopups = new ArrayList<>();
 
-    // Adds a new floating text popup at the given position
     private static void addMiningPopup(Vector2 position, int amount) {
         miningPopups.add(new MiningPopup(position, "+" + amount));
     }
 
-    // Updates all active popups and removes expired ones
     private void updatePopups(float dt) {
-        // Loop backwards so we can remove while iterating
         for (int i = miningPopups.size() - 1; i >= 0; i--) {
             miningPopups.get(i).update(dt);
-            if (!miningPopups.get(i).isAlive()) {
-                miningPopups.remove(i); // Remove expired popup
-            }
+            if (!miningPopups.get(i).isAlive()) miningPopups.remove(i);
         }
     }
 
-    // Draws all active floating text popups
     private void drawPopups() {
         for (MiningPopup popup : miningPopups) {
-            Color color = newColor(66, 255, 87, 255); // Bright green
-            DrawTextEx(
-                    core.Main.pixelFont,
-                    popup.text,
-                    newVector2(popup.position.x(), popup.position.y()),
-                    30,
-                    0.5f,
-                    color
-            );
+            Color color = newColor(66, 255, 87, 255); // bright green
+            DrawTextEx(core.Main.pixelFont, popup.text,
+                    newVector2(popup.position.x(), popup.position.y()), 30, 0.5f, color);
         }
     }
 
-    // Player constructor - sets initial position and hitbox
+    // Player constructor
     public Player() {
-        super(
-                newVector2(World.WORLD_WIDTH / 2f, World.WORLD_HEIGHT / 2f),
-                2.0f,
-                250.0f,
-                TextureManager.getTexture("playerNEW"),
-                3,
-                3);
-
+        super(newVector2(World.WORLD_WIDTH / 2f, World.WORLD_HEIGHT / 2f),
+                2.0f, 250.0f, TextureManager.getTexture("playerNEW"), 3, 3);
         frameSpeed = 0.15f;
-
-        // Player spawns looking to the right (first frame = idle)
         currentRow = 1;
         lookX = 1;
-
         halfWidth = ((float) texture.width() / cols) * scale / 2;
         halfHeight = ((float) texture.height() / rows) * scale / 2;
-
-        // Initialize player hitbox rectangle
-        playerRec = newRectangle(
-                position.x() - playerHitboxWidth / 2f,
+        playerRec = newRectangle(position.x() - playerHitboxWidth / 2f,
                 position.y() + playerHitboxOffsetY,
-                playerHitboxWidth,
-                playerHitboxHeight);
-
-        // Initialize mining detection rectangle
-        miningRec = newRectangle(
-                position.x() + 10,
-                position.y() - miningRecHeight / 2f,
-                miningRecWidth,
-                miningRecHeight
-        );
-
-        // Load slash effect textures
+                playerHitboxWidth, playerHitboxHeight);
+        miningRec = newRectangle(position.x() + 10, position.y() - miningRecHeight / 2f,
+                miningRecWidth, miningRecHeight);
         slashWest = TextureManager.getTexture("attackWest");
         slashEast = TextureManager.getTexture("attackEast");
-
-        // Load initial sword texture (if any)
         updateSwordTexture();
     }
 
@@ -282,9 +231,7 @@ public class Player extends Entity {
     private static void updateSwordTexture() {
         if (swordTier > 0) {
             Texture newTex = TextureManager.getTexture("sword" + swordTier);
-            if (newTex != null) {
-                swordTexture = newTex;
-            }
+            if (newTex != null) swordTexture = newTex;
         } else {
             swordTexture = null;
         }
@@ -292,138 +239,92 @@ public class Player extends Entity {
 
     public void update(float dt) {
         Vector2 moveDir = getMovementInput();
-
         updateToolInput();
         updateDirection(moveDir);
-
         updateSwordCombat(dt);
         updateSlashAnimation(dt);
-
         move(moveDir, dt);
         boundaryClamp();
         updatePlayerRect();
-
         pushOutOfStones();
         boundaryClamp();
         updatePlayerRect();
-
         updateMiningRect();
         updateMining(dt);
         updateAnimation(dt);
         updatePopups(dt);
     }
 
-    // Draws the player with appropriate animation (walking or mining)
     public void draw() {
-        if (hasPickaxeEquipped) {
-            drawPickaxeAnimation();
-        } else if (hasSwordEquipped) {
-            drawSwordAnimation();
-        } else {
-            drawWalkingAnimation();
-        }
-        drawSlashEffect(); // Draw the slash effect on top of the player
+        if (hasPickaxeEquipped) drawPickaxeAnimation();
+        else if (hasSwordEquipped) drawSwordAnimation();
+        else drawWalkingAnimation();
+        drawSlashEffect(); // always on top
         drawPopups();
     }
 
-    // Gets WASD movement input and returns normalized direction vector
+    // Gets WASD input, returns normalized direction vector
     private Vector2 getMovementInput() {
         float moveX = 0, moveY = 0;
-
-        // Read keyboard input
         if (IsKeyDown(KEY_W)) moveY -= 1;
         if (IsKeyDown(KEY_S)) moveY += 1;
         if (IsKeyDown(KEY_A)) moveX -= 1;
         if (IsKeyDown(KEY_D)) moveX += 1;
-
         Vector2 moveDir = newVector2(moveX, moveY);
-
-        // Normalize diagonal movement to maintain consistent speed
         if (Vector2Length(moveDir) != 0) {
             isMoving = true;
             return Vector2Normalize(moveDir);
         }
-
         isMoving = false;
         return moveDir;
     }
 
-    // Handles tool equipping (R for pickaxe, F for sword)
+    // Handles tool switching (R = pickaxe, G = sword, SPACE toggles auto-mode for current tool)
     private void updateToolInput() {
-        // R toggles pickaxe (mining mode)
         if (IsKeyPressed(KEY_R)) {
             hasPickaxeEquipped = !hasPickaxeEquipped;
             hasSwordEquipped = false;
             isAutoMining = false;
+            isAutoAttacking = false;
         }
-
-        // F toggles sword (combat mode) – only if sword is owned
         if (IsKeyPressed(KEY_G) && hasSword()) {
             hasSwordEquipped = !hasSwordEquipped;
             hasPickaxeEquipped = false;
             isAutoMining = false;
-            System.out.println("Sword equipped: " + hasSwordEquipped);
+            isAutoAttacking = false;
         }
-
         // Space toggles auto-mining when pickaxe is equipped
         if (hasPickaxeEquipped && IsKeyPressed(KEY_SPACE)) {
             isAutoMining = !isAutoMining;
         }
+        // Sword auto-attack is toggled inside updateSwordCombat (SPACE when sword equipped)
     }
 
-    // Updates animation row based on movement direction
+    // Changes animation row based on movement direction
     private void updateDirection(Vector2 moveDir) {
-        if (moveDir.x() < 0) {
-            currentRow = 2;  // moving left
-            lookX = -1;
-        }
-        if (moveDir.x() > 0) {
-            currentRow = 1;  // moving right
-            lookX = 1;
-        }
-        // Moving up/down keeps current row (no horizontal flip)
+        if (moveDir.x() < 0) { currentRow = 2; lookX = -1; }
+        if (moveDir.x() > 0) { currentRow = 1; lookX = 1; }
     }
 
-    // Moves the player with collision detection (X then Y)
+    // Movement with per‑axis collision (allows sliding along walls)
     private void move(Vector2 moveDir, float dt) {
-        // Try X movement first
         float nextX = position.x() + speed * moveDir.x() * dt;
-        float nextY = position.y();
+        Rectangle nextRecX = newRectangle(nextX - playerHitboxWidth / 2f,
+                position.y() + playerHitboxOffsetY,
+                playerHitboxWidth, playerHitboxHeight);
+        if (!collidesWithBuildings(nextRecX)) position.x(Math.round(nextX));
 
-        Rectangle nextRecX = newRectangle(
-                nextX - playerHitboxWidth / 2f,
+        float nextY = position.y() + speed * moveDir.y() * dt;
+        Rectangle nextRecY = newRectangle(position.x() - playerHitboxWidth / 2f,
                 nextY + playerHitboxOffsetY,
-                playerHitboxWidth,
-                playerHitboxHeight
-        );
-
-        if (!collidesWithBuildings(nextRecX)) {
-            position.x(Math.round(nextX));
-        }
-
-        // Then try Y movement
-        nextX = position.x();
-        nextY = position.y() + speed * moveDir.y() * dt;
-
-        Rectangle nextRecY = newRectangle(
-                nextX - playerHitboxWidth / 2f,
-                nextY + playerHitboxOffsetY,
-                playerHitboxWidth,
-                playerHitboxHeight
-        );
-
-        if (!collidesWithBuildings(nextRecY)) {
-            position.y(Math.round(nextY));
-        }
+                playerHitboxWidth, playerHitboxHeight);
+        if (!collidesWithBuildings(nextRecY)) position.y(Math.round(nextY));
     }
 
-    // Checks if a rectangle collides with any placed building
+    // Checks collision with any placed building
     private boolean collidesWithBuildings(Rectangle rect) {
-        for (Building building : EntityManager.placedBuildings) {
-            if (CheckCollisionRecs(rect, building.getRect())) {
-                return true; // Hit a building
-            }
-        }
+        for (Building building : EntityManager.placedBuildings)
+            if (CheckCollisionRecs(rect, building.getRect())) return true;
         return false;
     }
 
@@ -431,36 +332,17 @@ public class Player extends Entity {
     private void pushOutOfStones() {
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
             float radius = ResourceNode.STONE_RADIUS;
-
-            // Find closest point on player rect to stone center
             float closestX = Math.max(playerRec.x(), Math.min(stoneCenter.x(), playerRec.x() + playerRec.width()));
             float closestY = Math.max(playerRec.y(), Math.min(stoneCenter.y(), playerRec.y() + playerRec.height()));
-
             float dx = closestX - stoneCenter.x();
             float dy = closestY - stoneCenter.y();
-
             float distance = (float) Math.sqrt(dx * dx + dy * dy);
-
-            // If colliding, push player away
             if (distance > 0 && distance < radius) {
                 float overlap = radius - distance;
-
-                // Minimum push threshold to prevent tiny movements
-                if (Math.abs(dx) < 7f) {
-                    if (dx < 0) dx = -7f;
-                    else if (dx > 0) dx = 7f;
-                    else dx = 7f;
-                }
-
-                if (Math.abs(dy) < 7f) {
-                    if (dy < 0) dy = -7f;
-                    else if (dy > 0) dy = 7f;
-                    else dy = 7f;
-                }
-
+                if (Math.abs(dx) < 7f) dx = dx < 0 ? -7f : (dx > 0 ? 7f : 7f);
+                if (Math.abs(dy) < 7f) dy = dy < 0 ? -7f : (dy > 0 ? 7f : 7f);
                 float pushX = dx / distance * overlap;
                 float pushY = dy / distance * overlap;
-
                 applySafeStonePush(pushX, pushY);
                 updatePlayerRect();
             }
@@ -469,23 +351,16 @@ public class Player extends Entity {
 
     // Gradually applies stone push force to avoid clipping
     private void applySafeStonePush(float pushX, float pushY) {
-        float originalX = position.x();
-        float originalY = position.y();
+        float origX = position.x(), origY = position.y();
         int steps = 10;
-
-        // Try diagonal push first (full strength to weakest)
+        // Try diagonal push first
         for (int i = steps; i >= 1; i--) {
             float scale = i / (float) steps;
-            float testX = originalX + pushX * scale;
-            float testY = originalY + pushY * scale;
-
-            Rectangle testRec = newRectangle(
-                    testX - playerHitboxWidth / 2f,
+            float testX = origX + pushX * scale;
+            float testY = origY + pushY * scale;
+            Rectangle testRec = newRectangle(testX - playerHitboxWidth / 2f,
                     testY + playerHitboxOffsetY,
-                    playerHitboxWidth,
-                    playerHitboxHeight
-            );
-
+                    playerHitboxWidth, playerHitboxHeight);
             if (!collidesWithBuildings(testRec)) {
                 position.x(Math.round(testX));
                 position.y(Math.round(testY));
@@ -493,45 +368,32 @@ public class Player extends Entity {
                 return;
             }
         }
-
-        // Try X-only push if diagonal fails
+        // Try X-only push
         for (int i = steps; i >= 1; i--) {
             float scale = i / (float) steps;
-            float testX = originalX + pushX * scale;
-
-            Rectangle testRec = newRectangle(
-                    testX - playerHitboxWidth / 2f,
-                    originalY + playerHitboxOffsetY,
-                    playerHitboxWidth,
-                    playerHitboxHeight
-            );
-
+            float testX = origX + pushX * scale;
+            Rectangle testRec = newRectangle(testX - playerHitboxWidth / 2f,
+                    origY + playerHitboxOffsetY,
+                    playerHitboxWidth, playerHitboxHeight);
             if (!collidesWithBuildings(testRec)) {
                 position.x(Math.round(testX));
                 updatePlayerRect();
                 return;
             }
         }
-
-        // Try Y-only push as last resort
+        // Try Y-only push
         for (int i = steps; i >= 1; i--) {
             float scale = i / (float) steps;
-            float testY = originalY + pushY * scale;
-
-            Rectangle testRec = newRectangle(
-                    originalX - playerHitboxWidth / 2f,
+            float testY = origY + pushY * scale;
+            Rectangle testRec = newRectangle(origX - playerHitboxWidth / 2f,
                     testY + playerHitboxOffsetY,
-                    playerHitboxWidth,
-                    playerHitboxHeight
-            );
-
+                    playerHitboxWidth, playerHitboxHeight);
             if (!collidesWithBuildings(testRec)) {
                 position.y(Math.round(testY));
                 updatePlayerRect();
                 return;
             }
         }
-        // If all pushes fail, don't move
     }
 
     // Keeps player within world boundaries
@@ -550,69 +412,53 @@ public class Player extends Entity {
 
     // Updates mining rectangle position based on facing direction
     private void updateMiningRect() {
-        if (lookX == 1) {
-            miningRec.x(position.x() + miningRecOffset); // Right side
-        } else {
-            miningRec.x(position.x() - miningRecWidth - miningRecOffset); // Left side
-        }
-        miningRec.y(position.y() - miningRecHeight / 2f); // Center on player vertically
+        if (lookX == 1) miningRec.x(position.x() + miningRecOffset);
+        else miningRec.x(position.x() - miningRecWidth - miningRecOffset);
+        miningRec.y(position.y() - miningRecHeight / 2f);
     }
 
     // Checks if mining rectangle overlaps any stone node
     private boolean isNearStone() {
-        for (Vector2 stoneCenter : EntityManager.stoneCenters) {
-            if (CheckCollisionCircleRec(stoneCenter, ResourceNode.STONE_RADIUS, miningRec)) {
-                return true; // Found a stone in range
-            }
-        }
+        for (Vector2 stoneCenter : EntityManager.stoneCenters)
+            if (CheckCollisionCircleRec(stoneCenter, ResourceNode.STONE_RADIUS, miningRec)) return true;
         return false;
     }
 
-    // Handles auto-mining logic and adds stone resources
+    // Handles auto-mining logic (increment timer, add stone when threshold reached)
     private void updateMining(float dt) {
-        if (!hasPickaxeEquipped || !isAutoMining) {
-            miningTimer = 0f;
-            return;
-        }
-
+        if (!hasPickaxeEquipped || !isAutoMining) { miningTimer = 0f; return; }
         if (isNearStone()) {
             miningTimer += dt;
             if (miningTimer >= miningSpeed) {
                 miningTimer = 0f;
                 numStone += miningDamage;
-                // Show floating "+X" text above mining area
                 addMiningPopup(newVector2(miningRec.x(), miningRec.y() - 30), miningDamage);
             }
         } else {
-            miningTimer = 0f; // Reset timer when not near stone
+            miningTimer = 0f;
         }
     }
 
-    // Updates player and pickaxe animation frames
+    // Updates walking / pickaxe / idle animations
     private void updateAnimation(float dt) {
         if (isMoving) {
             frameTimer += dt;
             if (frameTimer >= frameSpeed) {
                 frameTimer = 0f;
-                if (hasPickaxeEquipped) {
-                    pickaxeFrame = (pickaxeFrame + 1) % pickaxeFrames; // Cycle pickaxe frames
-                } else {
-                    currentCol = (currentCol + 1) % cols; // Cycle walking frames
-                }
+                if (hasPickaxeEquipped) pickaxeFrame = (pickaxeFrame + 1) % pickaxeFrames;
+                else currentCol = (currentCol + 1) % cols;
             }
         } else {
-            // Idle - reset animations
             frameTimer = 0f;
             currentCol = 0;
             pickaxeFrame = 0;
         }
-
-        // Animate pickaxe swinging when auto-mining
+        // Pickaxe swing when auto-mining
         if (isAutoMining) {
             pickaxeAnimTimer += dt;
             if (pickaxeAnimTimer >= pickaxeFrameSpeed) {
                 pickaxeAnimTimer = 0f;
-                pickaxeDown = !pickaxeDown; // Toggle up/down
+                pickaxeDown = !pickaxeDown;
             }
         } else {
             pickaxeDown = false;
@@ -620,10 +466,9 @@ public class Player extends Entity {
         }
     }
 
-    // Updates slash effect animation frames
+    // Updates slash effect animation frames (5‑frame sprite)
     private void updateSlashAnimation(float dt) {
         if (!isSlashing) return;
-
         slashAnimTimer += dt;
         if (slashAnimTimer >= slashFrameSpeed) {
             slashAnimTimer = 0f;
@@ -635,70 +480,37 @@ public class Player extends Entity {
         }
     }
 
-    // Draws player walking animation without pickaxe
+    // Draws player walking animation (no tool)
     private void drawWalkingAnimation() {
-        int frameWidth = texture.width() / cols;
-        int frameHeight = texture.height() / rows;
-
-        Rectangle source = new Rectangle()
-                .x(currentCol * frameWidth)
-                .y(currentRow * frameHeight)
-                .width(frameWidth)
-                .height(frameHeight);
-
-        Rectangle dest = new Rectangle()
-                .x((int) (position.x() - halfWidth))
-                .y((int) (position.y() - halfHeight))
-                .width(halfWidth * 2)
-                .height(halfHeight * 2);
-
-        DrawTexturePro(texture, source, dest, newVector2(0, 0), 0.0f, WHITE);
+        int fw = texture.width() / cols, fh = texture.height() / rows;
+        Rectangle src = new Rectangle().x(currentCol * fw).y(currentRow * fh).width(fw).height(fh);
+        Rectangle dst = new Rectangle().x((int)(position.x() - halfWidth)).y((int)(position.y() - halfHeight))
+                .width(halfWidth * 2).height(halfHeight * 2);
+        DrawTexturePro(texture, src, dst, newVector2(0,0), 0, WHITE);
     }
 
     // Draws player with pickaxe mining animation
     private void drawPickaxeAnimation() {
-        int frameWidth = mining.width() / pickaxeFrames;
-        int frameHeight = mining.height() / pickaxeRows;
-
-        // Determine which row based on facing direction and swing state
-        int row;
-        if (lookX == 1) {
-            row = pickaxeDown ? 1 : 0;  // Right-facing: up/down rows
-        } else {
-            row = pickaxeDown ? 3 : 2;  // Left-facing: up/down rows
-        }
-
-        Rectangle source = new Rectangle()
-                .x(pickaxeFrame * frameWidth)
-                .y(row * frameHeight)
-                .width(frameWidth)
-                .height(frameHeight);
-
+        int fw = mining.width() / pickaxeFrames, fh = mining.height() / pickaxeRows;
+        int row = (lookX == 1) ? (pickaxeDown ? 1 : 0) : (pickaxeDown ? 3 : 2);
+        Rectangle src = new Rectangle().x(pickaxeFrame * fw).y(row * fh).width(fw).height(fh);
         float halfW = ((float) mining.width() / pickaxeFrames) * scale / 2;
         float halfH = ((float) mining.height() / pickaxeRows) * scale / 2;
-
-        // Offset pickaxe position based on facing direction
-        Rectangle dest = new Rectangle()
-                .x((int) (position.x() - halfW + (lookX == 1 ? pickaxeOffset : -pickaxeOffset)))
-                .y((int) (position.y() - halfH))
-                .width(halfW * 2)
-                .height(halfH * 2);
-
-        DrawTexturePro(mining, source, dest, newVector2(0, 0), 0.0f, WHITE);
+        float offsetX = (lookX == 1) ? pickaxeOffset : -pickaxeOffset;
+        Rectangle dst = new Rectangle().x((int)(position.x() - halfW + offsetX)).y((int)(position.y() - halfH))
+                .width(halfW * 2).height(halfH * 2);
+        DrawTexturePro(mining, src, dst, newVector2(0,0), 0, WHITE);
     }
 
-    // Draws player with sword walking animation using tiered sword textures (3x2 sprite sheet)
+    // Draws player with sword walking animation (3x2 sprite)
     private void drawSwordAnimation() {
         if (swordTexture == null) return;
-
-        // Sword texture is 3 columns, 2 rows
-        int frameWidth = swordTexture.width() / 3;
-        int frameHeight = swordTexture.height() / 2;
-
-        // Row 0 = walking east (right), Row 1 = walking west (left)
+        int fw = swordTexture.width() / 3, fh = swordTexture.height() / 2;
         int row = (lookX == 1) ? 0 : 1;
-
         int frame = currentCol;
+
+        int frameWidth = swordTexture.width() /3;
+        int frameHeight = swordTexture.height() /2;
 
         Rectangle source = new Rectangle()
                 .x(frame * frameWidth)
@@ -720,50 +532,26 @@ public class Player extends Entity {
         DrawTexturePro(swordTexture, source, dest, newVector2(0, 0), 0.0f, WHITE);
     }
 
-    // Draws slash effect animation when attacking
+    // Draws slash effect overlay when attacking
     private void drawSlashEffect() {
         if (!isSlashing) return;
-
-        // Choose the correct texture and frame order
         Texture tex;
         int frameIndex;
-
-        if (lookX == 1) { // facing east → use east texture (frames from right to left)
-            tex = slashEast;
-            // Reverse frame index because the sheet goes right to left
-            frameIndex = (slashFrames - 1) - slashFrame;
-        } else { // facing west → use west texture (frames left to right, normal order)
-            tex = slashWest;
-            frameIndex = slashFrame;
-        }
-
-        if (tex == null) return;
-
-        int frameWidth = tex.width() / slashFrames;
-        int frameHeight = tex.height();
-
-        Rectangle source = new Rectangle()
-                .x(frameIndex * frameWidth)
-                .y(0)
-                .width(frameWidth)
-                .height(frameHeight);
-
-        // Position the slash slightly in front of the player
-        float offsetX;
         if (lookX == 1) {
-            offsetX = halfWidth + 10;          // in front of right side
+            tex = slashEast;
+            frameIndex = (slashFrames - 1) - slashFrame; // east sheet plays reversed
         } else {
-            offsetX = -halfWidth - frameWidth * scale - 10; // in front of left side
+            tex = slashWest;
+            frameIndex = slashFrame; // west sheet plays normally
         }
-        float offsetY = -halfHeight - 10;      // above player's head
-
-        Rectangle dest = new Rectangle()
-                .x((int) (position.x() + offsetX))
-                .y((int) (position.y() + offsetY))
-                .width(frameWidth * scale)
-                .height(frameHeight * scale);
-
-        DrawTexturePro(tex, source, dest, newVector2(0, 0), 0.0f, WHITE);
+        if (tex == null) return;
+        int fw = tex.width() / slashFrames, fh = tex.height();
+        Rectangle src = new Rectangle().x(frameIndex * fw).y(0).width(fw).height(fh);
+        float offsetX = (lookX == 1) ? halfWidth + 10 : -halfWidth - fw * scale - 10;
+        float offsetY = -halfHeight - 10;
+        Rectangle dst = new Rectangle().x((int)(position.x() + offsetX)).y((int)(position.y() + offsetY))
+                .width(fw * scale).height(fh * scale);
+        DrawTexturePro(tex, src, dst, newVector2(0,0), 0, WHITE);
     }
 
     // Getters for weapon tiers
@@ -775,14 +563,10 @@ public class Player extends Entity {
     public static void upgradePickaxe(Weapon weapon) {
         pickaxeTier = weapon.getTier();
         miningDamage = weapon.getDamage();
-        // Faster mining = lower cooldown (divide base by attack speed)
         float baseCooldown = 0.8f;
         miningSpeed = baseCooldown / weapon.getAttackSpeed();
-        // Load the new mining animation sprite sheet for this tier
         Texture newTex = TextureManager.getTexture("mining" + pickaxeTier);
-        if (newTex != null) {
-            mining = newTex;
-        }
+        if (newTex != null) mining = newTex;
     }
 
     // Upgrades sword tier - sets tier and updates sword texture
@@ -791,26 +575,21 @@ public class Player extends Entity {
         updateSwordTexture();
     }
 
-    // Upgrades bow tier
+    // Upgrades bow tier (placeholder)
     public static void upgradeBow(Weapon weapon) {
         if (bowTier < 3) bowTier++;
     }
 
-    // Returns current mining texture
-    public static Texture getCurrentMiningTexture() {
-        return mining;
-    }
+    public static Texture getCurrentMiningTexture() { return mining; }
 
     // Returns true if player has purchased at least a tier 1 sword
-    private boolean hasSword() {
-        return swordTier > 0;
-    }
+    private boolean hasSword() { return swordTier > 0; }
 
     // Resets player to starting state for game restart
     public void reset() {
         position = newVector2(World.WORLD_WIDTH / 2f, World.WORLD_HEIGHT / 2f);
         numStone = 0;
-        numGold = 1000;
+        numGold = 0;
         health = 100;
         pickaxeTier = 1;
         miningDamage = 15;
@@ -819,8 +598,11 @@ public class Player extends Entity {
         swordTier = 0;
         bowTier = 0;
         updateSwordTexture();
+        hasSwordEquipped = false;
         hasPickaxeEquipped = false;
         isAutoMining = false;
+        isAutoAttacking = false;
+        attackAccumulator = 0f;
         miningTimer = 0f;
         pickaxeFrame = 0;
         pickaxeDown = false;

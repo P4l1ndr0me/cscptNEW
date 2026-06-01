@@ -36,7 +36,7 @@ public class Enemy extends Entity {
     private int goldDrop;
 
     // Debug
-    private final boolean showDebugHitbox = true;
+    private final boolean showDebugHitbox = false;
 
     public Enemy(
             Vector2 position,

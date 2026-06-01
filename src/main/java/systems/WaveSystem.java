@@ -52,6 +52,13 @@ public class WaveSystem {
     private final float SPAWN_BUFFER_MAX = 400f;
     private final int MAX_SPAWN_ATTEMPTS = 40;
 
+    private static boolean isPaused = false;
+
+    // Add this method
+    public static void setPaused(boolean paused) {
+        isPaused = paused;
+    }
+
     private enum ZombieTier {
         TIER_1("Zombie Tier 1", 2.0f, 100.0f, 70, 3, 5),
         TIER_2("Zombie Tier 2", 2.0f, 100.0f, 140, 9, 12),
@@ -146,16 +153,17 @@ public class WaveSystem {
     }
 
     private void updateTime(float dt) {
+        if (isPaused) return;  // Don't advance time when paused
+
         timeAccumulator += dt;
-
         int minutesToAdd = (int)(timeAccumulator * minutesPerSecond);
-
         if (minutesToAdd > 0) {
             timeAccumulator -= minutesToAdd / minutesPerSecond;
             timeMinutes = (timeMinutes + minutesToAdd) % DAY_MINUTES;
             updateTimeString();
         }
     }
+
 
     private void startWave() {
         waveActive = true;
@@ -520,22 +528,15 @@ public class WaveSystem {
     }
 
     public void reset() {
-        // Reset time
-        timeMinutes = 12 * 60;  // 12:00 PM
+        timeMinutes = 12 * 60;
         timeAccumulator = 0;
         spawnTimer = 0;
-
-        // Reset wave progression
         waveNumber = 1;
         waveActive = false;
         firstWaveStarted = false;
         waveStartedThisNight = false;
-
-        // Reset intensity and darkness
         currentIntensity = 0f;
         darknessAlpha = 0f;
-
-        // Update display
         updateTimeString();
     }
 
