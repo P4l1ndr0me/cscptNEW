@@ -14,17 +14,18 @@ import static com.raylib.Raylib.*;
 public class EntityManager {
     // Stores all active enemies, placed buildings, and stone resource positions
     public static ArrayList<Enemy> spawnedEnemies = new ArrayList<>();
-    public static ArrayList<Building> placedBuildings = new ArrayList<>(); // store info of every placed building
+    public static ArrayList<Building> placedBuildings = new ArrayList<>();
     public static ArrayList<TowerBullet> towerBullets = new ArrayList<>();
-    public static ArrayList<Vector2> stoneCenters = new ArrayList<>(); // store center pos of every stone
+    public static ArrayList<Vector2> stoneCenters = new ArrayList<>();
 
+    // Draws all entities in the game world
     public static void drawEntities() {
-        // Draw buildings
+        // Draw all placed buildings
         for (Building building : placedBuildings) {
             building.draw();
         }
 
-        // Draw stone
+        // Draw all stone nodes
         for (Vector2 stoneCenter : stoneCenters) {
             DrawTextureEx(
                     TextureManager.getTexture("stone"),
@@ -35,21 +36,25 @@ public class EntityManager {
             );
         }
 
-        // Draw enemies
+        // Draw all active enemies
         for (Enemy enemy : spawnedEnemies){
             enemy.draw();
         }
 
-        // Draw bullets
+        // Draw all tower bullets
         for (TowerBullet bullet : towerBullets) {
             bullet.draw();
         }
     }
 
+    // Updates all entities and removes dead/inactive ones
     public static void updateEntities(float dt) {
+        // Update every building
         for (Building building : EntityManager.placedBuildings) {
             building.update(dt);
         }
+
+        // Update enemies and remove dead ones (iterate backwards for safe removal)
         for (int i = spawnedEnemies.size() - 1; i >= 0; i--) {
             Enemy enemy = spawnedEnemies.get(i);
 
@@ -60,6 +65,7 @@ public class EntityManager {
             }
         }
 
+        // Update bullets and remove inactive ones (iterate backwards for safe removal)
         for (int i = towerBullets.size() - 1; i >= 0; i--) {
             TowerBullet bullet = towerBullets.get(i);
 
@@ -71,6 +77,7 @@ public class EntityManager {
         }
     }
 
+    // Clears all entity lists when resetting the game
     public static void reset() {
         // Clear all dynamic lists
         spawnedEnemies.clear();

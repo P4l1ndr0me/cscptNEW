@@ -35,6 +35,9 @@ public class TextureManager {
         TextureManager.loadTexture("mining2", "src/main/assets/images/player/mining2.png");
         TextureManager.loadTexture("mining3", "src/main/assets/images/player/mining3.png");
         TextureManager.loadTexture("mining4", "src/main/assets/images/player/mining4.png");
+        TextureManager.loadTexture("sword1", "src/main/assets/images/player/sword1.png");
+        TextureManager.loadTexture("sword2", "src/main/assets/images/player/mining4.png");
+        TextureManager.loadTexture("sword3", "src/main/assets/images/player/mining4.png");
         TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/player_sprites.png");
 
         // Building-related
@@ -77,11 +80,15 @@ public class TextureManager {
         TextureManager.loadTexture("goldpickaxe", "src/main/assets/images/items/goldPick.png");
         TextureManager.loadTexture("diamondpickaxe", "src/main/assets/images/items/diamondPick.png");
 
-        TextureManager.loadTexture("woodensword","src/main/assets/images/items/woodenSword.png");
-        TextureManager.loadTexture("stonesword", "src/main/assets/images/items/stoneSword.png");
+        TextureManager.loadTexture("goldsword","src/main/assets/images/items/goldSword.png");
+        TextureManager.loadTexture("woodensword", "src/main/assets/images/items/woodenSword.png");
         TextureManager.loadTexture("diamondsword", "src/main/assets/images/items/diamondSword.png");
         TextureManager.loadTexture("woodenbow","src/main/assets/images/items/woodenBow.png");
         TextureManager.loadTexture("crossbow", "src/main/assets/images/items/crossBow.png");
         TextureManager.loadTexture("stonebow", "src/main/assets/images/items/stoneBow.png");
+
+        //attacking motions
+        TextureManager.loadTexture("attackWest", "src/main/assets/images/player/attackWest.png");
+        TextureManager.loadTexture("attackEast", "src/main/assets/images/player/attackEast.png");
     }
 }

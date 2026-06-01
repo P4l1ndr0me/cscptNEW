@@ -9,7 +9,7 @@ public class WeaponManager {
     public static HashMap<String, Integer> unlockedWeapons = new HashMap<>();
 
     public static void init(){
-        // PICKAXES
+        //pickaxes
         allWeapons.add(new Weapon("stone_pickaxe", "Stone Pickaxe", "stonepickaxe",
                 100, 15, 0.7f, "Basic Mining Tool", 100, 1, "pickaxe"));
 
@@ -23,18 +23,18 @@ public class WeaponManager {
                 500, 35, 1.5f, "Basic Mining Tool", 150, 4, "pickaxe"));
 
 
-        // SWORDS
-        allWeapons.add(new Weapon("wooden_sword", "Wooden Sword", "woodensword",
-                100, 30, 1.5f, "Melee Tool", 0, 1, "sword"));
+        //swords
+        allWeapons.add(new Weapon("gold_sword", "Gold Sword", "goldsword",
+                100, 15, 1.5f, "Melee Tool", 0, 2, "sword"));
 
-        allWeapons.add(new Weapon("stone_sword", "Stone Sword", "stonesword",
-                600, 40, 1.5f, "Melee Tool", 0, 2, "sword"));
+        allWeapons.add(new Weapon("wooden_sword", "Wooden Sword", "woodensword",
+                600, 25, 1.5f, "Melee Tool", 0, 1, "sword"));
 
         allWeapons.add(new Weapon("diamond_sword", "Diamond Sword", "diamondsword",
-                800, 40, 1.5f, "Melee Tool", 0, 3, "sword"));
+                800, 35, 1.5f, "Melee Tool", 0, 3, "sword"));
 
 
-        // BOWS
+        //bows
         allWeapons.add(new Weapon("wooden_bow", "Wooden Bow", "woodenbow",
                 300, 30, 2.0f, "range weapon", 0, 1, "bow"));
 
@@ -91,6 +91,14 @@ public class WeaponManager {
             }
         }
         return null;
+    }
+
+    // get sword damage based on tier
+    public static int getSwordDamage() {
+        int currentTier = getCurrentTier("sword");
+        if (currentTier == 0) return 0; // No sword owned
+        Weapon sword = getWeaponByTypeAndTier("sword", currentTier);
+        return sword != null ? sword.getDamage() : 0;
     }
 
     public static void reset() {
