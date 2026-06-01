@@ -10,13 +10,14 @@ import static com.raylib.Helpers.*;
 import static core.Main.pixelFont;
 
 public class MenuScreen {
+    // Actual button rectangles (used for both drawing and click detection)
     private static final Rectangle beginButton = newRectangle(
             Main.SCREEN_WIDTH / 2f - 100,
-            Main.SCREEN_HEIGHT / 2f + 80,
+            Main.SCREEN_HEIGHT / 2f + 110,  // was +80 then shifted +30
             200, 50);
     private static final Rectangle exitButton = newRectangle(
             Main.SCREEN_WIDTH / 2f - 100,
-            Main.SCREEN_HEIGHT / 2f + 150,
+            Main.SCREEN_HEIGHT / 2f + 180,  // was +150 then shifted +30
             200, 50);
 
     public static void update() {
@@ -76,7 +77,7 @@ public class MenuScreen {
                 newVector2(taglineX, taglineY),
                 taglineFontSize, 1.0f, RAYWHITE);
 
-        // Player (moved left, scaled bigger)
+        // Player
         Texture playerTex = TextureManager.getTexture("playerpic");
         if (playerTex != null) {
             float playerScale = 10f;
@@ -87,7 +88,7 @@ public class MenuScreen {
             DrawTextureEx(playerTex, newVector2(playerX, playerY), 0, playerScale, WHITE);
         }
 
-        // Zombies – no horizontal offset, only vertical scatter
+        // Zombies
         Texture[] zombieSheets = {
                 TextureManager.getTexture("Zombie Tier 1"),
                 TextureManager.getTexture("Zombie Tier 2"),
@@ -95,9 +96,9 @@ public class MenuScreen {
                 TextureManager.getTexture("Zombie Tier 4")
         };
         float zombieScale = 6.0f;
-        java.util.Random rand = new java.util.Random(54321); // different seed for variety
-        float startX = beginButton.x() + beginButton.width() + 120; // move a bit left from edge
-        float verticalRange = 480f; // much wider vertical spread (almost full screen height)
+        java.util.Random rand = new java.util.Random(54321);
+        float startX = beginButton.x() + beginButton.width() + 120;
+        float verticalRange = 480f;
 
         for (int i = 0; i < zombieSheets.length; i++) {
             Texture sheet = zombieSheets[i];
@@ -107,12 +108,9 @@ public class MenuScreen {
             int frameHeight = sheet.height() / 4;
             Rectangle source = new Rectangle().x(0).y(0).width(frameWidth).height(frameHeight);
 
-            // Random vertical position within range, no horizontal offset
             float yOffset = (rand.nextFloat() - 0.5f) * verticalRange;
-            float x = startX + i * (frameWidth * zombieScale + 20); // fixed spacing, no random X
+            float x = startX + i * (frameWidth * zombieScale + 20);
             float y = (Main.SCREEN_HEIGHT / 2f) + yOffset - (frameHeight * zombieScale / 2f);
-
-            // Clamp y to stay within screen
             y = Math.max(20, Math.min(Main.SCREEN_HEIGHT - frameHeight * zombieScale - 20, y));
 
             Rectangle dest = new Rectangle()
@@ -124,20 +122,17 @@ public class MenuScreen {
             DrawTexturePro(sheet, source, dest, newVector2(0, 0), 0, WHITE);
         }
 
-        // Buttons (shifted down slightly)
-        Rectangle begin = newRectangle(beginButton.x(), beginButton.y() + 30, beginButton.width(), beginButton.height());
-        Rectangle exit = newRectangle(exitButton.x(), exitButton.y() + 30, exitButton.width(), exitButton.height());
-
-        DrawRectangleRounded(begin, 0.2f, 0, GREEN);
-        DrawRectangleRoundedLinesEx(begin, 0.2f, 0, 2.0f, BLACK);
+        // Draw buttons using the same rectangles
+        DrawRectangleRounded(beginButton, 0.2f, 0, GREEN);
+        DrawRectangleRoundedLinesEx(beginButton, 0.2f, 0, 2.0f, BLACK);
         DrawTextEx(pixelFont, "BEGIN",
-                newVector2(begin.x() + 60, begin.y() + 12),
+                newVector2(beginButton.x() + 60, beginButton.y() + 12),
                 28, 1.0f, BLACK);
 
-        DrawRectangleRounded(exit, 0.2f, 0, RED);
-        DrawRectangleRoundedLinesEx(exit, 0.2f, 0, 2.0f, BLACK);
+        DrawRectangleRounded(exitButton, 0.2f, 0, RED);
+        DrawRectangleRoundedLinesEx(exitButton, 0.2f, 0, 2.0f, BLACK);
         DrawTextEx(pixelFont, "EXIT",
-                newVector2(exit.x() + 68, exit.y() + 12),
+                newVector2(exitButton.x() + 68, exitButton.y() + 12),
                 28, 1.0f, BLACK);
     }
 }

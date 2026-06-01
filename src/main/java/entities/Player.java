@@ -509,6 +509,9 @@ public class Player extends Entity {
         int row = (lookX == 1) ? 0 : 1;
         int frame = currentCol;
 
+        int frameWidth = swordTexture.width() /3;
+        int frameHeight = swordTexture.height() /2;
+
         Rectangle source = new Rectangle()
                 .x(frame * frameWidth)
                 .y(row * frameHeight)

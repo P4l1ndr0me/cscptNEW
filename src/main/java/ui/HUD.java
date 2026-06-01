@@ -80,8 +80,8 @@ public class HUD {
         // Resource panel (rounded with outline)
         DrawRectangleRoundedLinesEx(resourceRect, 0.6f, 0, 2.0f, BLACK);
         DrawRectangleRounded(resourceRect, 0.6f, 0, MENU_FILL);
-        DrawTextEx(pixelFont, "Stone: " + numStone, newVector2(menuX + 20, menuY + 16), 24, 1.0f, WHITE);
-        DrawTextEx(pixelFont, "Gold: " + numGold, newVector2(menuX + 20, menuY + 45), 24, 1.0f, WHITE);
+        DrawTextEx(pixelFont, "Stone: " + numStone, newVector2(menuX + 70, menuY + 26), 24, 1.0f, WHITE);
+        DrawTextEx(pixelFont, "Gold: " + numGold, newVector2(menuX + 70, menuY + 60), 24, 1.0f, WHITE);
 
         // HELP BUTTON (top right) - rounded with outline
         DrawRectangleRounded(helpButton, 0.2f, 0, DARKGRAY);
@@ -163,6 +163,7 @@ public class HUD {
         DrawTextEx(pixelFont, "R     -     Equip / Unequip pickaxe", newVector2(startX + 30, startY + lineHeight * 4), 18, 1.0f, WHITE);
         DrawTextEx(pixelFont, "G     -     Equip / Unequip sword", newVector2(startX + 30, startY + lineHeight * 5), 18, 1.0f, WHITE);
         DrawTextEx(pixelFont, "SPACE     -     Mine/Attack", newVector2(startX + 30, startY + lineHeight * 6), 18, 1.0f, WHITE);
+        DrawTextEx(pixelFont, "F      -        Skip to night", newVector2(startX + 30, startY + lineHeight * 7), 18, 1.0f, WHITE);
 
         // Shop
         DrawTextEx(pixelFont, "SHOP", newVector2(startX, startY + lineHeight * 9), 24, 1.0f, SKYBLUE);
