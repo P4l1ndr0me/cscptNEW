@@ -61,8 +61,8 @@ public class WaveSystem {
 
     private enum ZombieTier {
         TIER_1("Zombie Tier 1", 2.0f, 100.0f, 70, 3, 5),
-        TIER_2("Zombie Tier 2", 2.0f, 40.0f, 500, 9, 12),
-        TIER_3("Zombie Tier 3", 2.0f, 180.0f, 40, 5, 25),
+        TIER_2("Zombie Tier 2", 2.0f, 40.0f, 400, 9, 12),
+        TIER_3("Zombie Tier 3", 2.0f, 180.0f, 60, 5, 25),
         TIER_4("Zombie Tier 4", 2.0f, 130.0f, 300, 26, 45);
 
         final String textureName;
@@ -189,17 +189,14 @@ public class WaveSystem {
         }
 
         float intensity;
-
         // 9 PM to midnight: ramp up
         if (timeInHours >= 21 && timeInHours < 24) {
             intensity = 0.25f + (timeInHours - 21f) / 3f * 0.75f;
         }
-
         // Midnight to 3 AM: maximum danger
         else if (timeInHours >= 0 && timeInHours < 3) {
             intensity = 1.0f;
         }
-
         // 3 AM to 6 AM: ramp down
         else {
             intensity = 1.0f - (timeInHours - 3f) / 3f;
