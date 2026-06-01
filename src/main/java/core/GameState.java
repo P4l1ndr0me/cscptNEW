@@ -121,8 +121,8 @@ public class GameState {
         }
 
         // Debug hitboxes
-        DrawRectangleLinesEx(Player.playerRec, 1.0f, RED);
-        DrawRectangleLinesEx(Player.miningRec, 1.0f, RED);
+        //DrawRectangleLinesEx(Player.playerRec, 1.0f, RED);
+        //DrawRectangleLinesEx(Player.miningRec, 1.0f, RED);
 
         EndMode2D();
 

@@ -18,8 +18,8 @@ public class Player extends Entity {
     public static Rectangle miningRec;
 
     // Player resources
-    public static int numStone = 100000;
-    public static int numGold = 100000;
+    public static int numStone = 0;
+    public static int numGold = 0;
     public static int health = 100;
 
     // Size & movement
@@ -123,6 +123,8 @@ public class Player extends Entity {
 
         // lookX: 1 = facing east (right), -1 = facing west (left)
         int facing = lookX;
+
+
 
         // Check all spawned enemies
         for (int i = EntityManager.spawnedEnemies.size() - 1; i >= 0; i--) {
@@ -383,6 +385,7 @@ public class Player extends Entity {
         }
         // Moving up/down keeps current row (no horizontal flip)
     }
+
 
     // Moves the player with collision detection (X then Y)
     private void move(Vector2 moveDir, float dt) {

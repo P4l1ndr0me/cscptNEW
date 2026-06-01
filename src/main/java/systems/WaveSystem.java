@@ -27,7 +27,7 @@ public class WaveSystem {
     private static final int MORNING_MESSAGE_MINUTES = 30; // 6:00 AM - 6:30 AM
 
     // Speed of time
-    private float minutesPerSecond = 50f;
+    private float minutesPerSecond = 90f;
     private float timeAccumulator = 0;
 
     // Wave progression

@@ -36,8 +36,8 @@ public class TextureManager {
         TextureManager.loadTexture("mining3", "src/main/assets/images/player/mining3.png");
         TextureManager.loadTexture("mining4", "src/main/assets/images/player/mining4.png");
         TextureManager.loadTexture("sword1", "src/main/assets/images/player/sword1.png");
-        TextureManager.loadTexture("sword2", "src/main/assets/images/player/mining4.png");
-        TextureManager.loadTexture("sword3", "src/main/assets/images/player/mining4.png");
+        TextureManager.loadTexture("sword2", "src/main/assets/images/player/sword2.png");
+        TextureManager.loadTexture("sword3", "src/main/assets/images/player/sword3.png");
         TextureManager.loadTexture("playerNEW", "src/main/assets/images/player/player_sprites.png");
 
         // Building-related
@@ -75,8 +75,8 @@ public class TextureManager {
         TextureManager.loadTexture("Zombie Tier 4", "src/main/assets/images/zombie/zombie_tier4.png");
 
         //weapons
-        TextureManager.loadTexture("stonepickaxe","src/main/assets/images/items/stonePick.png");
-        TextureManager.loadTexture("ironpickaxe", "src/main/assets/images/items/ironPick.png");
+        TextureManager.loadTexture("stonepickaxe","src/main/assets/images/items/ironPick.png");
+        TextureManager.loadTexture("ironpickaxe", "src/main/assets/images/items/stonePick.png");
         TextureManager.loadTexture("goldpickaxe", "src/main/assets/images/items/goldPick.png");
         TextureManager.loadTexture("diamondpickaxe", "src/main/assets/images/items/diamondPick.png");
 

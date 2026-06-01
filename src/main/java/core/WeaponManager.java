@@ -25,10 +25,10 @@ public class WeaponManager {
 
         //swords
         allWeapons.add(new Weapon("gold_sword", "Gold Sword", "goldsword",
-                100, 15, 1.5f, "Melee Tool", 0, 2, "sword"));
+                300, 15, 1.5f, "Melee Tool", 0, 2, "sword"));
 
         allWeapons.add(new Weapon("wooden_sword", "Wooden Sword", "woodensword",
-                600, 25, 1.5f, "Melee Tool", 0, 1, "sword"));
+                50, 25, 1.5f, "Melee Tool", 0, 1, "sword"));
 
         allWeapons.add(new Weapon("diamond_sword", "Diamond Sword", "diamondsword",
                 800, 35, 1.5f, "Melee Tool", 0, 3, "sword"));
