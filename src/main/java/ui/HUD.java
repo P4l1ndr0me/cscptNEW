@@ -100,8 +100,10 @@ public class HUD {
 
         // Shop panel - NO rounded corners, only black outline
         if (shopOpen && !helpScreenOpen) {
-            DrawRectangleRec(shopPanel, Fade(BLACK, 0.8f));
-            DrawRectangleLinesEx(shopPanel, 2.0f, BLACK);
+            // Darken background
+            DrawRectangle(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, Fade(BLACK, 0.85f));
+
+            DrawRectangleRounded(shopPanel, 0.2f, 0, Fade(BLACK, 0.8f));
             DrawTextEx(pixelFont, "SHOP MENU", newVector2((int) (shopPanX + shopPanW) / 2 + 50, (int) shopPanY + 30), 24, 1.0f, WHITE);
 
             displayWeaponsTab();

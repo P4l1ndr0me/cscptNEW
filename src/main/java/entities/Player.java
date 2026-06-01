@@ -508,12 +508,25 @@ public class Player extends Entity {
         int fw = swordTexture.width() / 3, fh = swordTexture.height() / 2;
         int row = (lookX == 1) ? 0 : 1;
         int frame = currentCol;
-        Rectangle src = new Rectangle().x(frame * fw).y(row * fh).width(fw).height(fh);
-        float halfW = fw * scale / 2f;
-        float halfH = fh * scale / 2f;
-        Rectangle dst = new Rectangle().x((int)(position.x() - halfW)).y((int)(position.y() - halfH))
-                .width(halfW * 2).height(halfH * 2);
-        DrawTexturePro(swordTexture, src, dst, newVector2(0,0), 0, WHITE);
+
+        Rectangle source = new Rectangle()
+                .x(frame * frameWidth)
+                .y(row * frameHeight)
+                .width(frameWidth)
+                .height(frameHeight);
+
+        // Compute destination based on sword frame size (not player texture)
+        float halfW = frameWidth * scale / 2f;
+        float halfH = frameHeight * scale / 2f;
+
+        // Offset sword position based on facing direction
+        Rectangle dest = new Rectangle()
+                .x((int) (position.x() - halfW + (lookX == 1 ? 3 : -3)))
+                .y((int) (position.y() - halfH))
+                .width(halfW * 2)
+                .height(halfH * 2);
+
+        DrawTexturePro(swordTexture, source, dest, newVector2(0, 0), 0.0f, WHITE);
     }
 
     // Draws slash effect overlay when attacking
