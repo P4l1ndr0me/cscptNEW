@@ -90,5 +90,8 @@ public class TextureManager {
         //attacking motions
         TextureManager.loadTexture("attackWest", "src/main/assets/images/player/attackWest.png");
         TextureManager.loadTexture("attackEast", "src/main/assets/images/player/attackEast.png");
+
+        //loadingscreen images
+        TextureManager.loadTexture("playerpic", "src/main/assets/images/rand/playerpic.png");
     }
 }

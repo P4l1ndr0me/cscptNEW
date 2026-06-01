@@ -43,13 +43,13 @@ public class Player extends Entity {
     private static int miningDamage = 15;      // stones per hit
     private static float miningSpeed = 0.8f;   // seconds between hits
 
-    // Mining animation
+    // Mining animation (changes with pickaxe tier)
     private static Texture mining = TextureManager.getTexture("mining1");
 
     // Sword animation (tiered like mining)
     private static Texture swordTexture = null;
 
-    // Weapon tiers
+    // Weapon tiers (0 = not owned)
     private static int pickaxeTier = 1; // 1 = stone, 2 = iron, 3 = diamond
     private static int swordTier = 0;
     private static int bowTier = 0;
@@ -73,7 +73,7 @@ public class Player extends Entity {
     private final float attackAnimDuration = 0.2f;
     private boolean isAutoAttacking = false;   // toggle with SPACE when sword equipped
 
-    // Slash effect animation
+    // Slash effect animation (plays on top of player when attacking)
     private static Texture slashWest;
     private static Texture slashEast;
     private int slashFrame = 0;
@@ -87,7 +87,7 @@ public class Player extends Entity {
 
     // --- Sword combat (using accumulator timer, exactly like auto-mining) ---
     private void updateSwordCombat(float dt) {
-        // Attack animation timer
+        // Attack animation timer (independent of actual attack rate)
         if (isAttacking) {
             attackAnimTimer += dt;
             if (attackAnimTimer >= attackAnimDuration) {
@@ -117,7 +117,7 @@ public class Player extends Entity {
         }
     }
 
-    // Performs sword attack (unchanged)
+    // Performs sword attack, damaging enemies in front of player
     private void performSwordAttack() {
         int swordDamage = WeaponManager.getSwordDamage();
         if (swordDamage <= 0) return;
@@ -126,6 +126,7 @@ public class Player extends Entity {
         int enemiesHit = 0;
         int facing = lookX;
 
+        // Check all spawned enemies
         for (int i = EntityManager.spawnedEnemies.size() - 1; i >= 0; i--) {
             Enemy enemy = EntityManager.spawnedEnemies.get(i);
             Vector2 enemyCenter = enemy.getHitCenter();
@@ -136,13 +137,14 @@ public class Player extends Entity {
 
             if (distance <= attackRadius) {
                 boolean inFront = false;
-                if (facing == 1) inFront = dx > 0;
-                else if (facing == -1) inFront = dx < 0;
+                if (facing == 1) inFront = dx > 0;      // facing right → enemies to the right
+                else if (facing == -1) inFront = dx < 0; // facing left → enemies to the left
 
                 if (inFront) {
                     enemy.takeDamage(swordDamage);
                     enemiesHit++;
 
+                    // Knockback away from player
                     Vector2 knockbackDir = newVector2(dx, dy);
                     if (Vector2Length(knockbackDir) > 0) {
                         knockbackDir = Vector2Normalize(knockbackDir);
@@ -168,7 +170,7 @@ public class Player extends Entity {
         miningPopups.add(new MiningPopup(center, text));
     }
 
-    // --- Floating text popups (unchanged) ---
+    // --- Floating text popups (mining gains & damage numbers) ---
     private static class MiningPopup {
         Vector2 position;
         String text;
@@ -180,7 +182,7 @@ public class Player extends Entity {
         }
         void update(float dt) {
             timer -= dt;
-            position.y(position.y() - 25 * dt);
+            position.y(position.y() - 25 * dt); // float upward
         }
         boolean isAlive() { return timer > 0; }
     }
@@ -200,7 +202,7 @@ public class Player extends Entity {
 
     private void drawPopups() {
         for (MiningPopup popup : miningPopups) {
-            Color color = newColor(66, 255, 87, 255);
+            Color color = newColor(66, 255, 87, 255); // bright green
             DrawTextEx(core.Main.pixelFont, popup.text,
                     newVector2(popup.position.x(), popup.position.y()), 30, 0.5f, color);
         }
@@ -225,6 +227,7 @@ public class Player extends Entity {
         updateSwordTexture();
     }
 
+    // Updates sword texture based on current tier (sword sprite is 3x2)
     private static void updateSwordTexture() {
         if (swordTier > 0) {
             Texture newTex = TextureManager.getTexture("sword" + swordTier);
@@ -256,10 +259,11 @@ public class Player extends Entity {
         if (hasPickaxeEquipped) drawPickaxeAnimation();
         else if (hasSwordEquipped) drawSwordAnimation();
         else drawWalkingAnimation();
-        drawSlashEffect();
+        drawSlashEffect(); // always on top
         drawPopups();
     }
 
+    // Gets WASD input, returns normalized direction vector
     private Vector2 getMovementInput() {
         float moveX = 0, moveY = 0;
         if (IsKeyDown(KEY_W)) moveY -= 1;
@@ -275,6 +279,7 @@ public class Player extends Entity {
         return moveDir;
     }
 
+    // Handles tool switching (R = pickaxe, G = sword, SPACE toggles auto-mode for current tool)
     private void updateToolInput() {
         if (IsKeyPressed(KEY_R)) {
             hasPickaxeEquipped = !hasPickaxeEquipped;
@@ -292,14 +297,16 @@ public class Player extends Entity {
         if (hasPickaxeEquipped && IsKeyPressed(KEY_SPACE)) {
             isAutoMining = !isAutoMining;
         }
-        // Note: Sword auto-attack is toggled inside updateSwordCombat using SPACE when sword equipped
+        // Sword auto-attack is toggled inside updateSwordCombat (SPACE when sword equipped)
     }
 
+    // Changes animation row based on movement direction
     private void updateDirection(Vector2 moveDir) {
         if (moveDir.x() < 0) { currentRow = 2; lookX = -1; }
         if (moveDir.x() > 0) { currentRow = 1; lookX = 1; }
     }
 
+    // Movement with per‑axis collision (allows sliding along walls)
     private void move(Vector2 moveDir, float dt) {
         float nextX = position.x() + speed * moveDir.x() * dt;
         Rectangle nextRecX = newRectangle(nextX - playerHitboxWidth / 2f,
@@ -314,12 +321,14 @@ public class Player extends Entity {
         if (!collidesWithBuildings(nextRecY)) position.y(Math.round(nextY));
     }
 
+    // Checks collision with any placed building
     private boolean collidesWithBuildings(Rectangle rect) {
         for (Building building : EntityManager.placedBuildings)
             if (CheckCollisionRecs(rect, building.getRect())) return true;
         return false;
     }
 
+    // Pushes player away from stone nodes to prevent walking through them
     private void pushOutOfStones() {
         for (Vector2 stoneCenter : EntityManager.stoneCenters) {
             float radius = ResourceNode.STONE_RADIUS;
@@ -340,9 +349,11 @@ public class Player extends Entity {
         }
     }
 
+    // Gradually applies stone push force to avoid clipping
     private void applySafeStonePush(float pushX, float pushY) {
         float origX = position.x(), origY = position.y();
         int steps = 10;
+        // Try diagonal push first
         for (int i = steps; i >= 1; i--) {
             float scale = i / (float) steps;
             float testX = origX + pushX * scale;
@@ -357,6 +368,7 @@ public class Player extends Entity {
                 return;
             }
         }
+        // Try X-only push
         for (int i = steps; i >= 1; i--) {
             float scale = i / (float) steps;
             float testX = origX + pushX * scale;
@@ -369,6 +381,7 @@ public class Player extends Entity {
                 return;
             }
         }
+        // Try Y-only push
         for (int i = steps; i >= 1; i--) {
             float scale = i / (float) steps;
             float testY = origY + pushY * scale;
@@ -383,6 +396,7 @@ public class Player extends Entity {
         }
     }
 
+    // Keeps player within world boundaries
     private void boundaryClamp() {
         if (position.x() < halfWidth) position.x(halfWidth);
         if (position.y() < halfHeight) position.y(halfHeight);
@@ -390,23 +404,27 @@ public class Player extends Entity {
         if (position.y() > World.WORLD_HEIGHT - halfHeight) position.y(World.WORLD_HEIGHT - halfHeight);
     }
 
+    // Updates player hitbox position to match current world position
     private void updatePlayerRect() {
         playerRec.x(position.x() - playerHitboxWidth / 2f);
         playerRec.y(position.y() + playerHitboxOffsetY);
     }
 
+    // Updates mining rectangle position based on facing direction
     private void updateMiningRect() {
         if (lookX == 1) miningRec.x(position.x() + miningRecOffset);
         else miningRec.x(position.x() - miningRecWidth - miningRecOffset);
         miningRec.y(position.y() - miningRecHeight / 2f);
     }
 
+    // Checks if mining rectangle overlaps any stone node
     private boolean isNearStone() {
         for (Vector2 stoneCenter : EntityManager.stoneCenters)
             if (CheckCollisionCircleRec(stoneCenter, ResourceNode.STONE_RADIUS, miningRec)) return true;
         return false;
     }
 
+    // Handles auto-mining logic (increment timer, add stone when threshold reached)
     private void updateMining(float dt) {
         if (!hasPickaxeEquipped || !isAutoMining) { miningTimer = 0f; return; }
         if (isNearStone()) {
@@ -421,6 +439,7 @@ public class Player extends Entity {
         }
     }
 
+    // Updates walking / pickaxe / idle animations
     private void updateAnimation(float dt) {
         if (isMoving) {
             frameTimer += dt;
@@ -434,6 +453,7 @@ public class Player extends Entity {
             currentCol = 0;
             pickaxeFrame = 0;
         }
+        // Pickaxe swing when auto-mining
         if (isAutoMining) {
             pickaxeAnimTimer += dt;
             if (pickaxeAnimTimer >= pickaxeFrameSpeed) {
@@ -446,6 +466,7 @@ public class Player extends Entity {
         }
     }
 
+    // Updates slash effect animation frames (5‑frame sprite)
     private void updateSlashAnimation(float dt) {
         if (!isSlashing) return;
         slashAnimTimer += dt;
@@ -459,6 +480,7 @@ public class Player extends Entity {
         }
     }
 
+    // Draws player walking animation (no tool)
     private void drawWalkingAnimation() {
         int fw = texture.width() / cols, fh = texture.height() / rows;
         Rectangle src = new Rectangle().x(currentCol * fw).y(currentRow * fh).width(fw).height(fh);
@@ -467,6 +489,7 @@ public class Player extends Entity {
         DrawTexturePro(texture, src, dst, newVector2(0,0), 0, WHITE);
     }
 
+    // Draws player with pickaxe mining animation
     private void drawPickaxeAnimation() {
         int fw = mining.width() / pickaxeFrames, fh = mining.height() / pickaxeRows;
         int row = (lookX == 1) ? (pickaxeDown ? 1 : 0) : (pickaxeDown ? 3 : 2);
@@ -479,6 +502,7 @@ public class Player extends Entity {
         DrawTexturePro(mining, src, dst, newVector2(0,0), 0, WHITE);
     }
 
+    // Draws player with sword walking animation (3x2 sprite)
     private void drawSwordAnimation() {
         if (swordTexture == null) return;
         int fw = swordTexture.width() / 3, fh = swordTexture.height() / 2;
@@ -492,16 +516,17 @@ public class Player extends Entity {
         DrawTexturePro(swordTexture, src, dst, newVector2(0,0), 0, WHITE);
     }
 
+    // Draws slash effect overlay when attacking
     private void drawSlashEffect() {
         if (!isSlashing) return;
         Texture tex;
         int frameIndex;
         if (lookX == 1) {
             tex = slashEast;
-            frameIndex = (slashFrames - 1) - slashFrame;
+            frameIndex = (slashFrames - 1) - slashFrame; // east sheet plays reversed
         } else {
             tex = slashWest;
-            frameIndex = slashFrame;
+            frameIndex = slashFrame; // west sheet plays normally
         }
         if (tex == null) return;
         int fw = tex.width() / slashFrames, fh = tex.height();
@@ -513,11 +538,12 @@ public class Player extends Entity {
         DrawTexturePro(tex, src, dst, newVector2(0,0), 0, WHITE);
     }
 
-    // Getters
+    // Getters for weapon tiers
     public static int getPickaxeTier() { return pickaxeTier; }
     public static int getSwordTier() { return swordTier; }
     public static int getBowTier() { return bowTier; }
 
+    // Upgrades pickaxe with weapon stats and updates mining speed/animation
     public static void upgradePickaxe(Weapon weapon) {
         pickaxeTier = weapon.getTier();
         miningDamage = weapon.getDamage();
@@ -527,19 +553,23 @@ public class Player extends Entity {
         if (newTex != null) mining = newTex;
     }
 
+    // Upgrades sword tier - sets tier and updates sword texture
     public static void upgradeSword(Weapon weapon) {
         swordTier = weapon.getTier();
         updateSwordTexture();
     }
 
+    // Upgrades bow tier (placeholder)
     public static void upgradeBow(Weapon weapon) {
         if (bowTier < 3) bowTier++;
     }
 
     public static Texture getCurrentMiningTexture() { return mining; }
 
+    // Returns true if player has purchased at least a tier 1 sword
     private boolean hasSword() { return swordTier > 0; }
 
+    // Resets player to starting state for game restart
     public void reset() {
         position = newVector2(World.WORLD_WIDTH / 2f, World.WORLD_HEIGHT / 2f);
         numStone = 0;
