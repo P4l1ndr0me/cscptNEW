@@ -14,12 +14,12 @@ public class Main {
     public static void main(String[] args) {
 
         // Initialize window
-        InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "zombs.io");
+        InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "jombies");
 
         // Set window icon
-//        Image icon = LoadImage("src/main/assets/images/icon.png");
-//        SetWindowIcon(icon);
-//        UnloadImage(icon);
+        Image icon = LoadImage("src/main/assets/images/icon.png");
+        SetWindowIcon(icon);
+        UnloadImage(icon);
 
         // Set target FPS
         SetTargetFPS(60);
