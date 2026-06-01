@@ -16,10 +16,16 @@ public class Main {
         // Initialize window
         InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "zombs.io");
 
-        pixelFont = LoadFont("src/main/assets/fonts/pixel.ttf");
+        // Set window icon
+//        Image icon = LoadImage("src/main/assets/images/icon.png");
+//        SetWindowIcon(icon);
+//        UnloadImage(icon);
 
         // Set target FPS
         SetTargetFPS(60);
+
+        // Load font
+        pixelFont = LoadFont("src/main/assets/fonts/pixel.ttf");
 
         // Create new instance
         GameState gameState = new GameState();
@@ -34,7 +40,7 @@ public class Main {
             gameState.draw();
         }
 
-        // Unload textures
+        // Unload textures & fonts
         TextureManager.unloadAll();
         UnloadFont(pixelFont);
         CloseWindow();
