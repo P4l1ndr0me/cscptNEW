@@ -810,7 +810,7 @@ public class Player extends Entity {
     public void reset() {
         position = newVector2(World.WORLD_WIDTH / 2f, World.WORLD_HEIGHT / 2f);
         numStone = 0;
-        numGold = 1000;
+        numGold = 0;
         health = 100;
         pickaxeTier = 1;
         miningDamage = 15;
