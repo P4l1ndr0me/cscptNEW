@@ -437,8 +437,4 @@ public class HUD {
 
         updateDisplayedWeapons();
     }
-
-    public static boolean isModalOpen() {
-        return helpScreenOpen || shopOpen || core.GameState.isGameOver();
-    }
 }

@@ -358,7 +358,7 @@ public class Player extends Entity {
         }
 
         // F toggles sword (combat mode) – only if sword is owned
-        if (IsKeyPressed(KEY_F) && hasSword()) {
+        if (IsKeyPressed(KEY_G) && hasSword()) {
             hasSwordEquipped = !hasSwordEquipped;
             hasPickaxeEquipped = false;
             isAutoMining = false;
@@ -710,8 +710,9 @@ public class Player extends Entity {
         float halfW = frameWidth * scale / 2f;
         float halfH = frameHeight * scale / 2f;
 
+        // Offset sword position based on facing direction
         Rectangle dest = new Rectangle()
-                .x((int) (position.x() - halfW))
+                .x((int) (position.x() - halfW + (lookX == 1 ? 3 : -3)))
                 .y((int) (position.y() - halfH))
                 .width(halfW * 2)
                 .height(halfH * 2);
