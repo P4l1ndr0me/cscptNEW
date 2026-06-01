@@ -153,7 +153,7 @@ public class GameState {
         player.reset();
         buildSystem.reset();
         buildingSelectionSystem.reset();
-        waveSystem.reset(); 
+        waveSystem.reset();
 
         EntityManager.stoneCenters.clear();
         EntityManager.placedBuildings.clear();

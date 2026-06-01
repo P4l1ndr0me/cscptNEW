@@ -27,7 +27,7 @@ public class WaveSystem {
     private static final int MORNING_MESSAGE_MINUTES = 30; // 6:00 AM - 6:30 AM
 
     // Speed of time
-    private float minutesPerSecond = 90f;
+    private float minutesPerSecond = 10f;
     private float timeAccumulator = 0;
 
     // Wave progression
@@ -51,6 +51,13 @@ public class WaveSystem {
     private final float SPAWN_BUFFER_MIN = 200f;
     private final float SPAWN_BUFFER_MAX = 400f;
     private final int MAX_SPAWN_ATTEMPTS = 40;
+
+    private static boolean isPaused = false;
+
+    // Add this method
+    public static void setPaused(boolean paused) {
+        isPaused = paused;
+    }
 
     private enum ZombieTier {
         TIER_1("Zombie Tier 1", 2.0f, 100.0f, 70, 3, 5),
@@ -146,16 +153,17 @@ public class WaveSystem {
     }
 
     private void updateTime(float dt) {
+        if (isPaused) return;  // Don't advance time when paused
+
         timeAccumulator += dt;
-
         int minutesToAdd = (int)(timeAccumulator * minutesPerSecond);
-
         if (minutesToAdd > 0) {
             timeAccumulator -= minutesToAdd / minutesPerSecond;
             timeMinutes = (timeMinutes + minutesToAdd) % DAY_MINUTES;
             updateTimeString();
         }
     }
+
 
     private void startWave() {
         waveActive = true;
