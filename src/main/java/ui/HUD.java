@@ -100,6 +100,9 @@ public class HUD {
 
         // Shop panel
         if (shopOpen && !helpScreenOpen) {
+            // Darken background
+            DrawRectangle(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, Fade(BLACK, 0.85f));
+
             DrawRectangleRounded(shopPanel, 0.2f, 0, Fade(BLACK, 0.8f));
             DrawTextEx(pixelFont, "SHOP MENU", newVector2((int) (shopPanX + shopPanW) / 2 + 50, (int) shopPanY + 30), 24, 1.0f, WHITE);
 
@@ -428,5 +431,9 @@ public class HUD {
 
         // Refresh displayed weapons
         updateDisplayedWeapons();
+    }
+
+    public static boolean isModalOpen() {
+        return helpScreenOpen || shopOpen || core.GameState.isGameOver();
     }
 }
