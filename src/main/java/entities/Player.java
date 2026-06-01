@@ -18,8 +18,8 @@ public class Player extends Entity {
     public static Rectangle miningRec;
 
     // Player resources
-    public static int numStone = 0;
-    public static int numGold = 0;
+    public static int numStone = 0000;
+    public static int numGold = 000;
     public static int health = 100;
 
     // Size & movement
@@ -66,7 +66,7 @@ public class Player extends Entity {
     // Sword combat (manual attack with cooldown)
     private boolean hasSwordEquipped = false;  // G to toggle
     private float attackRadius = 50f;
-    private float attackCooldown = 0.3f;       // low cooldown for spamming
+    private float attackCooldown = 0.5f;       // low cooldown for spamming
     private float attackTimer = 0f;             // seconds until next attack allowed
     private boolean isAttacking = false;
     private float attackAnimTimer = 0f;
