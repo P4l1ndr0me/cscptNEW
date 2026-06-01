@@ -123,12 +123,12 @@ public class GameState {
 
         if (!uiBlocking) {
             buildingSelectionSystem.drawUI();
+            buildMenu.draw(true);
+            waveSystem.draw();
+            waveSystem.drawDarknessOverlay();
         }
 
-        buildMenu.draw(!uiBlocking);
         HUD.drawHUD();
-        waveSystem.draw();
-        waveSystem.drawDarknessOverlay();
     }
 
     public void reset() {
@@ -157,19 +157,7 @@ public class GameState {
         currentState = newState;
     }
 
-    public static State getState() {
-        return currentState;
-    }
-
-    public static boolean isPlaying() {
-        return currentState == State.PLAYING;
-    }
-
     public static boolean isGameOver() {
         return currentState == State.GAME_OVER;
-    }
-
-    public static GameState getInstance() {
-        return instance;
     }
 }
