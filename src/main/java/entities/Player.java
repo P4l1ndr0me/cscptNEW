@@ -33,7 +33,7 @@ public class Player extends Entity {
 
     // Mining
     private boolean hasPickaxeEquipped = false; // R to toggle
-    private boolean isAutoMining = false;       // SPACE to toggle
+    private boolean isAutoMining = false;       // SPACE to toggle (only when pickaxe equipped)
     private float miningTimer = 0f;
     private final int miningRecWidth = 25;
     private final int miningRecHeight = 30;
@@ -63,15 +63,14 @@ public class Player extends Entity {
     private boolean pickaxeDown = false;
     private final float pickaxeOffset = 3 * scale;
 
-    // Sword combat (using same pattern as mining: accumulator timer)
+    // Sword combat (manual attack with cooldown)
     private boolean hasSwordEquipped = false;  // G to toggle
     private float attackRadius = 50f;
-    private float attackCooldown = 0.7f;       // seconds between attacks (same as miningSpeed)
-    private float attackAccumulator = 0f;      // accumulates time, resets after attack
+    private float attackCooldown = 0.4f;       // seconds between attacks
+    private float attackTimer = 0f;             // remaining cooldown
     private boolean isAttacking = false;
     private float attackAnimTimer = 0f;
     private final float attackAnimDuration = 0.2f;
-    private boolean isAutoAttacking = false;   // toggle with SPACE when sword equipped
 
     // Slash effect animation (plays on top of player when attacking)
     private static Texture slashWest;
@@ -85,9 +84,15 @@ public class Player extends Entity {
     // Debug
     private final boolean showDebugHitbox = true;
 
-    // --- Sword combat (using accumulator timer, exactly like auto-mining) ---
+    // --- Sword combat (manual attack on SPACE press) ---
     private void updateSwordCombat(float dt) {
-        // Attack animation timer (independent of actual attack rate)
+        // Decrease attack cooldown
+        if (attackTimer > 0) {
+            attackTimer -= dt;
+            if (attackTimer < 0) attackTimer = 0;
+        }
+
+        // Attack animation timer
         if (isAttacking) {
             attackAnimTimer += dt;
             if (attackAnimTimer >= attackAnimDuration) {
@@ -96,24 +101,14 @@ public class Player extends Entity {
             }
         }
 
-        // Toggle auto-attack with SPACE (only when sword equipped)
-        if (hasSwordEquipped && hasSword() && IsKeyPressed(KEY_SPACE)) {
-            isAutoAttacking = !isAutoAttacking;
-            attackAccumulator = 0f;  // reset accumulator on toggle
-            System.out.println("Auto-attack: " + (isAutoAttacking ? "ON" : "OFF"));
-        }
-
-        // Auto-attack logic – same as mining: accumulate dt, attack when >= cooldown
-        if (hasSwordEquipped && hasSword() && isAutoAttacking) {
-            attackAccumulator += dt;
-            if (attackAccumulator >= attackCooldown) {
-                attackAccumulator = 0f;
-                performSwordAttack();
-                isAttacking = true;
-                isSlashing = true;
-                slashFrame = 0;
-                slashAnimTimer = 0f;
-            }
+        // Perform attack when SPACE is pressed, sword equipped, sword owned, and cooldown ready
+        if (hasSwordEquipped && hasSword() && attackTimer <= 0 && IsKeyPressed(KEY_SPACE)) {
+            performSwordAttack();
+            attackTimer = attackCooldown;  // set cooldown
+            isAttacking = true;
+            isSlashing = true;
+            slashFrame = 0;
+            slashAnimTimer = 0f;
         }
     }
 
@@ -170,7 +165,7 @@ public class Player extends Entity {
         miningPopups.add(new MiningPopup(center, text));
     }
 
-    // --- Floating text popups (mining gains & damage numbers) ---
+    //Floating text popups (mining gains & damage numbers)
     private static class MiningPopup {
         Vector2 position;
         String text;
@@ -188,7 +183,6 @@ public class Player extends Entity {
     }
 
     private static ArrayList<MiningPopup> miningPopups = new ArrayList<>();
-
     private static void addMiningPopup(Vector2 position, int amount) {
         miningPopups.add(new MiningPopup(position, "+" + amount));
     }
@@ -279,25 +273,22 @@ public class Player extends Entity {
         return moveDir;
     }
 
-    // Handles tool switching (R = pickaxe, G = sword, SPACE toggles auto-mode for current tool)
+    // Handles tool switching (R = pickaxe, G = sword)
     private void updateToolInput() {
         if (IsKeyPressed(KEY_R)) {
             hasPickaxeEquipped = !hasPickaxeEquipped;
             hasSwordEquipped = false;
             isAutoMining = false;
-            isAutoAttacking = false;
         }
         if (IsKeyPressed(KEY_G) && hasSword()) {
             hasSwordEquipped = !hasSwordEquipped;
             hasPickaxeEquipped = false;
             isAutoMining = false;
-            isAutoAttacking = false;
         }
-        // Space toggles auto-mining when pickaxe is equipped
+        // Space toggles auto-mining when pickaxe is equipped (sword attacks handled separately)
         if (hasPickaxeEquipped && IsKeyPressed(KEY_SPACE)) {
             isAutoMining = !isAutoMining;
         }
-        // Sword auto-attack is toggled inside updateSwordCombat (SPACE when sword equipped)
     }
 
     // Changes animation row based on movement direction
@@ -509,22 +500,18 @@ public class Player extends Entity {
         int row = (lookX == 1) ? 0 : 1;
         int frame = currentCol;
 
-        int frameWidth = swordTexture.width() /3;
-        int frameHeight = swordTexture.height() /2;
-
         Rectangle source = new Rectangle()
-                .x(frame * frameWidth)
-                .y(row * frameHeight)
-                .width(frameWidth)
-                .height(frameHeight);
+                .x(frame * fw)
+                .y(row * fh)
+                .width(fw)
+                .height(fh);
 
-        // Compute destination based on sword frame size (not player texture)
-        float halfW = frameWidth * scale / 2f;
-        float halfH = frameHeight * scale / 2f;
+        float halfW = fw * scale / 2f;
+        float halfH = fh * scale / 2f;
+        float offsetX = (lookX == 1) ? 3 : -3;
 
-        // Offset sword position based on facing direction
         Rectangle dest = new Rectangle()
-                .x((int) (position.x() - halfW + (lookX == 1 ? 3 : -3)))
+                .x((int) (position.x() - halfW + offsetX))
                 .y((int) (position.y() - halfH))
                 .width(halfW * 2)
                 .height(halfH * 2);
@@ -601,8 +588,7 @@ public class Player extends Entity {
         hasSwordEquipped = false;
         hasPickaxeEquipped = false;
         isAutoMining = false;
-        isAutoAttacking = false;
-        attackAccumulator = 0f;
+        attackTimer = 0f;
         miningTimer = 0f;
         pickaxeFrame = 0;
         pickaxeDown = false;
